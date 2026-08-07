@@ -1,0 +1,23 @@
+{
+  "name": "doosys/glpi-brandpulse",
+  "description": "GLPI 11 branding and configurable header counters plugin.",
+  "type": "glpi-plugin",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "DooSys"
+    }
+  ],
+  "require": {
+    "php": ">=8.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "GlpiPlugin\\Brandpulse\\": "src/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  }
+}

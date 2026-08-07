@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <name>GLPI BrandPulse</name>
+  <key>brandpulse</key>
+  <state>stable</state>
+  <logo>https://raw.githubusercontent.com/DooSys/glpi-brandpulse/main/public/logo.svg</logo>
+  <description>
+    Branding GLPI 11 and configurable header counters.
+  </description>
+  <homepage>https://github.com/DooSys/glpi-brandpulse</homepage>
+  <download>https://github.com/DooSys/glpi-brandpulse/releases</download>
+  <issues>https://github.com/DooSys/glpi-brandpulse/issues</issues>
+  <readme>https://github.com/DooSys/glpi-brandpulse#readme</readme>
+  <authors>
+    <author>DooSys</author>
+  </authors>
+  <license>GPLv3+</license>
+  <langs>
+    <lang>fr_FR</lang>
+    <lang>en_GB</lang>
+  </langs>
+  <tags>
+    <tag>branding</tag>
+    <tag>header</tag>
+    <tag>counters</tag>
+    <tag>notifications</tag>
+  </tags>
+  <versions>
+    <version>
+      <num>0.1.0</num>
+      <compatibility>11.0</compatibility>
+      <download_url>https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.0/glpi-brandpulse-0.1.0.zip</download_url>
+    </version>
+  </versions>
+</root>
