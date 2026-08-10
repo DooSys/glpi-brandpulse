@@ -67,31 +67,26 @@ function plugin_brandpulse_select(string $name, array $options, string|int $sele
     return $html . '</select>';
 }
 
-function plugin_brandpulse_icon_picker(string $name, array $options, string $selected): string
+function plugin_brandpulse_icon_field(string $name, array $options, string $selected): string
 {
     global $CFG_GLPI;
 
-    $selected = array_key_exists($selected, $options) ? $selected : 'pulse:bell';
     $baseUrl = ($CFG_GLPI['root_doc'] ?? '') . '/plugins/brandpulse/public/icons/pulse/';
-    $html = "<div class='brandpulse-icon-picker'>";
+    $isKnown = array_key_exists($selected, $options);
+    $value = $isKnown ? $selected : 'pulse:Notifications/Bell.svg';
+    $path = str_starts_with($value, 'pulse:') ? substr($value, 6) : '';
+    $url = $path !== '' ? $baseUrl . implode('/', array_map('rawurlencode', explode('/', $path))) : '';
+    $label = $isKnown ? (string) $options[$selected] : __('Custom icon', 'brandpulse');
 
-    foreach ($options as $value => $label) {
-        if (!str_starts_with((string) $value, 'pulse:')) {
-            continue;
-        }
+    $html = "<div class='brandpulse-icon-field' data-icon-field>";
+    $html .= "<input type='hidden' data-icon-value name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h($value) . "'>";
+    $html .= "<button type='button' class='btn btn-sm btn-outline-secondary brandpulse-icon-open' data-icon-open>";
+    $html .= "<span class='brandpulse-icon-preview' data-icon-preview style='-webkit-mask-image: url(&quot;" . plugin_brandpulse_h($url) . "&quot;); mask-image: url(&quot;" . plugin_brandpulse_h($url) . "&quot;);'></span>";
+    $html .= "<span data-icon-label>" . plugin_brandpulse_h($label) . '</span>';
+    $html .= '</button>';
+    $html .= '</div>';
 
-        $key = substr((string) $value, 6);
-        $id = preg_replace('/[^a-zA-Z0-9_-]/', '_', $name . '_' . $key);
-        $checked = (string) $value === $selected ? ' checked' : '';
-        $url = $baseUrl . rawurlencode($key) . '.svg';
-
-        $html .= "<label class='brandpulse-icon-choice' title='" . plugin_brandpulse_h(__((string) $label, 'brandpulse')) . "'>";
-        $html .= "<input id='" . plugin_brandpulse_h($id) . "' type='radio' name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h((string) $value) . "'" . $checked . '>';
-        $html .= "<span class='brandpulse-icon-swatch' style='-webkit-mask-image: url(&quot;" . plugin_brandpulse_h($url) . "&quot;); mask-image: url(&quot;" . plugin_brandpulse_h($url) . "&quot;);'></span>";
-        $html .= '</label>';
-    }
-
-    return $html . '</div>';
+    return $html;
 }
 
 function plugin_brandpulse_text_input(string $name, string $value, string $type = 'text', string $class = 'form-control'): string
@@ -138,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             : (string) ($row['preset_key'] ?? '');
 
         $iconCustom = trim((string) ($row['icon_custom'] ?? ''));
-        $icon = $iconCustom !== '' ? $iconCustom : (string) ($row['icon'] ?? 'pulse:bell');
+        $icon = $iconCustom !== '' ? $iconCustom : (string) ($row['icon'] ?? 'pulse:Notifications/Bell.svg');
 
         $counters[] = [
             'key' => $key,
@@ -185,7 +180,7 @@ while (count($counters) < 8) {
     $counters[] = [
         'key' => '',
         'label' => '',
-        'icon' => 'pulse:bell',
+        'icon' => 'pulse:Notifications/Bell.svg',
         'color' => '#3b82f6',
         'enabled' => false,
         'source_type' => 'saved_search',
@@ -285,9 +280,9 @@ if ($tab === 'brand') {
         echo "<td>" . plugin_brandpulse_select("counters[{$index}][source_type]", $sourceTypes, $sourceType) . '</td>';
         echo "<td>" . plugin_brandpulse_select("counters[{$index}][preset_key]", $presetCounters, $presetKey) . '</td>';
         echo "<td>" . plugin_brandpulse_select("counters[{$index}][savedsearches_id]", $savedSearches, $savedSearchId, false) . '</td>';
-        $iconValue = (string) ($counter['icon'] ?? 'pulse:bell');
+        $iconValue = (string) ($counter['icon'] ?? 'pulse:Notifications/Bell.svg');
         $customIcon = array_key_exists($iconValue, $icons) ? '' : $iconValue;
-        echo "<td>" . plugin_brandpulse_icon_picker("counters[{$index}][icon]", $icons, $iconValue);
+        echo "<td>" . plugin_brandpulse_icon_field("counters[{$index}][icon]", $icons, $iconValue);
         echo plugin_brandpulse_text_input("counters[{$index}][icon_custom]", $customIcon, 'text', 'form-control form-control-sm brandpulse-icon-custom');
         echo "<div class='form-text'>" . __s('Custom SVG URL or path', 'brandpulse') . '</div></td>';
         echo "<td><input class='form-control form-control-sm form-control-color' type='color' name='counters[{$index}][color]' value='" . plugin_brandpulse_h((string) ($counter['color'] ?? '#3b82f6')) . "'></td>";
@@ -302,8 +297,29 @@ if ($tab === 'brand') {
     echo '</div>';
 }
 
-echo "<button class='btn btn-primary' type='submit'>" . __s('Save', 'brandpulse') . '</button>';
+echo "<div class='brandpulse-action-bar'><button class='btn btn-primary' type='submit'>" . __s('Save', 'brandpulse') . '</button></div>';
 echo '</form>';
+if ($tab === 'pulse') {
+    echo "<div class='brandpulse-icon-modal' data-icon-modal hidden>";
+    echo "<div class='brandpulse-icon-modal-backdrop' data-icon-close></div>";
+    echo "<div class='brandpulse-icon-dialog' role='dialog' aria-modal='true' aria-label='" . __s('Choose an icon', 'brandpulse') . "'>";
+    echo "<div class='brandpulse-icon-dialog-header'>";
+    echo "<strong>" . __s('Choose an icon', 'brandpulse') . '</strong>';
+    echo "<button type='button' class='btn-close' data-icon-close aria-label='" . __s('Close', 'brandpulse') . "'></button>";
+    echo '</div>';
+    echo "<div class='brandpulse-icon-dialog-tools'>";
+    echo "<input class='form-control form-control-sm' type='search' data-icon-search placeholder='" . __s('Search', 'brandpulse') . "'>";
+    echo "<select class='form-select form-select-sm' data-icon-category></select>";
+    echo '</div>';
+    echo "<div class='brandpulse-icon-results' data-icon-results></div>";
+    echo "<div class='brandpulse-icon-dialog-footer'>";
+    echo "<button type='button' class='btn btn-sm btn-outline-secondary' data-icon-prev>" . __s('Previous', 'brandpulse') . '</button>';
+    echo "<span class='text-muted' data-icon-page></span>";
+    echo "<button type='button' class='btn btn-sm btn-outline-secondary' data-icon-next>" . __s('Next', 'brandpulse') . '</button>';
+    echo '</div>';
+    echo '</div>';
+    echo '</div>';
+}
 echo '</div>';
 
 Html::footer();

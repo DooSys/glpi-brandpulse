@@ -152,7 +152,7 @@ final class Config
             [
                 'key' => 'my_tasks',
                 'label' => 'My pending tasks',
-                'icon' => 'pulse:tasks',
+                'icon' => 'pulse:List/Checklist Minimalistic.svg',
                 'color' => '#27ab3c',
                 'enabled' => true,
                 'source_type' => 'preset',
@@ -163,7 +163,7 @@ final class Config
             [
                 'key' => 'my_waiting_tickets',
                 'label' => 'Waiting tickets',
-                'icon' => 'pulse:waiting',
+                'icon' => 'pulse:Notifications/Bell.svg',
                 'color' => '#f59f00',
                 'enabled' => true,
                 'source_type' => 'preset',
@@ -174,7 +174,7 @@ final class Config
             [
                 'key' => 'my_open_tickets',
                 'label' => 'My open tickets',
-                'icon' => 'pulse:ticket',
+                'icon' => 'pulse:Money/Ticket.svg',
                 'color' => '#3b82f6',
                 'enabled' => true,
                 'source_type' => 'preset',
@@ -185,7 +185,7 @@ final class Config
             [
                 'key' => 'all_open_tickets',
                 'label' => 'All open tickets',
-                'icon' => 'pulse:it',
+                'icon' => 'pulse:List/List Check.svg',
                 'color' => '#ff3d2a',
                 'enabled' => true,
                 'source_type' => 'preset',
@@ -196,7 +196,7 @@ final class Config
             [
                 'key' => 'unassigned_tickets',
                 'label' => 'Unassigned tickets',
-                'icon' => 'pulse:unassigned',
+                'icon' => 'pulse:Users/User Cross.svg',
                 'color' => '#ffdc64',
                 'enabled' => true,
                 'source_type' => 'preset',
@@ -209,35 +209,29 @@ final class Config
 
     public static function pulseIcons(): array
     {
-        return [
-            'pulse:tasks' => 'Tasks',
-            'pulse:waiting' => 'Waiting',
-            'pulse:medical' => 'Medical',
-            'pulse:ticket' => 'Ticket',
-            'pulse:it' => 'IT',
-            'pulse:unassigned' => 'Unassigned',
-            'pulse:bell' => 'Bell',
-            'pulse:clock' => 'Clock',
-            'pulse:warning' => 'Warning',
-            'pulse:validation' => 'Validation',
-            'pulse:asset' => 'Asset',
-            'pulse:brand' => 'Brand',
-            'pulse:search' => 'Search',
-            'pulse:category' => 'Category',
-            'pulse:group' => 'Group',
-            'pulse:user' => 'User',
-            'pulse:computer' => 'Computer',
-            'pulse:server' => 'Server',
-            'pulse:network' => 'Network',
-            'pulse:printer' => 'Printer',
-            'pulse:phone' => 'Phone',
-            'pulse:mail' => 'Mail',
-            'pulse:calendar' => 'Calendar',
-            'pulse:shield' => 'Shield',
-            'pulse:database' => 'Database',
-            'pulse:cart' => 'Cart',
-            'pulse:bug' => 'Bug',
-            'pulse:wrench' => 'Wrench',
+        $manifestPath = __DIR__ . '/../public/icons/pulse/manifest.json';
+        $icons = [];
+
+        if (is_readable($manifestPath)) {
+            $manifest = json_decode((string) file_get_contents($manifestPath), true);
+            $entries = is_array($manifest['icons'] ?? null) ? $manifest['icons'] : [];
+
+            foreach ($entries as $entry) {
+                if (!is_array($entry) || empty($entry['path'])) {
+                    continue;
+                }
+
+                $path = str_replace('\\', '/', (string) $entry['path']);
+                $label = trim((string) ($entry['label'] ?? pathinfo($path, PATHINFO_FILENAME)));
+                $category = trim((string) ($entry['category'] ?? ''));
+                $icons['pulse:' . $path] = $category !== '' ? $category . ' / ' . $label : $label;
+            }
+        }
+
+        return $icons !== [] ? $icons : [
+            'pulse:Search/Magnifer.svg' => 'Search / Magnifer',
+            'pulse:Notifications/Bell.svg' => 'Notifications / Bell',
+            'pulse:List/Checklist Minimalistic.svg' => 'List / Checklist Minimalistic',
         ];
     }
 
@@ -313,7 +307,7 @@ final class Config
             $normalized[] = [
                 'key' => $key,
                 'label' => $label,
-                'icon' => trim((string) ($counter['icon'] ?? 'pulse:bell')) ?: 'pulse:bell',
+                'icon' => trim((string) ($counter['icon'] ?? 'pulse:Notifications/Bell.svg')) ?: 'pulse:Notifications/Bell.svg',
                 'color' => self::normalizeColor((string) ($counter['color'] ?? '#3b82f6')),
                 'enabled' => !empty($counter['enabled']),
                 'source_type' => $sourceType,

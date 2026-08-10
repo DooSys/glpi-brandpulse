@@ -12,6 +12,7 @@
     : rootDoc + '/plugins/brandpulse';
   const countersEndpoint = pluginBaseUrl + '/ajax/counters.php';
   const brandingEndpoint = pluginBaseUrl + '/ajax/branding.php';
+  const iconManifestEndpoint = pluginBaseUrl + '/public/icons/pulse/manifest.json';
 
   const t = (message) => (typeof window.__ === 'function' ? window.__(message, 'brandpulse') : message);
   let refreshTimer = null;
@@ -122,17 +123,25 @@
     return container;
   };
 
+  const encodeIconPath = (path) => path.split('/').map((part) => encodeURIComponent(part)).join('/');
+
   const resolveIconUrl = (icon) => {
     if (!icon) {
-      return pluginBaseUrl + '/public/icons/pulse/bell.svg';
+      return pluginBaseUrl + '/public/icons/pulse/Notifications/Bell.svg';
     }
 
     if (icon.startsWith('pulse:')) {
-      return pluginBaseUrl + '/public/icons/pulse/' + icon.substring(6) + '.svg';
+      const iconPath = icon.substring(6);
+      const path = iconPath.endsWith('.svg') ? iconPath : iconPath + '.svg';
+      return pluginBaseUrl + '/public/icons/pulse/' + encodeIconPath(path);
     }
 
-    if (icon.endsWith('.svg') || icon.startsWith('/') || icon.startsWith('http')) {
+    if (/^(https?:)?\/\//.test(icon) || icon.startsWith('data:') || icon.startsWith('/')) {
       return icon;
+    }
+
+    if (icon.endsWith('.svg')) {
+      return resolveAssetUrl(icon);
     }
 
     return null;
@@ -144,7 +153,7 @@
   };
 
   const renderIcon = (counter) => {
-    const icon = counter.icon || 'pulse:bell';
+    const icon = counter.icon || 'pulse:Notifications/Bell.svg';
     const iconUrl = resolveIconUrl(icon);
 
     if (iconUrl) {
@@ -203,7 +212,7 @@
       const icon = document.createElement('span');
       icon.className = 'brandpulse-search-trigger-icon';
       icon.setAttribute('aria-hidden', 'true');
-      setMaskIcon(icon, pluginBaseUrl + '/public/icons/pulse/search.svg');
+      setMaskIcon(icon, pluginBaseUrl + '/public/icons/pulse/Search/Magnifer.svg');
       trigger.append(icon);
 
       input.before(trigger);
@@ -318,6 +327,210 @@
     }
   };
 
+
+  let iconManifestPromise = null;
+  let activeIconField = null;
+  let iconPage = 0;
+  const iconsPerPage = 48;
+  const iconFilters = {
+    query: '',
+    category: '',
+  };
+
+  const loadIconManifest = async () => {
+    if (!iconManifestPromise) {
+      iconManifestPromise = fetch(iconManifestEndpoint, {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+      })
+        .then((response) => (response.ok ? response.json() : { icons: [] }))
+        .then((manifest) => Array.isArray(manifest.icons) ? manifest.icons : [])
+        .catch(() => []);
+    }
+
+    return iconManifestPromise;
+  };
+
+  const iconMatches = (icon) => {
+    if (iconFilters.category && icon.category !== iconFilters.category) {
+      return false;
+    }
+
+    if (!iconFilters.query) {
+      return true;
+    }
+
+    const haystack = [
+      icon.path,
+      icon.label,
+      icon.category,
+      ...(Array.isArray(icon.keywords) ? icon.keywords : []),
+    ].join(' ').toLowerCase();
+
+    return iconFilters.query.split(/\s+/).every((word) => haystack.includes(word));
+  };
+
+  const updateIconField = (field, value, label) => {
+    const input = field.querySelector('[data-icon-value]');
+    const preview = field.querySelector('[data-icon-preview]');
+    const textLabel = field.querySelector('[data-icon-label]');
+    const row = field.closest('tr');
+    const customInput = row?.querySelector('.brandpulse-icon-custom');
+
+    if (input) {
+      input.value = value;
+    }
+    if (preview) {
+      setMaskIcon(preview, resolveIconUrl(value));
+    }
+    if (textLabel) {
+      textLabel.textContent = label;
+    }
+    if (customInput) {
+      customInput.value = '';
+    }
+  };
+
+  const renderIconModal = async () => {
+    const modal = document.querySelector('[data-icon-modal]');
+    if (!modal) {
+      return;
+    }
+
+    const allIcons = await loadIconManifest();
+    const results = modal.querySelector('[data-icon-results]');
+    const pageLabel = modal.querySelector('[data-icon-page]');
+    const prev = modal.querySelector('[data-icon-prev]');
+    const next = modal.querySelector('[data-icon-next]');
+    const categorySelect = modal.querySelector('[data-icon-category]');
+
+    if (categorySelect && !categorySelect.dataset.ready) {
+      const categories = [...new Set(allIcons.map((icon) => icon.category).filter(Boolean))].sort();
+      categorySelect.replaceChildren(new Option(t('All categories'), ''));
+      for (const category of categories) {
+        categorySelect.append(new Option(category, category));
+      }
+      categorySelect.dataset.ready = '1';
+    }
+
+    const filtered = allIcons.filter(iconMatches);
+    const pageCount = Math.max(1, Math.ceil(filtered.length / iconsPerPage));
+    iconPage = Math.min(iconPage, pageCount - 1);
+    const pageIcons = filtered.slice(iconPage * iconsPerPage, (iconPage + 1) * iconsPerPage);
+
+    results.replaceChildren();
+    for (const icon of pageIcons) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'brandpulse-icon-result';
+      button.title = icon.category + ' / ' + icon.label;
+      button.dataset.iconValue = 'pulse:' + icon.path;
+      button.dataset.iconLabel = icon.category + ' / ' + icon.label;
+
+      const preview = document.createElement('span');
+      preview.className = 'brandpulse-icon-result-preview';
+      setMaskIcon(preview, resolveIconUrl(button.dataset.iconValue));
+
+      const label = document.createElement('span');
+      label.textContent = icon.label;
+
+      button.append(preview, label);
+      results.append(button);
+    }
+
+    if (pageLabel) {
+      pageLabel.textContent = String(iconPage + 1) + ' / ' + String(pageCount) + ' - ' + String(filtered.length);
+    }
+    if (prev) {
+      prev.disabled = iconPage <= 0;
+    }
+    if (next) {
+      next.disabled = iconPage >= pageCount - 1;
+    }
+  };
+
+  const openIconModal = async (field) => {
+    const modal = document.querySelector('[data-icon-modal]');
+    if (!modal) {
+      return;
+    }
+
+    activeIconField = field;
+    iconPage = 0;
+    modal.hidden = false;
+    document.body.classList.add('brandpulse-icon-modal-open');
+    modal.querySelector('[data-icon-search]')?.focus();
+    await renderIconModal();
+  };
+
+  const closeIconModal = () => {
+    const modal = document.querySelector('[data-icon-modal]');
+    if (modal) {
+      modal.hidden = true;
+    }
+    activeIconField = null;
+    document.body.classList.remove('brandpulse-icon-modal-open');
+  };
+
+  const setupIconPickerModal = () => {
+    const modal = document.querySelector('[data-icon-modal]');
+    if (!modal || modal.dataset.ready) {
+      return;
+    }
+
+    modal.dataset.ready = '1';
+    document.addEventListener('click', (event) => {
+      const opener = event.target.closest('[data-icon-open]');
+      if (opener) {
+        const field = opener.closest('[data-icon-field]');
+        if (field) {
+          openIconModal(field);
+        }
+        return;
+      }
+
+      const selected = event.target.closest('.brandpulse-icon-result');
+      if (selected && activeIconField) {
+        updateIconField(activeIconField, selected.dataset.iconValue, selected.dataset.iconLabel);
+        closeIconModal();
+      }
+    });
+
+    modal.addEventListener('click', (event) => {
+      if (event.target.closest('[data-icon-close]')) {
+        closeIconModal();
+      }
+    });
+
+    modal.querySelector('[data-icon-search]')?.addEventListener('input', (event) => {
+      iconFilters.query = event.target.value.trim().toLowerCase();
+      iconPage = 0;
+      renderIconModal();
+    });
+
+    modal.querySelector('[data-icon-category]')?.addEventListener('change', (event) => {
+      iconFilters.category = event.target.value;
+      iconPage = 0;
+      renderIconModal();
+    });
+
+    modal.querySelector('[data-icon-prev]')?.addEventListener('click', () => {
+      iconPage = Math.max(0, iconPage - 1);
+      renderIconModal();
+    });
+
+    modal.querySelector('[data-icon-next]')?.addEventListener('click', () => {
+      iconPage += 1;
+      renderIconModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !modal.hidden) {
+        closeIconModal();
+      }
+    });
+  };
+
   const scheduleRefresh = (payload) => {
     if (refreshTimer) {
       window.clearTimeout(refreshTimer);
@@ -367,6 +580,7 @@
   }
 
   const boot = () => {
+    setupIconPickerModal();
     loadBranding();
     loadCounters();
   };

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI BrandPulse 0.1.4\n"
+"Project-Id-Version: GLPI BrandPulse 0.1.5\n"
 "Report-Msgid-Bugs-To: https://github.com/DooSys/glpi-brandpulse/issues\n"
 "POT-Creation-Date: 2026-08-10 00:00+0000\n"
 "PO-Revision-Date: 2026-08-10 00:00+0000\n"
@@ -260,3 +260,21 @@ msgstr "Bug"
 
 msgid "Wrench"
 msgstr "Outil"
+
+msgid "Choose an icon"
+msgstr "Choisir une icône"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Previous"
+msgstr "Précédent"
+
+msgid "Next"
+msgstr "Suivant"
+
+msgid "All categories"
+msgstr "Toutes les catégories"
+
+msgid "Custom icon"
+msgstr "Icône personnalisée"

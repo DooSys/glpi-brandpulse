@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.5
+
+- Replace the inline icon grid with a compact modal picker with search and pagination.
+- Generate a recursive manifest for the Solar outline SVG icon subset copied into `public/icons/pulse`.
+- Keep the Pulse save button visible with a sticky action bar on long configuration screens.
+- Store local icon choices as stable `pulse:Category/Icon.svg` values.
+
 ## 0.1.4
 
 - Count saved-search Pulse counters through GLPI `Search` parameters instead of calling `SavedSearch::execute()` directly.

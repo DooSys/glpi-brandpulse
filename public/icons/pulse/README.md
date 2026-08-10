@@ -1,42 +1,26 @@
-# Pulse Icon Pack
+# Pulse Icons
 
-Local SVG icon pack used by GLPI BrandPulse counters.
+This directory contains the local SVG icon pack used by GLPI BrandPulse Pulse counters.
 
-Use an icon in counter JSON with the `pulse:name` syntax, for example:
+The current pack is a Solar Icon Set outline subset copied into category folders. The generated manifest.json indexes every SVG recursively and exposes:
 
-```json
-"icon": "pulse:tasks"
-```
+- path: stable path relative to public/icons/pulse/
+- label: display label
+- category: folder/category name
+- keywords: search terms used by the configuration modal
 
-Available icons:
+Configuration values use the stable syntax:
 
-- `pulse:tasks`
-- `pulse:waiting`
-- `pulse:medical`
-- `pulse:ticket`
-- `pulse:it`
-- `pulse:unassigned`
-- `pulse:bell`
-- `pulse:clock`
-- `pulse:warning`
-- `pulse:validation`
-- `pulse:asset`
-- `pulse:brand`
-- `pulse:search`
+`	ext
+pulse:Category/Icon.svg
+`
 
-These SVGs are local project assets and do not require a third-party icon service.
-- `pulse:category`
-- `pulse:group`
-- `pulse:user`
-- `pulse:computer`
-- `pulse:server`
-- `pulse:network`
-- `pulse:printer`
-- `pulse:phone`
-- `pulse:mail`
-- `pulse:calendar`
-- `pulse:shield`
-- `pulse:database`
-- `pulse:cart`
-- `pulse:bug`
-- `pulse:wrench`
+Example:
+
+`	ext
+pulse:Notifications/Bell.svg
+pulse:List/Checklist Minimalistic.svg
+pulse:Search/Magnifer.svg
+`
+
+BrandPulse also accepts a custom SVG URL or path from the Pulse configuration screen.

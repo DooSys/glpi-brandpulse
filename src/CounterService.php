@@ -49,7 +49,7 @@ final class CounterService
             $counters[] = [
                 'key' => $key,
                 'label' => __((string) ($definition['label'] ?? $key), 'brandpulse'),
-                'icon' => (string) ($definition['icon'] ?? 'pulse:bell'),
+                'icon' => (string) ($definition['icon'] ?? 'pulse:Notifications/Bell.svg'),
                 'color' => $this->colorForCount($definition, $count),
                 'count' => $count,
                 'href' => $this->href($definition, $count),

@@ -156,42 +156,6 @@
   min-width: 3.25rem;
 }
 
-.brandpulse-icon-picker {
-  display: grid;
-  grid-template-columns: repeat(8, 2rem);
-  gap: 0.25rem;
-  margin-bottom: 0.35rem;
-}
-
-.brandpulse-icon-choice {
-  position: relative;
-  display: inline-flex;
-}
-
-.brandpulse-icon-choice input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.brandpulse-icon-swatch {
-  width: 2rem;
-  height: 2rem;
-  color: var(--tblr-body-color, #1f2937);
-  border: 1px solid var(--tblr-border-color, #d9dee3);
-  border-radius: 0.25rem;
-  background-color: currentColor;
-  cursor: pointer;
-}
-
-.brandpulse-icon-choice input:checked + .brandpulse-icon-swatch {
-  color: var(--tblr-primary, #206bc4);
-  border-color: var(--tblr-primary, #206bc4);
-}
-
-.brandpulse-icon-custom {
-  min-width: 14rem;
-}
 
 body.brandpulse-login-branded {
   background-image: var(--brandpulse-login-background);
@@ -202,4 +166,168 @@ body.brandpulse-login-branded {
 
 .brandpulse-login-alert {
   margin-bottom: 1rem;
+}
+
+
+.brandpulse-icon-field {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.brandpulse-icon-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 12rem;
+}
+
+.brandpulse-icon-open [data-icon-label] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brandpulse-icon-preview,
+.brandpulse-icon-result-preview {
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.brandpulse-icon-preview {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+}
+
+.brandpulse-icon-custom {
+  min-width: 12rem;
+  margin-top: 0.25rem;
+}
+
+.brandpulse-action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.65rem 0;
+  background: var(--tblr-body-bg, #ffffff);
+  border-top: 1px solid var(--tblr-border-color, #d9dee3);
+}
+
+.brandpulse-icon-modal[hidden] {
+  display: none;
+}
+
+.brandpulse-icon-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+}
+
+.brandpulse-icon-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.brandpulse-icon-dialog {
+  position: absolute;
+  top: 8vh;
+  left: 50%;
+  width: min(44rem, calc(100vw - 2rem));
+  max-height: min(40rem, calc(100vh - 4rem));
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  background: var(--tblr-bg-surface, #ffffff);
+  color: var(--tblr-body-color, #1f2937);
+  border: 1px solid var(--tblr-border-color, #d9dee3);
+  border-radius: 0.35rem;
+  box-shadow: 0 1rem 2.5rem rgba(15, 23, 42, 0.2);
+}
+
+.brandpulse-icon-dialog-header,
+.brandpulse-icon-dialog-footer,
+.brandpulse-icon-dialog-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.brandpulse-icon-dialog-header {
+  justify-content: space-between;
+  border-bottom: 1px solid var(--tblr-border-color, #d9dee3);
+}
+
+.brandpulse-icon-dialog-tools {
+  display: grid;
+  grid-template-columns: 1fr minmax(10rem, 14rem);
+}
+
+.brandpulse-icon-dialog-footer {
+  justify-content: space-between;
+  border-top: 1px solid var(--tblr-border-color, #d9dee3);
+}
+
+.brandpulse-icon-results {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 0.4rem;
+  padding: 0 0.75rem 0.75rem;
+  overflow: auto;
+}
+
+.brandpulse-icon-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 4.6rem;
+  padding: 0.35rem;
+  color: var(--tblr-body-color, #1f2937);
+  background: transparent;
+  border: 1px solid var(--tblr-border-color, #d9dee3);
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+
+.brandpulse-icon-result:hover,
+.brandpulse-icon-result:focus {
+  color: var(--tblr-primary, #206bc4);
+  border-color: var(--tblr-primary, #206bc4);
+}
+
+.brandpulse-icon-result-preview {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+.brandpulse-icon-result span:last-child {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.68rem;
+  line-height: 1.05;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .brandpulse-icon-dialog-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .brandpulse-icon-results {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
