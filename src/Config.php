@@ -217,13 +217,14 @@ final class Config
             $entries = is_array($manifest['icons'] ?? null) ? $manifest['icons'] : [];
 
             foreach ($entries as $entry) {
-                if (!is_array($entry) || empty($entry['path'])) {
+                $rawPath = $entry['path'] ?? $entry['p'] ?? '';
+                if (!is_array($entry) || $rawPath === '') {
                     continue;
                 }
 
-                $path = str_replace('\\', '/', (string) $entry['path']);
-                $label = trim((string) ($entry['label'] ?? pathinfo($path, PATHINFO_FILENAME)));
-                $category = trim((string) ($entry['category'] ?? ''));
+                $path = str_replace('\\', '/', (string) $rawPath);
+                $label = trim((string) ($entry['label'] ?? $entry['l'] ?? pathinfo($path, PATHINFO_FILENAME)));
+                $category = trim((string) ($entry['category'] ?? $entry['c'] ?? ''));
                 $icons['pulse:' . $path] = $category !== '' ? $category . ' / ' . $label : $label;
             }
         }

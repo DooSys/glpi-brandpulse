@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.6
+
+- Keep Pulse save actions visible at the top of the tab and as a floating bottom action.
+- Simplify Pulse rows to `Source` plus one contextual `Target` column.
+- Reduce icon picker work with a slimmer manifest, 24 icons per page and debounced search rendering.
+
 ## 0.1.5
 
 - Replace the inline icon grid with a compact modal picker with search and pagination.

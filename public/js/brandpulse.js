@@ -328,10 +328,30 @@
   };
 
 
+
+  const syncPulseTargetRow = (select) => {
+    const row = select.closest('tr');
+    if (!row) {
+      return;
+    }
+
+    for (const target of row.querySelectorAll('[data-pulse-target]')) {
+      target.hidden = target.dataset.pulseTarget !== select.value;
+    }
+  };
+
+  const setupPulseTargets = () => {
+    for (const select of document.querySelectorAll('[data-pulse-source]')) {
+      syncPulseTargetRow(select);
+      select.addEventListener('change', () => syncPulseTargetRow(select));
+    }
+  };
+
   let iconManifestPromise = null;
   let activeIconField = null;
   let iconPage = 0;
-  const iconsPerPage = 48;
+  const iconsPerPage = 24;
+  let iconSearchTimer = null;
   const iconFilters = {
     query: '',
     category: '',
@@ -344,7 +364,16 @@
         headers: { Accept: 'application/json' },
       })
         .then((response) => (response.ok ? response.json() : { icons: [] }))
-        .then((manifest) => Array.isArray(manifest.icons) ? manifest.icons : [])
+        .then((manifest) => Array.isArray(manifest.icons) ? manifest.icons.map((icon) => {
+          const normalized = {
+            path: String(icon.path || icon.p || ''),
+            label: String(icon.label || icon.l || ''),
+            category: String(icon.category || icon.c || ''),
+            search: String(icon.search || icon.s || ''),
+          };
+          normalized.search = (normalized.search || [normalized.path, normalized.label, normalized.category].join(' ')).toLowerCase();
+          return normalized;
+        }).filter((icon) => icon.path !== '') : [])
         .catch(() => []);
     }
 
@@ -360,14 +389,7 @@
       return true;
     }
 
-    const haystack = [
-      icon.path,
-      icon.label,
-      icon.category,
-      ...(Array.isArray(icon.keywords) ? icon.keywords : []),
-    ].join(' ').toLowerCase();
-
-    return iconFilters.query.split(/\s+/).every((word) => haystack.includes(word));
+    return iconFilters.query.split(/\s+/).every((word) => icon.search.includes(word));
   };
 
   const updateIconField = (field, value, label) => {
@@ -505,7 +527,8 @@
     modal.querySelector('[data-icon-search]')?.addEventListener('input', (event) => {
       iconFilters.query = event.target.value.trim().toLowerCase();
       iconPage = 0;
-      renderIconModal();
+      window.clearTimeout(iconSearchTimer);
+      iconSearchTimer = window.setTimeout(renderIconModal, 140);
     });
 
     modal.querySelector('[data-icon-category]')?.addEventListener('change', (event) => {
@@ -580,6 +603,7 @@
   }
 
   const boot = () => {
+    setupPulseTargets();
     setupIconPickerModal();
     loadBranding();
     loadCounters();

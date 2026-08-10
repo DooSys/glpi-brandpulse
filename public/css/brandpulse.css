@@ -144,7 +144,7 @@
 }
 
 .brandpulse-pulse-table {
-  min-width: 96rem;
+  min-width: 78rem;
 }
 
 .brandpulse-pulse-table .form-select,
@@ -212,14 +212,15 @@ body.brandpulse-login-branded {
 }
 
 .brandpulse-action-bar {
-  position: sticky;
-  bottom: 0;
-  z-index: 20;
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 1040;
   display: flex;
   justify-content: flex-end;
-  padding: 0.65rem 0;
-  background: var(--tblr-body-bg, #ffffff);
-  border-top: 1px solid var(--tblr-border-color, #d9dee3);
+  padding: 0;
+  background: transparent;
+  border-top: 0;
 }
 
 .brandpulse-icon-modal[hidden] {
@@ -330,4 +331,9 @@ body.brandpulse-login-branded {
   .brandpulse-icon-results {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+
+
+.brandpulse-target-cell [hidden] {
+  display: none;
 }
