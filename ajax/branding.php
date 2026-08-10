@@ -9,9 +9,10 @@ if (file_exists($autoload)) {
     require_once $autoload;
 }
 
-Session::checkLoginUser();
 Html::header_nocache();
 header('Content-Type: application/json; charset=UTF-8');
 
-$service = new GlpiPlugin\Brandpulse\CounterService();
-echo json_encode($service->getPayload(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+$config = GlpiPlugin\Brandpulse\Config::values();
+echo json_encode([
+    'branding' => $config['branding'],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

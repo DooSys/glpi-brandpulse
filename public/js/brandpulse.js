@@ -9,22 +9,40 @@
   const pluginBaseUrl = scriptUrl.includes(PLUGIN_MARKER)
     ? scriptUrl.substring(0, scriptUrl.indexOf('/public/js/brandpulse.js'))
     : `${window.CFG_GLPI?.root_doc || ''}/plugins/brandpulse`;
-  const endpoint = `${pluginBaseUrl}/ajax/counters.php`;
+  const countersEndpoint = `${pluginBaseUrl}/ajax/counters.php`;
+  const brandingEndpoint = `${pluginBaseUrl}/ajax/branding.php`;
 
   const t = (message) => (typeof window.__ === 'function' ? window.__(message, 'brandpulse') : message);
   let refreshTimer = null;
 
+  const resolveAssetUrl = (value) => {
+    if (!value) {
+      return '';
+    }
+
+    if (/^(https?:)?\/\//.test(value) || value.startsWith('data:') || value.startsWith('/')) {
+      return value;
+    }
+
+    return `${window.CFG_GLPI?.root_doc || ''}/${value.replace(/^\/+/, '')}`;
+  };
+
+  const isSidebarElement = (element) => Boolean(element?.closest?.('#navbar-menu, aside, .navbar-vertical'));
+
   const findHeaderTarget = () => {
     const selectors = [
-      '#navbar-menu',
-      'header .navbar-nav',
-      'header nav',
-      'header',
+      'body > .page header.navbar .navbar-nav.flex-row.order-md-last',
+      'body > .page header.navbar .navbar-nav.ms-auto',
+      'header.navbar .navbar-nav.flex-row.order-md-last',
+      'header.navbar .navbar-nav.ms-auto',
+      '.navbar:not(#navbar-menu) .navbar-nav.flex-row.order-md-last',
+      '.navbar:not(#navbar-menu) .navbar-nav.ms-auto',
+      'header.navbar',
     ];
 
     for (const selector of selectors) {
       const target = document.querySelector(selector);
-      if (target) {
+      if (target && !isSidebarElement(target)) {
         return target;
       }
     }
@@ -47,7 +65,7 @@
     container.id = CONTAINER_ID;
     container.className = 'brandpulse-counters';
     container.setAttribute('aria-label', t('GLPI BrandPulse counters'));
-    target.append(container);
+    target.prepend(container);
 
     return container;
   };
@@ -89,7 +107,6 @@
     return element;
   };
 
-
   const setupCompactSearch = (enabled) => {
     document.body.classList.toggle('brandpulse-compact-search-enabled', Boolean(enabled));
 
@@ -102,15 +119,21 @@
     }
 
     const inputs = document.querySelectorAll([
-      'header input[type="search"]',
-      'header input[name="globalsearch"]',
-      'header input[name="criteria"]',
-      '#navbar-menu input[type="search"]',
+      'header.navbar input[type="search"]',
+      'header.navbar input[name="globalsearch"]',
+      'header.navbar input[name="criteria"]',
+      '.navbar:not(#navbar-menu) input[type="search"]',
+      '.navbar:not(#navbar-menu) input[name="globalsearch"]',
+      '.navbar:not(#navbar-menu) input[name="criteria"]',
     ].join(','));
 
     for (const input of inputs) {
+      if (isSidebarElement(input)) {
+        continue;
+      }
+
       const container = input.closest('form, .input-group, .search, .navbar-search') || input.parentElement;
-      if (!container || container.classList.contains('brandpulse-compact-search')) {
+      if (!container || container.classList.contains('brandpulse-compact-search') || isSidebarElement(container)) {
         continue;
       }
 
@@ -185,6 +208,60 @@
     }
   };
 
+  const applyBranding = (payload) => {
+    const branding = payload?.branding;
+    if (!branding?.enabled) {
+      return;
+    }
+
+    if (branding.title) {
+      document.title = branding.title;
+    }
+
+    const faviconUrl = resolveAssetUrl(branding.favicon);
+    if (faviconUrl) {
+      let link = document.querySelector('link[rel="icon"]');
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.append(link);
+      }
+      link.href = faviconUrl;
+    }
+
+    const menuLogoUrl = resolveAssetUrl(branding.menu_logo);
+    if (menuLogoUrl) {
+      for (const logo of document.querySelectorAll('aside .navbar-brand img, .navbar-vertical .navbar-brand img, #navbar-menu .navbar-brand img')) {
+        logo.src = menuLogoUrl;
+      }
+    }
+
+    const loginLogoUrl = resolveAssetUrl(branding.login_logo);
+    if (loginLogoUrl) {
+      const loginLogo = document.querySelector('.page-anonymous .navbar-brand img, .login-box img, form[action*="login"] img');
+      if (loginLogo) {
+        loginLogo.src = loginLogoUrl;
+      }
+    }
+
+    const backgroundUrl = resolveAssetUrl(branding.login_background);
+    if (backgroundUrl && document.querySelector('form[action*="login"], .page-anonymous, .login-box')) {
+      document.body.classList.add('brandpulse-login-branded');
+      document.body.style.setProperty('--brandpulse-login-background', `url("${backgroundUrl}")`);
+    }
+
+    if (branding.login_alert_enabled && branding.login_alert_message) {
+      const loginContainer = document.querySelector('form[action*="login"]')?.parentElement
+        || document.querySelector('.login-box, .page-anonymous .container');
+      if (loginContainer && !document.querySelector('.brandpulse-login-alert')) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${branding.login_alert_type || 'info'} brandpulse-login-alert`;
+        alert.textContent = branding.login_alert_message;
+        loginContainer.prepend(alert);
+      }
+    }
+  };
+
   const scheduleRefresh = (payload) => {
     if (refreshTimer) {
       window.clearTimeout(refreshTimer);
@@ -194,9 +271,26 @@
     refreshTimer = window.setTimeout(loadCounters, interval);
   };
 
+  async function loadBranding() {
+    try {
+      const response = await fetch(brandingEndpoint, {
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        applyBranding(await response.json());
+      }
+    } catch (error) {
+      window.console?.debug?.(t('BrandPulse branding unavailable'), error);
+    }
+  }
+
   async function loadCounters() {
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch(countersEndpoint, {
         credentials: 'same-origin',
         headers: {
           Accept: 'application/json',
@@ -216,9 +310,14 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadCounters, { once: true });
-  } else {
+  const boot = () => {
+    loadBranding();
     loadCounters();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot, { once: true });
+  } else {
+    boot();
   }
 })();

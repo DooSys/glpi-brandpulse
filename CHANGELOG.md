@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2
+
+- Fix GLPI 11 marketplace front/ajax bootstrap by removing legacy `inc/includes.php` includes.
+- Render Pulse counters in the top header navbar instead of the left sidebar menu.
+- Replace raw JSON configuration with Brand and Pulse tabs.
+- Add Brand settings for title, favicon, login logo, left menu logo, login background and login alert message.
+- Add Pulse rows with icon, color, thresholds and selectable ticket category/group scope.
+- Remove non-standard historical presets and legacy hard-coded exclusions.
+
 ## 0.1.1
 
 - Restrict Pulse counters to the GLPI central interface only.

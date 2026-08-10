@@ -22,6 +22,10 @@ final class Migrator
             self::migrateTo010();
         }
 
+        if (version_compare($installedVersion, '0.1.2', '<')) {
+            self::migrateTo012();
+        }
+
         Config::setSchemaVersion($targetVersion);
 
         return true;
@@ -30,5 +34,18 @@ final class Migrator
     private static function migrateTo010(): void
     {
         Config::installDefaults();
+    }
+
+    private static function migrateTo012(): void
+    {
+        $values = Config::values();
+
+        Config::saveBranding($values['branding']);
+        Config::savePulse(
+            $values['enabled'],
+            $values['refresh_interval'],
+            $values['compact_search_enabled'],
+            $values['counters']
+        );
     }
 }

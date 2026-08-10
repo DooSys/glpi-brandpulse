@@ -44,41 +44,68 @@ final class CounterService
             }
 
             $key = (string) $definition['key'];
-            $count = $this->count($key);
+            $count = $this->count($definition);
 
             $counters[] = [
                 'key' => $key,
                 'label' => __((string) ($definition['label'] ?? $key), 'brandpulse'),
-                'icon' => (string) ($definition['icon'] ?? 'fa-solid fa-bell'),
-                'color' => (string) ($definition['color'] ?? '#3b82f6'),
+                'icon' => (string) ($definition['icon'] ?? 'pulse:bell'),
+                'color' => $this->colorForCount($definition, $count),
                 'count' => $count,
-                'href' => $this->href($key, $count),
+                'href' => $this->href($definition, $count),
             ];
         }
 
         return $counters;
     }
 
-    private function count(string $key): int
+    private function count(array $definition): int
+    {
+        $scopeType = (string) ($definition['scope_type'] ?? 'preset');
+
+        return match ($scopeType) {
+            'category' => $this->countTicketsByCategory((int) ($definition['scope_id'] ?? 0)),
+            'group' => $this->countTicketsByGroup((int) ($definition['scope_id'] ?? 0)),
+            default => $this->countPreset((string) ($definition['key'] ?? '')),
+        };
+    }
+
+    private function countPreset(string $key): int
     {
         return match ($key) {
             'my_tasks' => $this->countMyTasks(),
             'my_waiting_tickets' => $this->countMyWaitingTickets(),
-            'ls_microbio' => $this->countLsMicrobioTickets(),
             'my_open_tickets' => $this->countMyOpenTickets(),
-            'it_tickets' => $this->countItTickets(),
+            'all_open_tickets' => $this->countAllOpenTickets(),
             'unassigned_tickets' => $this->countUnassignedTickets(),
             default => 0,
         };
     }
 
-    private function href(string $key, int $count): string
+    private function href(array $definition, int $count): string
     {
         if ($count <= 0) {
             return '#';
         }
 
-        return match ($key) {
+        $scopeType = (string) ($definition['scope_type'] ?? 'preset');
+        $scopeId = (int) ($definition['scope_id'] ?? 0);
+
+        if ($scopeType === 'category' && $scopeId > 0) {
+            return $this->ticketSearchUrl([
+                ['field' => 12, 'searchtype' => 'equals', 'value' => 'notold'],
+                ['field' => 7, 'searchtype' => 'equals', 'value' => $scopeId],
+            ]);
+        }
+
+        if ($scopeType === 'group' && $scopeId > 0) {
+            return $this->ticketSearchUrl([
+                ['field' => 12, 'searchtype' => 'equals', 'value' => 'notold'],
+                ['field' => 8, 'searchtype' => 'equals', 'value' => $scopeId],
+            ]);
+        }
+
+        return match ((string) ($definition['key'] ?? '')) {
             'my_tasks' => $this->ticketSearchUrl([
                 ['field' => 12, 'searchtype' => 'equals', 'value' => 'notold'],
                 ['field' => 95, 'searchtype' => 'equals', 'value' => $this->userId],
@@ -87,23 +114,12 @@ final class CounterService
                 ['field' => 5, 'searchtype' => 'equals', 'value' => $this->userId],
                 ['field' => 12, 'searchtype' => 'equals', 'value' => 4],
             ]),
-            'ls_microbio' => $this->ticketSearchUrl([
-                ['field' => 12, 'searchtype' => 'equals', 'value' => 'notold'],
-                ['field' => 1, 'searchtype' => 'contains', 'value' => 'LS-Microbio'],
-            ]),
             'my_open_tickets' => $this->ticketSearchUrl([
                 ['field' => 5, 'searchtype' => 'equals', 'value' => $this->userId],
                 ['field' => 12, 'searchtype' => 'equals', 'value' => 'notold'],
             ]),
-            'it_tickets' => $this->ticketSearchUrl([
+            'all_open_tickets' => $this->ticketSearchUrl([
                 ['field' => 12, 'searchtype' => 'equals', 'value' => 'notold'],
-                ['link' => 'AND NOT', 'field' => 1, 'searchtype' => 'contains', 'value' => 'Demande HPA'],
-                ['link' => 'AND NOT', 'field' => 1, 'searchtype' => 'contains', 'value' => 'Création Prescripteur'],
-                ['link' => 'AND NOT', 'field' => 1, 'searchtype' => 'contains', 'value' => 'Création Préleveur'],
-                ['link' => 'AND NOT', 'field' => 1, 'searchtype' => 'contains', 'value' => 'Creation de Correspondant'],
-                ['link' => 'AND NOT', 'field' => 1, 'searchtype' => 'contains', 'value' => 'Travaux'],
-                ['link' => 'AND NOT', 'field' => 1, 'searchtype' => 'contains', 'value' => 'Achats'],
-                ['link' => 'AND NOT', 'field' => 1, 'searchtype' => 'contains', 'value' => 'LS-Microbio'],
             ]),
             'unassigned_tickets' => $this->ticketSearchUrl([
                 ['field' => 12, 'searchtype' => 'equals', 'value' => 'notold'],
@@ -111,6 +127,22 @@ final class CounterService
             ]),
             default => '#',
         };
+    }
+
+    private function colorForCount(array $definition, int $count): string
+    {
+        $warning = (int) ($definition['warning_threshold'] ?? 0);
+        $critical = (int) ($definition['critical_threshold'] ?? 0);
+
+        if ($critical > 0 && $count >= $critical) {
+            return '#ff3d2a';
+        }
+
+        if ($warning > 0 && $count >= $warning) {
+            return '#f59f00';
+        }
+
+        return (string) ($definition['color'] ?? '#3b82f6');
     }
 
     private function countMyTasks(): int
@@ -128,34 +160,32 @@ final class CounterService
         return $this->countAssignedTickets('t.status NOT IN (5, 6)');
     }
 
+    private function countAllOpenTickets(): int
+    {
+        return $this->countSql("\n            SELECT COUNT(t.id) AS counter\n            FROM glpi_tickets t\n            WHERE t.is_deleted = 0\n              AND t.status IN (1, 2, 3, 4)\n        ");
+    }
+
     private function countAssignedTickets(string $statusCondition): int
     {
         return $this->countSql("\n            SELECT COUNT(DISTINCT t.id) AS counter\n            FROM glpi_tickets t\n            INNER JOIN glpi_tickets_users tu ON tu.tickets_id = t.id\n            WHERE t.is_deleted = 0\n              AND {$statusCondition}\n              AND tu.type = 2\n              AND tu.users_id = {$this->userId}\n        ");
     }
 
-    private function countLsMicrobioTickets(): int
+    private function countTicketsByCategory(int $categoryId): int
     {
-        return $this->countSql("\n            SELECT COUNT(t.id) AS counter\n            FROM glpi_tickets t\n            WHERE t.is_deleted = 0\n              AND t.status IN (1, 2, 3, 4)\n              AND t.name LIKE '%LS-Microbio%'\n        ");
+        if ($categoryId <= 0) {
+            return 0;
+        }
+
+        return $this->countSql("\n            SELECT COUNT(t.id) AS counter\n            FROM glpi_tickets t\n            WHERE t.is_deleted = 0\n              AND t.status IN (1, 2, 3, 4)\n              AND t.itilcategories_id = {$categoryId}\n        ");
     }
 
-    private function countItTickets(): int
+    private function countTicketsByGroup(int $groupId): int
     {
-        $excluded = [
-            'Demande HPA',
-            'Création Prescripteur',
-            'Création Préleveur',
-            'Creation de Correspondant',
-            'Travaux',
-            'Achats',
-            'LS-Microbio',
-        ];
+        if ($groupId <= 0) {
+            return 0;
+        }
 
-        $clauses = array_map(
-            static fn (string $term): string => "(t.name NOT LIKE '%" . addslashes($term) . "%' OR t.name IS NULL)",
-            $excluded
-        );
-
-        return $this->countSql("\n            SELECT COUNT(t.id) AS counter\n            FROM glpi_tickets t\n            WHERE t.is_deleted = 0\n              AND t.status IN (1, 2, 3, 4)\n              AND " . implode("\n              AND ", $clauses) . "\n        ");
+        return $this->countSql("\n            SELECT COUNT(DISTINCT t.id) AS counter\n            FROM glpi_tickets t\n            INNER JOIN glpi_groups_tickets gt ON gt.tickets_id = t.id\n            WHERE t.is_deleted = 0\n              AND t.status IN (1, 2, 3, 4)\n              AND gt.groups_id = {$groupId}\n        ");
     }
 
     private function countUnassignedTickets(): int

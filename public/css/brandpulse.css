@@ -6,8 +6,9 @@
 #brandpulse-header-counters.brandpulse-counters {
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
   gap: var(--brandpulse-gap);
-  margin-inline-start: 0.75rem;
+  margin-inline: 0.75rem;
   min-height: 2rem;
   white-space: nowrap;
 }
@@ -130,4 +131,29 @@
 .brandpulse-compact-search:focus-within input[name="criteria"] {
   opacity: 1;
   pointer-events: auto;
+}
+
+
+.brandpulse-pulse-table {
+  min-width: 82rem;
+}
+
+.brandpulse-pulse-table .form-select,
+.brandpulse-pulse-table .form-control:not(.form-control-color) {
+  min-width: 8rem;
+}
+
+.brandpulse-pulse-table .form-control-color {
+  min-width: 3.25rem;
+}
+
+body.brandpulse-login-branded {
+  background-image: var(--brandpulse-login-background);
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.brandpulse-login-alert {
+  margin-bottom: 1rem;
 }

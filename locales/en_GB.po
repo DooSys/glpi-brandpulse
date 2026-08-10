@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI BrandPulse 0.1.1\n"
+"Project-Id-Version: GLPI BrandPulse 0.1.2\n"
 "Report-Msgid-Bugs-To: https://github.com/DooSys/glpi-brandpulse/issues\n"
 "POT-Creation-Date: 2026-08-10 00:00+0000\n"
 "PO-Revision-Date: 2026-08-10 00:00+0000\n"
@@ -15,11 +15,29 @@ msgstr ""
 msgid "Activation"
 msgstr "Activation"
 
+msgid "Alert type"
+msgstr "Alert type"
+
+msgid "All open tickets"
+msgstr "All open tickets"
+
+msgid "Asset"
+msgstr "Asset"
+
+msgid "Bell"
+msgstr "Bell"
+
 msgid "Brand"
 msgstr "Brand"
 
 msgid "Brand JSON is invalid."
 msgstr "Brand JSON is invalid."
+
+msgid "Brand settings updated."
+msgstr "Brand settings updated."
+
+msgid "BrandPulse branding unavailable"
+msgstr "BrandPulse branding unavailable"
 
 msgid "BrandPulse configuration updated."
 msgstr "BrandPulse configuration updated."
@@ -27,17 +45,41 @@ msgstr "BrandPulse configuration updated."
 msgid "BrandPulse counters unavailable"
 msgstr "BrandPulse counters unavailable"
 
+msgid "Browser title"
+msgstr "Browser title"
+
+msgid "Category"
+msgstr "Category"
+
+msgid "Clock"
+msgstr "Clock"
+
 msgid "Color"
 msgstr "Color"
 
 msgid "Counter refresh interval, in seconds"
 msgstr "Counter refresh interval, in seconds"
 
+msgid "Critical"
+msgstr "Critical"
+
+msgid "Danger"
+msgstr "Danger"
+
 msgid "Display BrandPulse in the header"
 msgstr "Display BrandPulse in the header"
 
+msgid "Display Pulse counters in the header"
+msgstr "Display Pulse counters in the header"
+
+msgid "Enable branding customizations"
+msgstr "Enable branding customizations"
+
 msgid "Enabled"
 msgstr "Enabled"
+
+msgid "Favicon URL or path"
+msgstr "Favicon URL or path"
 
 msgid "GLPI BrandPulse"
 msgstr "GLPI BrandPulse"
@@ -45,11 +87,20 @@ msgstr "GLPI BrandPulse"
 msgid "GLPI BrandPulse counters"
 msgstr "GLPI BrandPulse counters"
 
+msgid "Group"
+msgstr "Group"
+
+msgid "IT"
+msgstr "IT"
+
 msgid "IT tickets"
 msgstr "IT tickets"
 
 msgid "Icon"
 msgstr "Icon"
+
+msgid "Info"
+msgstr "Info"
 
 msgid "Installed BrandPulse schema: %s"
 msgstr "Installed BrandPulse schema: %s"
@@ -57,11 +108,23 @@ msgstr "Installed BrandPulse schema: %s"
 msgid "Key"
 msgstr "Key"
 
-msgid "LS-Microbio tickets"
-msgstr "LS-Microbio tickets"
-
 msgid "Label"
 msgstr "Label"
+
+msgid "Left menu logo URL or path"
+msgstr "Left menu logo URL or path"
+
+msgid "Login alert message"
+msgstr "Login alert message"
+
+msgid "Login background URL or path"
+msgstr "Login background URL or path"
+
+msgid "Login logo URL or path"
+msgstr "Login logo URL or path"
+
+msgid "Medical"
+msgstr "Medical"
 
 msgid "Minimize the global search field to a magnifier icon"
 msgstr "Minimize the global search field to a magnifier icon"
@@ -72,8 +135,14 @@ msgstr "My open tickets"
 msgid "My pending tasks"
 msgstr "My pending tasks"
 
+msgid "None"
+msgstr "None"
+
 msgid "Order"
 msgstr "Order"
+
+msgid "Preset"
+msgstr "Preset"
 
 msgid "Pulse"
 msgstr "Pulse"
@@ -84,8 +153,14 @@ msgstr "Pulse counters JSON is invalid."
 msgid "Pulse is only displayed in the GLPI central interface, not in the helpdesk/self-service portal."
 msgstr "Pulse is only displayed in the GLPI central interface, not in the helpdesk/self-service portal."
 
+msgid "Pulse settings updated."
+msgstr "Pulse settings updated."
+
 msgid "Save"
 msgstr "Save"
+
+msgid "Scope"
+msgstr "Scope"
 
 msgid "Search"
 msgstr "Search"
@@ -93,14 +168,47 @@ msgstr "Search"
 msgid "Settings categories: Brand for visual identity, Pulse for header counters."
 msgstr "Settings categories: Brand for visual identity, Pulse for header counters."
 
+msgid "Show a login page alert message"
+msgstr "Show a login page alert message"
+
+msgid "Success"
+msgstr "Success"
+
+msgid "Tasks"
+msgstr "Tasks"
+
+msgid "Ticket"
+msgstr "Ticket"
+
+msgid "Ticket category"
+msgstr "Ticket category"
+
+msgid "Ticket group"
+msgstr "Ticket group"
+
+msgid "Unassigned"
+msgstr "Unassigned"
+
 msgid "Unassigned tickets"
 msgstr "Unassigned tickets"
+
+msgid "Use preset counters or target all open tickets from one category or one group."
+msgstr "Use preset counters or target all open tickets from one category or one group."
+
+msgid "Validation"
+msgstr "Validation"
 
 msgid "Version 0.1 exposes raw JSON editing for Brand and Pulse categories. The full graphical screen will come next."
 msgstr "Version 0.1 exposes raw JSON editing for Brand and Pulse categories. The full graphical screen will come next."
 
+msgid "Waiting"
+msgstr "Waiting"
+
 msgid "Waiting tickets"
 msgstr "Waiting tickets"
+
+msgid "Warning"
+msgstr "Warning"
 
 msgid "no"
 msgstr "no"
