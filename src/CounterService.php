@@ -46,7 +46,7 @@ final class CounterService
 
             $counters[] = [
                 'key' => $key,
-                'label' => (string) ($definition['label'] ?? $key),
+                'label' => __((string) ($definition['label'] ?? $key), 'brandpulse'),
                 'icon' => (string) ($definition['icon'] ?? 'fa-solid fa-bell'),
                 'color' => (string) ($definition['color'] ?? '#3b82f6'),
                 'count' => $count,

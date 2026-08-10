@@ -30,10 +30,14 @@
   text-decoration: none;
 }
 
-.brandpulse-counter i {
+.brandpulse-counter i,
+.brandpulse-icon {
   color: var(--brandpulse-icon-color);
+  width: 1.15rem;
+  height: 1.15rem;
   font-size: 1.1rem;
   line-height: 1;
+  object-fit: contain;
 }
 
 .brandpulse-badge {
@@ -65,7 +69,8 @@
     margin-inline-start: 0.4rem;
   }
 
-  .brandpulse-counter i {
+  .brandpulse-counter i,
+  .brandpulse-icon {
     display: none;
   }
 }

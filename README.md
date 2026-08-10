@@ -42,6 +42,22 @@ La page de configuration est organisée en deux catégories : Brand pour l'ident
 
 
 
+
+## Internationalisation
+
+BrandPulse suit les préconisations GLPI : les chaînes sources sont en anglais britannique et toutes les chaînes visibles du plugin passent par les fonctions gettext GLPI avec le domaine `brandpulse`, par exemple `__('Text', 'brandpulse')`.
+
+Les catalogues sont fournis sans système tiers :
+
+```text
+locales/en_GB.po
+locales/en_GB.mo
+locales/fr_FR.po
+locales/fr_FR.mo
+```
+
+Aucune API de traduction externe n'est utilisée. Les fichiers `.po` restent éditables avec un outil gettext classique, et les fichiers `.mo` sont inclus dans les releases pour l'exécution GLPI.
+
 ## Catalogue GLPI et icône de mise à jour
 
 L'icône de mise à jour avec le nuage dans GLPI vient du catalogue/Marketplace GLPI. Un simple tag GitHub ne suffit pas à l'afficher dans la liste native des plugins.
@@ -136,6 +152,23 @@ composer dump-autoload
 ```
 
 Puis activer le plugin depuis l'interface GLPI.
+
+
+## Pack d'icônes Pulse
+
+Les compteurs Pulse utilisent par défaut un pack SVG local situé dans :
+
+```text
+public/icons/pulse/
+```
+
+Dans la configuration JSON d'un compteur, la syntaxe recommandée est :
+
+```json
+"icon": "pulse:tasks"
+```
+
+BrandPulse résout alors automatiquement `pulse:tasks` vers `public/icons/pulse/tasks.svg`. Le rendu accepte aussi une URL SVG ou une classe CSS d'icône existante, mais le pack local est le mode par défaut afin d'éviter une dépendance tierce.
 
 ## Compteurs historiques repris comme presets
 

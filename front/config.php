@@ -25,11 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $countersJson = trim((string) ($_POST['counters_json'] ?? ''));
 
     if (!BrandpulseConfig::isValidJsonArray($brandingJson)) {
-        $errors[] = 'Le JSON branding est invalide.';
+        $errors[] = __('Brand JSON is invalid.', 'brandpulse');
     }
 
     if (!BrandpulseConfig::isValidJsonArray($countersJson)) {
-        $errors[] = 'Le JSON des compteurs est invalide.';
+        $errors[] = __('Pulse counters JSON is invalid.', 'brandpulse');
     }
 
     if ($errors === []) {
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'counters_json' => $countersJson,
         ]);
 
-        Session::addMessageAfterRedirect('Configuration BrandPulse mise à jour.');
+        Session::addMessageAfterRedirect(__('BrandPulse configuration updated.', 'brandpulse'));
         Html::redirect($_SERVER['PHP_SELF']);
     }
 }
@@ -48,69 +48,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $config = BrandpulseConfig::values();
 $rawConfig = BrandpulseConfig::rawValues();
 
-Html::header('GLPI BrandPulse', $_SERVER['PHP_SELF'], 'config', 'plugins');
+Html::header(__('GLPI BrandPulse', 'brandpulse'), $_SERVER['PHP_SELF'], 'config', 'plugins');
 
 echo "<div class='brandpulse-config'>";
-echo "<h1>GLPI BrandPulse</h1>";
-echo "<p>Catégories de paramétrage : Brand pour l’identité visuelle, Pulse pour les compteurs du header.</p>";
-echo "<p class='text-muted'>Schéma BrandPulse installé : " . Html::entities_deep(BrandpulseConfig::schemaVersion() ?: 'non initialisé') . "</p>";
+echo '<h1>' . __s('GLPI BrandPulse', 'brandpulse') . '</h1>';
+echo '<p>' . __s('Settings categories: Brand for visual identity, Pulse for header counters.', 'brandpulse') . '</p>';
+echo "<p class='text-muted'>" . sprintf(
+    __s('Installed BrandPulse schema: %s', 'brandpulse'),
+    Html::entities_deep(BrandpulseConfig::schemaVersion() ?: __('not initialized', 'brandpulse'))
+) . '</p>';
 
 foreach ($errors as $error) {
-    echo "<div class='alert alert-danger'>" . Html::entities_deep($error) . "</div>";
+    echo "<div class='alert alert-danger'>" . Html::entities_deep($error) . '</div>';
 }
 
 echo "<form method='post' action='" . Html::entities_deep($_SERVER['PHP_SELF']) . "'>";
 echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 
 echo "<div class='card mb-3'>";
-echo "<div class='card-header'><strong>Activation</strong></div>";
+echo "<div class='card-header'><strong>" . __s('Activation', 'brandpulse') . '</strong></div>';
 echo "<div class='card-body'>";
 echo "<label class='form-check'>";
-echo "<input class='form-check-input' type='checkbox' name='enabled' value='1'" . ($config['enabled'] ? ' checked' : '') . "> ";
-echo "<span class='form-check-label'>Afficher BrandPulse dans le header</span>";
-echo "</label>";
-echo "<label class='form-label mt-3' for='refresh_interval'>Rafraîchissement des compteurs, en secondes</label>";
+echo "<input class='form-check-input' type='checkbox' name='enabled' value='1'" . ($config['enabled'] ? ' checked' : '') . '> ';
+echo "<span class='form-check-label'>" . __s('Display BrandPulse in the header', 'brandpulse') . '</span>';
+echo '</label>';
+echo "<label class='form-label mt-3' for='refresh_interval'>" . __s('Counter refresh interval, in seconds', 'brandpulse') . '</label>';
 echo "<input class='form-control' id='refresh_interval' type='number' min='15' name='refresh_interval' value='" . (int) $config['refresh_interval'] . "'>";
-echo "</div>";
-echo "</div>";
+echo '</div>';
+echo '</div>';
 
 echo "<div class='card mb-3'>";
-echo "<div class='card-header'><strong>Brand</strong></div>";
+echo "<div class='card-header'><strong>" . __s('Brand', 'brandpulse') . '</strong></div>';
 echo "<div class='card-body'>";
-echo "<textarea class='form-control font-monospace' name='branding_json' rows='8'>" . Html::entities_deep((string) $rawConfig['branding_json']) . "</textarea>";
-echo "</div>";
-echo "</div>";
+echo "<textarea class='form-control font-monospace' name='branding_json' rows='8'>" . Html::entities_deep((string) $rawConfig['branding_json']) . '</textarea>';
+echo '</div>';
+echo '</div>';
 
 echo "<div class='card mb-3'>";
-echo "<div class='card-header'><strong>Pulse</strong></div>";
+echo "<div class='card-header'><strong>" . __s('Pulse', 'brandpulse') . '</strong></div>';
 echo "<div class='card-body'>";
-echo "<textarea class='form-control font-monospace' name='counters_json' rows='22'>" . Html::entities_deep((string) $rawConfig['counters_json']) . "</textarea>";
-echo "</div>";
+echo "<textarea class='form-control font-monospace' name='counters_json' rows='22'>" . Html::entities_deep((string) $rawConfig['counters_json']) . '</textarea>';
+echo '</div>';
 echo "<div class='table-responsive'>";
 echo "<table class='table table-sm mb-0'>";
-echo "<thead><tr><th>Ordre</th><th>Clé</th><th>Libellé</th><th>Icône</th><th>Couleur</th><th>Actif</th></tr></thead><tbody>";
+echo '<thead><tr>';
+echo '<th>' . __s('Order', 'brandpulse') . '</th>';
+echo '<th>' . __s('Key', 'brandpulse') . '</th>';
+echo '<th>' . __s('Label', 'brandpulse') . '</th>';
+echo '<th>' . __s('Icon', 'brandpulse') . '</th>';
+echo '<th>' . __s('Color', 'brandpulse') . '</th>';
+echo '<th>' . __s('Enabled', 'brandpulse') . '</th>';
+echo '</tr></thead><tbody>';
 
 foreach (array_values($config['counters']) as $index => $counter) {
-    $enabled = !empty($counter['enabled']) ? 'oui' : 'non';
+    $enabled = !empty($counter['enabled']) ? __('yes', 'brandpulse') : __('no', 'brandpulse');
     $color = Html::entities_deep((string) ($counter['color'] ?? ''));
 
     echo '<tr>';
     echo '<td>' . ((int) $index + 1) . '</td>';
     echo '<td><code>' . Html::entities_deep((string) ($counter['key'] ?? '')) . '</code></td>';
-    echo '<td>' . Html::entities_deep((string) ($counter['label'] ?? '')) . '</td>';
+    echo '<td>' . Html::entities_deep(__((string) ($counter['label'] ?? ''), 'brandpulse')) . '</td>';
     echo '<td><code>' . Html::entities_deep((string) ($counter['icon'] ?? '')) . '</code></td>';
     echo '<td><span class="brandpulse-color-preview" style="background:' . $color . '"></span><code>' . $color . '</code></td>';
-    echo '<td>' . $enabled . '</td>';
+    echo '<td>' . Html::entities_deep($enabled) . '</td>';
     echo '</tr>';
 }
 
 echo '</tbody></table>';
 echo '</div>';
-echo '<div class="card-footer text-muted">La v0.1 expose une édition JSON brute pour les catégories Brand et Pulse. L écran graphique complet viendra ensuite.</div>';
+echo '<div class="card-footer text-muted">' . __s('Version 0.1 exposes raw JSON editing for Brand and Pulse categories. The full graphical screen will come next.', 'brandpulse') . '</div>';
 echo '</div>';
 
-echo "<button class='btn btn-primary' type='submit'>Enregistrer</button>";
-echo "</form>";
-echo "</div>";
+echo "<button class='btn btn-primary' type='submit'>" . __s('Save', 'brandpulse') . '</button>';
+echo '</form>';
+echo '</div>';
 
 Html::footer();

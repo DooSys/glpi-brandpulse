@@ -10,3 +10,5 @@
 - Add GitHub tag-based release workflow and installable ZIP packaging.
 - Add schema version tracking and idempotent plugin migration mechanism.
 - Add GLPI catalog metadata file for Marketplace/update publication readiness.
+- Add local SVG Pulse icon pack and default counter icon mapping.
+- Add gettext FR/EN catalogs using the `brandpulse` translation domain.

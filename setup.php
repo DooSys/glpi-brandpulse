@@ -38,7 +38,7 @@ function plugin_init_brandpulse(): void
 function plugin_version_brandpulse(): array
 {
     return [
-        'name'           => 'GLPI BrandPulse',
+        'name'           => __('GLPI BrandPulse', 'brandpulse'),
         'version'        => PLUGIN_BRANDPULSE_VERSION,
         'author'         => 'DooSys',
         'license'        => 'GPLv3+',

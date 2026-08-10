@@ -1,0 +1,67 @@
+{
+  "name": "Pulse Icon Pack",
+  "prefix": "pulse",
+  "usage": "pulse:name",
+  "icons": [
+    {
+      "key": "tasks",
+      "file": "tasks.svg",
+      "label": "Tasks"
+    },
+    {
+      "key": "waiting",
+      "file": "waiting.svg",
+      "label": "Waiting"
+    },
+    {
+      "key": "medical",
+      "file": "medical.svg",
+      "label": "Medical"
+    },
+    {
+      "key": "ticket",
+      "file": "ticket.svg",
+      "label": "Ticket"
+    },
+    {
+      "key": "it",
+      "file": "it.svg",
+      "label": "IT"
+    },
+    {
+      "key": "unassigned",
+      "file": "unassigned.svg",
+      "label": "Unassigned"
+    },
+    {
+      "key": "bell",
+      "file": "bell.svg",
+      "label": "Bell"
+    },
+    {
+      "key": "clock",
+      "file": "clock.svg",
+      "label": "Clock"
+    },
+    {
+      "key": "warning",
+      "file": "warning.svg",
+      "label": "Warning"
+    },
+    {
+      "key": "validation",
+      "file": "validation.svg",
+      "label": "Validation"
+    },
+    {
+      "key": "asset",
+      "file": "asset.svg",
+      "label": "Asset"
+    },
+    {
+      "key": "brand",
+      "file": "brand.svg",
+      "label": "Brand"
+    }
+  ]
+}

@@ -6,10 +6,12 @@
 
   const currentScript = document.currentScript;
   const scriptUrl = currentScript?.src || '';
-  const endpoint = scriptUrl.includes(PLUGIN_MARKER)
-    ? scriptUrl.replace('/public/js/brandpulse.js', '/ajax/counters.php')
-    : `${window.CFG_GLPI?.root_doc || ''}/plugins/brandpulse/ajax/counters.php`;
+  const pluginBaseUrl = scriptUrl.includes(PLUGIN_MARKER)
+    ? scriptUrl.substring(0, scriptUrl.indexOf('/public/js/brandpulse.js'))
+    : `${window.CFG_GLPI?.root_doc || ''}/plugins/brandpulse`;
+  const endpoint = `${pluginBaseUrl}/ajax/counters.php`;
 
+  const t = (message) => (typeof window.__ === 'function' ? window.__(message, 'brandpulse') : message);
   let refreshTimer = null;
 
   const findHeaderTarget = () => {
@@ -44,10 +46,47 @@
     const container = document.createElement('nav');
     container.id = CONTAINER_ID;
     container.className = 'brandpulse-counters';
-    container.setAttribute('aria-label', 'GLPI BrandPulse counters');
+    container.setAttribute('aria-label', t('GLPI BrandPulse counters'));
     target.append(container);
 
     return container;
+  };
+
+  const resolveIconUrl = (icon) => {
+    if (!icon) {
+      return `${pluginBaseUrl}/public/icons/pulse/bell.svg`;
+    }
+
+    if (icon.startsWith('pulse:')) {
+      return `${pluginBaseUrl}/public/icons/pulse/${icon.substring(6)}.svg`;
+    }
+
+    if (icon.endsWith('.svg') || icon.startsWith('/') || icon.startsWith('http')) {
+      return icon;
+    }
+
+    return null;
+  };
+
+  const renderIcon = (counter) => {
+    const icon = counter.icon || 'pulse:bell';
+    const iconUrl = resolveIconUrl(icon);
+
+    if (iconUrl) {
+      const image = document.createElement('img');
+      image.className = 'brandpulse-icon';
+      image.src = iconUrl;
+      image.alt = '';
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      image.setAttribute('aria-hidden', 'true');
+      return image;
+    }
+
+    const element = document.createElement('i');
+    element.className = icon;
+    element.setAttribute('aria-hidden', 'true');
+    return element;
   };
 
   const renderCounter = (counter) => {
@@ -61,16 +100,12 @@
       item.addEventListener('click', (event) => event.preventDefault());
     }
 
-    const icon = document.createElement('i');
-    icon.className = counter.icon || 'fa-solid fa-bell';
-    icon.setAttribute('aria-hidden', 'true');
-
     const badge = document.createElement('span');
     badge.className = 'brandpulse-badge';
     badge.textContent = String(counter.count ?? 0);
     badge.style.backgroundColor = counter.color || '#3b82f6';
 
-    item.append(icon, badge);
+    item.append(renderIcon(counter), badge);
     return item;
   };
 
@@ -119,7 +154,7 @@
       render(payload);
       scheduleRefresh(payload);
     } catch (error) {
-      window.console?.debug?.('BrandPulse counters unavailable', error);
+      window.console?.debug?.(t('BrandPulse counters unavailable'), error);
     }
   }
 
