@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.8
+
+- Curate the bundled Solar icon subset for Pulse counters around medical, IT and logistics use cases.
+- Remove decorative categories and lookalike variants from the picker to reduce visual noise and loading work.
+- Regenerate the lazy icon index with 170 focused SVG icons across 20 categories.
+
 ## 0.1.7
 
 - Add a robust GLPI bootstrap for direct plugin front/ajax entrypoints without emitting PHP warnings.
