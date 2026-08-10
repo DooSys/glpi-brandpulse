@@ -22,5 +22,6 @@ Available icons:
 - `pulse:validation`
 - `pulse:asset`
 - `pulse:brand`
+- `pulse:search`
 
 These SVGs are local project assets and do not require a third-party icon service.

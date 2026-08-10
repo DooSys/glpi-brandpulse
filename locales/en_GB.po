@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI BrandPulse 0.1.0\n"
+"Project-Id-Version: GLPI BrandPulse 0.1.1\n"
 "Report-Msgid-Bugs-To: https://github.com/DooSys/glpi-brandpulse/issues\n"
-"POT-Creation-Date: 2026-08-07 00:00+0000\n"
-"PO-Revision-Date: 2026-08-07 00:00+0000\n"
+"POT-Creation-Date: 2026-08-10 00:00+0000\n"
+"PO-Revision-Date: 2026-08-10 00:00+0000\n"
 "Last-Translator: DooSys\n"
 "Language-Team: en_GB\n"
 "Language: en_GB\n"
@@ -63,6 +63,9 @@ msgstr "LS-Microbio tickets"
 msgid "Label"
 msgstr "Label"
 
+msgid "Minimize the global search field to a magnifier icon"
+msgstr "Minimize the global search field to a magnifier icon"
+
 msgid "My open tickets"
 msgstr "My open tickets"
 
@@ -78,8 +81,14 @@ msgstr "Pulse"
 msgid "Pulse counters JSON is invalid."
 msgstr "Pulse counters JSON is invalid."
 
+msgid "Pulse is only displayed in the GLPI central interface, not in the helpdesk/self-service portal."
+msgstr "Pulse is only displayed in the GLPI central interface, not in the helpdesk/self-service portal."
+
 msgid "Save"
 msgstr "Save"
+
+msgid "Search"
+msgstr "Search"
 
 msgid "Settings categories: Brand for visual identity, Pulse for header counters."
 msgstr "Settings categories: Brand for visual identity, Pulse for header counters."

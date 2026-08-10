@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $enabled = isset($_POST['enabled']) ? '1' : '0';
     $refreshInterval = max(15, (int) ($_POST['refresh_interval'] ?? 60));
+    $compactSearchEnabled = isset($_POST['compact_search_enabled']) ? '1' : '0';
     $brandingJson = trim((string) ($_POST['branding_json'] ?? ''));
     $countersJson = trim((string) ($_POST['counters_json'] ?? ''));
 
@@ -36,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         BrandpulseConfig::save([
             'enabled' => $enabled,
             'refresh_interval' => (string) $refreshInterval,
+            'compact_search_enabled' => $compactSearchEnabled,
             'branding_json' => $brandingJson,
             'counters_json' => $countersJson,
         ]);
@@ -53,6 +55,7 @@ Html::header(__('GLPI BrandPulse', 'brandpulse'), $_SERVER['PHP_SELF'], 'config'
 echo "<div class='brandpulse-config'>";
 echo '<h1>' . __s('GLPI BrandPulse', 'brandpulse') . '</h1>';
 echo '<p>' . __s('Settings categories: Brand for visual identity, Pulse for header counters.', 'brandpulse') . '</p>';
+echo "<p class='text-muted'>" . __s('Pulse is only displayed in the GLPI central interface, not in the helpdesk/self-service portal.', 'brandpulse') . '</p>';
 echo "<p class='text-muted'>" . sprintf(
     __s('Installed BrandPulse schema: %s', 'brandpulse'),
     Html::entities_deep(BrandpulseConfig::schemaVersion() ?: __('not initialized', 'brandpulse'))
@@ -74,6 +77,10 @@ echo "<span class='form-check-label'>" . __s('Display BrandPulse in the header',
 echo '</label>';
 echo "<label class='form-label mt-3' for='refresh_interval'>" . __s('Counter refresh interval, in seconds', 'brandpulse') . '</label>';
 echo "<input class='form-control' id='refresh_interval' type='number' min='15' name='refresh_interval' value='" . (int) $config['refresh_interval'] . "'>";
+echo "<label class='form-check mt-3'>";
+echo "<input class='form-check-input' type='checkbox' name='compact_search_enabled' value='1'" . ($config['compact_search_enabled'] ? ' checked' : '') . '> ';
+echo "<span class='form-check-label'>" . __s('Minimize the global search field to a magnifier icon', 'brandpulse') . '</span>';
+echo '</label>';
 echo '</div>';
 echo '</div>';
 

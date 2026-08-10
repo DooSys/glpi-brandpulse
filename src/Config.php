@@ -52,6 +52,7 @@ final class Config
         $values = self::rawValues();
 
         $values['enabled'] = (bool) (int) $values['enabled'];
+        $values['compact_search_enabled'] = (bool) (int) $values['compact_search_enabled'];
         $values['refresh_interval'] = max(15, (int) $values['refresh_interval']);
         $values['branding'] = self::decodeJson($values['branding_json'], self::defaultBranding());
         $values['counters'] = self::decodeJson($values['counters_json'], self::defaultCounters());
@@ -80,6 +81,16 @@ final class Config
         \Config::setConfigurationValues(self::CONTEXT, array_intersect_key($values, self::defaults()));
     }
 
+
+    public static function isPulseAllowedInCurrentContext(): bool
+    {
+        if (!class_exists(\Session::class)) {
+            return false;
+        }
+
+        return \Session::getCurrentInterface() === 'central';
+    }
+
     public static function isValidJsonArray(string $json): bool
     {
         $decoded = json_decode($json, true);
@@ -92,6 +103,8 @@ final class Config
         return [
             'enabled' => '1',
             'refresh_interval' => '60',
+            'compact_search_enabled' => '0',
+            'pulse_interface' => 'central',
             'branding_json' => self::encodeJson(self::defaultBranding()),
             'counters_json' => self::encodeJson(self::defaultCounters()),
             self::SCHEMA_VERSION_KEY => '',

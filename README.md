@@ -27,7 +27,7 @@ brandpulse
 
 GLPI utilise le nom du dossier pour appeler les fonctions du plugin, par exemple `plugin_init_brandpulse()`.
 
-## État de la v0.1
+## État de la v0.1.1
 
 Cette première version pose le socle technique :
 
@@ -35,6 +35,8 @@ Cette première version pose le socle technique :
 - hooks CSS et JavaScript ;
 - endpoint AJAX JSON pour les compteurs ;
 - rendu header proche de l'ancien affichage ;
+- limitation Pulse à l'interface central GLPI, sans affichage sur le portail helpdesk/self-service ;
+- option de recherche globale compacte, réduite à une loupe puis étendue au clic ;
 - presets des compteurs historiques ;
 - valeurs de configuration initiales pour la future partie branding.
 
@@ -42,6 +44,13 @@ La page de configuration est organisée en deux catégories : Brand pour l'ident
 
 
 
+
+
+## Portée Pulse
+
+Pulse est conçu pour l'interface `central` de GLPI : techniciens, administrateurs, superviseurs, modérateurs et profils équivalents. Le endpoint AJAX vérifie l'interface courante GLPI avant de renvoyer les compteurs, afin de ne pas injecter la barre Pulse ni l'option de recherche compacte dans le portail helpdesk/self-service ou catalogue.
+
+Dans la catégorie Pulse, l'option de recherche compacte permet de réduire la recherche globale du header à une loupe. Au clic ou au focus, le champ s'étend pour permettre la saisie.
 
 ## Internationalisation
 
@@ -82,22 +91,22 @@ Les versions installables sont publiées depuis des tags Git au format `vX.Y.Z`.
 
 Avant de taguer, vérifier que la constante `PLUGIN_BRANDPULSE_VERSION` dans `setup.php` correspond au tag sans le `v`.
 
-Exemple pour publier la version `0.1.0` :
+Exemple pour publier la version `0.1.1` :
 
 ```bash
 cd /home/Doonix/DooSys_GitHub/glpi-brandpulse
 git status
 git add .
-git commit -m "Prepare GLPI BrandPulse 0.1.0"
+git commit -m "Prepare GLPI BrandPulse 0.1.1"
 git push origin main
-git tag -a v0.1.0 -m "GLPI BrandPulse v0.1.0"
-git push origin v0.1.0
+git tag -a v0.1.1 -m "GLPI BrandPulse v0.1.1"
+git push origin v0.1.1
 ```
 
 Le tag déclenche GitHub Actions. Le workflow construit une archive installable et la publie dans la release GitHub :
 
 ```text
-glpi-brandpulse-0.1.0.zip
+glpi-brandpulse-0.1.1.zip
 ```
 
 L'archive contient directement le dossier GLPI attendu :
@@ -111,7 +120,7 @@ Pour tester une release sur un environnement GLPI de test :
 ```bash
 cd /var/www/html/glpi/plugins
 rm -rf brandpulse
-curl -L -o /tmp/glpi-brandpulse.zip https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.0/glpi-brandpulse-0.1.0.zip
+curl -L -o /tmp/glpi-brandpulse.zip https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.1/glpi-brandpulse-0.1.1.zip
 unzip -q /tmp/glpi-brandpulse.zip -d /var/www/html/glpi/plugins
 ```
 

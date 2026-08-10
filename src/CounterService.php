@@ -17,10 +17,11 @@ final class CounterService
     {
         $config = Config::values();
 
-        if (!$config['enabled'] || $this->userId <= 0) {
+        if (!$config['enabled'] || !Config::isPulseAllowedInCurrentContext() || $this->userId <= 0) {
             return [
                 'enabled' => false,
                 'refresh_interval' => $config['refresh_interval'],
+                'compact_search_enabled' => false,
                 'counters' => [],
             ];
         }
@@ -28,6 +29,7 @@ final class CounterService
         return [
             'enabled' => true,
             'refresh_interval' => $config['refresh_interval'],
+            'compact_search_enabled' => $config['compact_search_enabled'],
             'counters' => $this->getCounters($config['counters']),
         ];
     }

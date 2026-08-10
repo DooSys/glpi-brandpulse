@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI BrandPulse 0.1.0\n"
+"Project-Id-Version: GLPI BrandPulse 0.1.1\n"
 "Report-Msgid-Bugs-To: https://github.com/DooSys/glpi-brandpulse/issues\n"
-"POT-Creation-Date: 2026-08-07 00:00+0000\n"
-"PO-Revision-Date: 2026-08-07 00:00+0000\n"
+"POT-Creation-Date: 2026-08-10 00:00+0000\n"
+"PO-Revision-Date: 2026-08-10 00:00+0000\n"
 "Last-Translator: DooSys\n"
 "Language-Team: fr_FR\n"
 "Language: fr_FR\n"
@@ -63,6 +63,9 @@ msgstr "Tickets LS-Microbio"
 msgid "Label"
 msgstr "Libellé"
 
+msgid "Minimize the global search field to a magnifier icon"
+msgstr "Réduire la recherche globale à une icône loupe"
+
 msgid "My open tickets"
 msgstr "Mes tickets ouverts"
 
@@ -78,17 +81,23 @@ msgstr "Pulse"
 msgid "Pulse counters JSON is invalid."
 msgstr "Le JSON des compteurs Pulse est invalide."
 
+msgid "Pulse is only displayed in the GLPI central interface, not in the helpdesk/self-service portal."
+msgstr "Pulse s'affiche uniquement dans l'interface centrale de GLPI, pas dans le portail helpdesk/self-service."
+
 msgid "Save"
 msgstr "Enregistrer"
 
+msgid "Search"
+msgstr "Rechercher"
+
 msgid "Settings categories: Brand for visual identity, Pulse for header counters."
-msgstr "Catégories de paramétrage : Brand pour l’identité visuelle, Pulse pour les compteurs du header."
+msgstr "Catégories de paramétrage : Brand pour l'identité visuelle, Pulse pour les compteurs du header."
 
 msgid "Unassigned tickets"
 msgstr "Tickets non assignés"
 
 msgid "Version 0.1 exposes raw JSON editing for Brand and Pulse categories. The full graphical screen will come next."
-msgstr "La version 0.1 expose une édition JSON brute pour les catégories Brand et Pulse. L’écran graphique complet viendra ensuite."
+msgstr "La version 0.1 expose une édition JSON brute pour les catégories Brand et Pulse. L'écran graphique complet viendra ensuite."
 
 msgid "Waiting tickets"
 msgstr "Tickets en attente"

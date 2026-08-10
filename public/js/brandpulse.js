@@ -89,6 +89,64 @@
     return element;
   };
 
+
+  const setupCompactSearch = (enabled) => {
+    document.body.classList.toggle('brandpulse-compact-search-enabled', Boolean(enabled));
+
+    if (!enabled) {
+      for (const container of document.querySelectorAll('.brandpulse-compact-search')) {
+        container.querySelector('.brandpulse-search-trigger')?.remove();
+        container.classList.remove('brandpulse-compact-search', 'is-expanded');
+      }
+      return;
+    }
+
+    const inputs = document.querySelectorAll([
+      'header input[type="search"]',
+      'header input[name="globalsearch"]',
+      'header input[name="criteria"]',
+      '#navbar-menu input[type="search"]',
+    ].join(','));
+
+    for (const input of inputs) {
+      const container = input.closest('form, .input-group, .search, .navbar-search') || input.parentElement;
+      if (!container || container.classList.contains('brandpulse-compact-search')) {
+        continue;
+      }
+
+      container.classList.add('brandpulse-compact-search');
+
+      const trigger = document.createElement('button');
+      trigger.className = 'brandpulse-search-trigger';
+      trigger.type = 'button';
+      trigger.title = t('Search');
+      trigger.setAttribute('aria-label', t('Search'));
+
+      const icon = document.createElement('img');
+      icon.src = `${pluginBaseUrl}/public/icons/pulse/search.svg`;
+      icon.alt = '';
+      icon.setAttribute('aria-hidden', 'true');
+      trigger.append(icon);
+
+      input.before(trigger);
+
+      const expand = () => {
+        container.classList.add('is-expanded');
+        input.focus();
+      };
+
+      const collapseIfEmpty = () => {
+        if (!input.value) {
+          container.classList.remove('is-expanded');
+        }
+      };
+
+      trigger.addEventListener('click', expand);
+      input.addEventListener('focus', () => container.classList.add('is-expanded'));
+      input.addEventListener('blur', () => window.setTimeout(collapseIfEmpty, 150));
+    }
+  };
+
   const renderCounter = (counter) => {
     const item = document.createElement('a');
     item.className = 'brandpulse-counter';
@@ -110,18 +168,17 @@
   };
 
   const render = (payload) => {
+    if (!payload.enabled || !Array.isArray(payload.counters)) {
+      document.getElementById(CONTAINER_ID)?.remove();
+      return;
+    }
+
     const container = ensureContainer();
     if (!container) {
       return;
     }
 
     container.replaceChildren();
-
-    if (!payload.enabled || !Array.isArray(payload.counters)) {
-      container.hidden = true;
-      return;
-    }
-
     container.hidden = false;
     for (const counter of payload.counters) {
       container.append(renderCounter(counter));
@@ -151,6 +208,7 @@
       }
 
       const payload = await response.json();
+      setupCompactSearch(payload.compact_search_enabled);
       render(payload);
       scheduleRefresh(payload);
     } catch (error) {

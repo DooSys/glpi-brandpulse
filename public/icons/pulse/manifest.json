@@ -62,6 +62,11 @@
       "key": "brand",
       "file": "brand.svg",
       "label": "Brand"
+    },
+    {
+      "key": "search",
+      "file": "search.svg",
+      "label": "Search"
     }
   ]
 }
