@@ -155,8 +155,8 @@ final class Config
                 'icon' => 'pulse:tasks',
                 'color' => '#27ab3c',
                 'enabled' => true,
-                'scope_type' => 'preset',
-                'scope_id' => 0,
+                'source_type' => 'preset',
+                'savedsearches_id' => 0,
                 'warning_threshold' => 0,
                 'critical_threshold' => 0,
             ],
@@ -166,8 +166,8 @@ final class Config
                 'icon' => 'pulse:waiting',
                 'color' => '#f59f00',
                 'enabled' => true,
-                'scope_type' => 'preset',
-                'scope_id' => 0,
+                'source_type' => 'preset',
+                'savedsearches_id' => 0,
                 'warning_threshold' => 0,
                 'critical_threshold' => 0,
             ],
@@ -177,8 +177,8 @@ final class Config
                 'icon' => 'pulse:ticket',
                 'color' => '#3b82f6',
                 'enabled' => true,
-                'scope_type' => 'preset',
-                'scope_id' => 0,
+                'source_type' => 'preset',
+                'savedsearches_id' => 0,
                 'warning_threshold' => 0,
                 'critical_threshold' => 0,
             ],
@@ -188,8 +188,8 @@ final class Config
                 'icon' => 'pulse:it',
                 'color' => '#ff3d2a',
                 'enabled' => true,
-                'scope_type' => 'preset',
-                'scope_id' => 0,
+                'source_type' => 'preset',
+                'savedsearches_id' => 0,
                 'warning_threshold' => 0,
                 'critical_threshold' => 0,
             ],
@@ -199,8 +199,8 @@ final class Config
                 'icon' => 'pulse:unassigned',
                 'color' => '#ffdc64',
                 'enabled' => true,
-                'scope_type' => 'preset',
-                'scope_id' => 0,
+                'source_type' => 'preset',
+                'savedsearches_id' => 0,
                 'warning_threshold' => 0,
                 'critical_threshold' => 0,
             ],
@@ -268,8 +268,8 @@ final class Config
 
             $key = trim((string) ($counter['key'] ?? ''));
             $label = trim((string) ($counter['label'] ?? ''));
-            $scopeType = (string) ($counter['scope_type'] ?? 'preset');
-            $scopeId = max(0, (int) ($counter['scope_id'] ?? 0));
+            $sourceType = (string) ($counter['source_type'] ?? $counter['scope_type'] ?? 'preset');
+            $savedSearchId = max(0, (int) ($counter['savedsearches_id'] ?? 0));
 
             if ($key === '' && $label !== '') {
                 $key = self::slug($label);
@@ -279,12 +279,20 @@ final class Config
                 continue;
             }
 
-            if (!in_array($scopeType, ['preset', 'category', 'group'], true)) {
-                $scopeType = 'preset';
+            if (!in_array($sourceType, ['preset', 'saved_search'], true)) {
+                $sourceType = 'preset';
             }
 
-            if ($scopeType === 'preset' && !array_key_exists($key, self::presetCounters())) {
+            if ($sourceType === 'preset' && !array_key_exists($key, self::presetCounters())) {
                 continue;
+            }
+
+            if ($sourceType === 'saved_search') {
+                if ($savedSearchId <= 0) {
+                    continue;
+                }
+
+                $key = 'saved_search_' . $savedSearchId;
             }
 
             $normalized[] = [
@@ -293,8 +301,8 @@ final class Config
                 'icon' => trim((string) ($counter['icon'] ?? 'pulse:bell')) ?: 'pulse:bell',
                 'color' => self::normalizeColor((string) ($counter['color'] ?? '#3b82f6')),
                 'enabled' => !empty($counter['enabled']),
-                'scope_type' => $scopeType,
-                'scope_id' => $scopeId,
+                'source_type' => $sourceType,
+                'savedsearches_id' => $savedSearchId,
                 'warning_threshold' => max(0, (int) ($counter['warning_threshold'] ?? 0)),
                 'critical_threshold' => max(0, (int) ($counter['critical_threshold'] ?? 0)),
             ];

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3
+
+- Use GLPI native `SavedSearch` and `Search` mechanisms for Pulse counter criteria.
+- Let Pulse counters target GLPI saved ticket searches, preserving native AND/OR criteria and metacriteria.
+- Run standard presets through the GLPI search engine instead of custom SQL counters.
+- Replace category/group-specific Pulse settings with a saved-search selector.
+
 ## 0.1.2
 
 - Fix GLPI 11 marketplace front/ajax bootstrap by removing legacy `inc/includes.php` includes.

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI BrandPulse 0.1.2\n"
+"Project-Id-Version: GLPI BrandPulse 0.1.3\n"
 "Report-Msgid-Bugs-To: https://github.com/DooSys/glpi-brandpulse/issues\n"
 "POT-Creation-Date: 2026-08-10 00:00+0000\n"
 "PO-Revision-Date: 2026-08-10 00:00+0000\n"
@@ -48,9 +48,6 @@ msgstr "Compteurs BrandPulse indisponibles"
 msgid "Browser title"
 msgstr "Titre du navigateur"
 
-msgid "Category"
-msgstr "Catégorie"
-
 msgid "Clock"
 msgstr "Horloge"
 
@@ -87,8 +84,11 @@ msgstr "GLPI BrandPulse"
 msgid "GLPI BrandPulse counters"
 msgstr "Compteurs GLPI BrandPulse"
 
-msgid "Group"
-msgstr "Groupe"
+msgid "GLPI preset"
+msgstr "Préréglage GLPI"
+
+msgid "GLPI saved search"
+msgstr "Recherche sauvegardée GLPI"
 
 msgid "IT"
 msgstr "IT"
@@ -159,8 +159,8 @@ msgstr "Paramètres Pulse mis à jour."
 msgid "Save"
 msgstr "Enregistrer"
 
-msgid "Scope"
-msgstr "Périmètre"
+msgid "Saved search"
+msgstr "Recherche sauvegardée"
 
 msgid "Search"
 msgstr "Rechercher"
@@ -171,6 +171,9 @@ msgstr "Catégories de paramétrage : Brand pour l'identité visuelle, Pulse pou
 msgid "Show a login page alert message"
 msgstr "Afficher un message d'alerte sur la page de login"
 
+msgid "Source"
+msgstr "Source"
+
 msgid "Success"
 msgstr "Succès"
 
@@ -180,20 +183,14 @@ msgstr "Tâches"
 msgid "Ticket"
 msgstr "Ticket"
 
-msgid "Ticket category"
-msgstr "Catégorie de tickets"
-
-msgid "Ticket group"
-msgstr "Groupe de tickets"
-
 msgid "Unassigned"
 msgstr "Non assigné"
 
 msgid "Unassigned tickets"
 msgstr "Tickets non assignés"
 
-msgid "Use preset counters or target all open tickets from one category or one group."
-msgstr "Utilisez des compteurs prédéfinis ou ciblez tous les tickets ouverts d'une catégorie ou d'un groupe."
+msgid "Use GLPI presets or GLPI saved searches. Saved searches keep the native AND/OR criteria builder."
+msgstr "Utilisez des préréglages GLPI ou des recherches sauvegardées GLPI. Les recherches sauvegardées conservent le builder natif de critères ET/OU."
 
 msgid "Validation"
 msgstr "Validation"
@@ -215,6 +212,3 @@ msgstr "non"
 
 msgid "not initialized"
 msgstr "non initialisé"
-
-msgid "yes"
-msgstr "oui"

@@ -26,6 +26,10 @@ final class Migrator
             self::migrateTo012();
         }
 
+        if (version_compare($installedVersion, '0.1.3', '<')) {
+            self::migrateTo013();
+        }
+
         Config::setSchemaVersion($targetVersion);
 
         return true;
@@ -37,6 +41,16 @@ final class Migrator
     }
 
     private static function migrateTo012(): void
+    {
+        self::normalizeStoredConfiguration();
+    }
+
+    private static function migrateTo013(): void
+    {
+        self::normalizeStoredConfiguration();
+    }
+
+    private static function normalizeStoredConfiguration(): void
     {
         $values = Config::values();
 

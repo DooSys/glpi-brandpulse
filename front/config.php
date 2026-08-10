@@ -17,26 +17,35 @@ function plugin_brandpulse_h(string $value): string
     return Html::entities_deep($value);
 }
 
-function plugin_brandpulse_dropdown_rows(string $table, string $labelField): array
+function plugin_brandpulse_saved_search_rows(): array
 {
     global $DB;
 
     $rows = [0 => __('None', 'brandpulse')];
 
-    if (!isset($DB) || !method_exists($DB, 'request')) {
+    if (!isset($DB) || !method_exists($DB, 'request') || !class_exists(SavedSearch::class)) {
         return $rows;
     }
 
     try {
         $iterator = $DB->request([
-            'SELECT' => ['id', $labelField],
-            'FROM' => $table,
-            'WHERE' => ['is_deleted' => 0],
-            'ORDER' => $labelField,
+            'SELECT' => ['id', 'name', 'users_id', 'is_private'],
+            'FROM' => SavedSearch::getTable(),
+            'WHERE' => [
+                'itemtype' => Ticket::class,
+                'type' => SavedSearch::SEARCH,
+            ],
+            'ORDER' => 'name',
         ]);
 
+        $userId = Session::getLoginUserID();
         foreach ($iterator as $row) {
-            $rows[(int) $row['id']] = (string) ($row[$labelField] ?: '#' . $row['id']);
+            $isPrivate = (int) ($row['is_private'] ?? 1) === 1;
+            if ($isPrivate && (int) ($row['users_id'] ?? 0) !== $userId) {
+                continue;
+            }
+
+            $rows[(int) $row['id']] = (string) ($row['name'] ?: '#' . $row['id']);
         }
     } catch (Throwable) {
         return $rows;
@@ -95,15 +104,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             continue;
         }
 
-        $scopeType = (string) ($row['scope_type'] ?? 'preset');
-        $key = $scopeType === 'preset'
-            ? (string) ($row['preset_key'] ?? '')
-            : (string) ($row['key'] ?? '');
-        $scopeId = match ($scopeType) {
-            'category' => (int) ($row['category_id'] ?? 0),
-            'group' => (int) ($row['group_id'] ?? 0),
-            default => 0,
-        };
+        $sourceType = (string) ($row['source_type'] ?? 'preset');
+        $savedSearchId = (int) ($row['savedsearches_id'] ?? 0);
+        $key = $sourceType === 'saved_search'
+            ? 'saved_search_' . $savedSearchId
+            : (string) ($row['preset_key'] ?? '');
 
         $counters[] = [
             'key' => $key,
@@ -111,8 +116,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'icon' => (string) ($row['icon'] ?? 'pulse:bell'),
             'color' => (string) ($row['color'] ?? '#3b82f6'),
             'enabled' => isset($row['enabled']),
-            'scope_type' => $scopeType,
-            'scope_id' => $scopeId,
+            'source_type' => $sourceType,
+            'savedsearches_id' => $savedSearchId,
             'warning_threshold' => (int) ($row['warning_threshold'] ?? 0),
             'critical_threshold' => (int) ($row['critical_threshold'] ?? 0),
         ];
@@ -132,14 +137,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $config = BrandpulseConfig::values();
 $branding = $config['branding'];
 $counters = array_values($config['counters']);
-$categories = plugin_brandpulse_dropdown_rows('glpi_itilcategories', 'completename');
-$groups = plugin_brandpulse_dropdown_rows('glpi_groups', 'completename');
 $presetCounters = BrandpulseConfig::presetCounters();
+$savedSearches = plugin_brandpulse_saved_search_rows();
 $icons = BrandpulseConfig::pulseIcons();
-$scopeTypes = [
-    'preset' => 'Preset',
-    'category' => 'Ticket category',
-    'group' => 'Ticket group',
+$sourceTypes = [
+    'preset' => 'GLPI preset',
+    'saved_search' => 'GLPI saved search',
 ];
 $alertTypes = [
     'info' => 'Info',
@@ -155,8 +158,8 @@ while (count($counters) < 8) {
         'icon' => 'pulse:bell',
         'color' => '#3b82f6',
         'enabled' => false,
-        'scope_type' => 'category',
-        'scope_id' => 0,
+        'source_type' => 'saved_search',
+        'savedsearches_id' => 0,
         'warning_threshold' => 0,
         'critical_threshold' => 0,
     ];
@@ -232,10 +235,9 @@ if ($tab === 'brand') {
     echo '<thead><tr>';
     echo '<th>' . __s('Enabled', 'brandpulse') . '</th>';
     echo '<th>' . __s('Label', 'brandpulse') . '</th>';
-    echo '<th>' . __s('Scope', 'brandpulse') . '</th>';
+    echo '<th>' . __s('Source', 'brandpulse') . '</th>';
     echo '<th>' . __s('Preset', 'brandpulse') . '</th>';
-    echo '<th>' . __s('Category', 'brandpulse') . '</th>';
-    echo '<th>' . __s('Group', 'brandpulse') . '</th>';
+    echo '<th>' . __s('Saved search', 'brandpulse') . '</th>';
     echo '<th>' . __s('Icon', 'brandpulse') . '</th>';
     echo '<th>' . __s('Color', 'brandpulse') . '</th>';
     echo '<th>' . __s('Warning', 'brandpulse') . '</th>';
@@ -243,17 +245,16 @@ if ($tab === 'brand') {
     echo '</tr></thead><tbody>';
 
     foreach ($counters as $index => $counter) {
-        $scopeType = (string) ($counter['scope_type'] ?? 'preset');
-        $scopeId = (int) ($counter['scope_id'] ?? 0);
+        $sourceType = (string) ($counter['source_type'] ?? 'preset');
+        $savedSearchId = (int) ($counter['savedsearches_id'] ?? 0);
         $presetKey = array_key_exists((string) ($counter['key'] ?? ''), $presetCounters) ? (string) $counter['key'] : 'my_tasks';
 
         echo '<tr>';
         echo "<td><input class='form-check-input' type='checkbox' name='counters[{$index}][enabled]' value='1'" . (!empty($counter['enabled']) ? ' checked' : '') . '></td>';
         echo "<td>" . plugin_brandpulse_text_input("counters[{$index}][label]", (string) ($counter['label'] ?? ''), 'text', 'form-control form-control-sm') . plugin_brandpulse_text_input("counters[{$index}][key]", (string) ($counter['key'] ?? ''), 'hidden') . '</td>';
-        echo "<td>" . plugin_brandpulse_select("counters[{$index}][scope_type]", $scopeTypes, $scopeType) . '</td>';
+        echo "<td>" . plugin_brandpulse_select("counters[{$index}][source_type]", $sourceTypes, $sourceType) . '</td>';
         echo "<td>" . plugin_brandpulse_select("counters[{$index}][preset_key]", $presetCounters, $presetKey) . '</td>';
-        echo "<td>" . plugin_brandpulse_select("counters[{$index}][category_id]", $categories, $scopeType === 'category' ? $scopeId : 0, false) . '</td>';
-        echo "<td>" . plugin_brandpulse_select("counters[{$index}][group_id]", $groups, $scopeType === 'group' ? $scopeId : 0, false) . '</td>';
+        echo "<td>" . plugin_brandpulse_select("counters[{$index}][savedsearches_id]", $savedSearches, $savedSearchId, false) . '</td>';
         echo "<td>" . plugin_brandpulse_select("counters[{$index}][icon]", $icons, (string) ($counter['icon'] ?? 'pulse:bell')) . '</td>';
         echo "<td><input class='form-control form-control-sm form-control-color' type='color' name='counters[{$index}][color]' value='" . plugin_brandpulse_h((string) ($counter['color'] ?? '#3b82f6')) . "'></td>";
         echo "<td><input class='form-control form-control-sm' type='number' min='0' name='counters[{$index}][warning_threshold]' value='" . (int) ($counter['warning_threshold'] ?? 0) . "'></td>";
@@ -263,7 +264,7 @@ if ($tab === 'brand') {
 
     echo '</tbody></table>';
     echo '</div>';
-    echo "<div class='card-footer text-muted'>" . __s('Use preset counters or target all open tickets from one category or one group.', 'brandpulse') . '</div>';
+    echo "<div class='card-footer text-muted'>" . __s('Use GLPI presets or GLPI saved searches. Saved searches keep the native AND/OR criteria builder.', 'brandpulse') . '</div>';
     echo '</div>';
 }
 
