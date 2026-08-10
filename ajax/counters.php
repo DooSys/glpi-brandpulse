@@ -3,15 +3,36 @@
 declare(strict_types=1);
 
 $AJAX_INCLUDE = 1;
+$brandpulse_buffer_level = ob_get_level();
+ob_start();
+set_error_handler(static fn (): bool => true);
 
-$autoload = __DIR__ . '/../vendor/autoload.php';
-if (file_exists($autoload)) {
-    require_once $autoload;
+$payload = [
+    'enabled' => false,
+    'refresh_interval' => 60,
+    'compact_search_enabled' => false,
+    'counters' => [],
+];
+
+try {
+    $autoload = __DIR__ . '/../vendor/autoload.php';
+    if (file_exists($autoload)) {
+        require_once $autoload;
+    }
+
+    Session::checkLoginUser();
+
+    $service = new GlpiPlugin\Brandpulse\CounterService();
+    $payload = $service->getPayload();
+} catch (Throwable) {
+    $payload['enabled'] = false;
+} finally {
+    restore_error_handler();
+    while (ob_get_level() > $brandpulse_buffer_level) {
+        ob_end_clean();
+    }
 }
 
-Session::checkLoginUser();
 Html::header_nocache();
 header('Content-Type: application/json; charset=UTF-8');
-
-$service = new GlpiPlugin\Brandpulse\CounterService();
-echo json_encode($service->getPayload(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+echo json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

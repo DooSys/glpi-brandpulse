@@ -83,39 +83,46 @@ final class CounterService
 
     private function countSavedSearch(int $savedSearchId): int
     {
-        if ($savedSearchId <= 0 || !class_exists(\SavedSearch::class)) {
+        $search = $this->savedSearchData($savedSearchId);
+
+        if ($search === null) {
             return 0;
         }
 
-        $savedSearch = new \SavedSearch();
-        if (!$savedSearch->getFromDB($savedSearchId) || !$this->canUseSavedSearch($savedSearch)) {
-            return 0;
-        }
-
-        try {
-            $data = $savedSearch->execute(true);
-
-            return (int) ($data['data']['totalcount'] ?? 0);
-        } catch (\Throwable) {
-            return 0;
-        }
+        return $this->countSearch($search['itemtype'], $search['params']);
     }
 
     private function savedSearchUrl(int $savedSearchId): string
     {
-        if ($savedSearchId <= 0 || !class_exists(\SavedSearch::class)) {
+        $search = $this->savedSearchData($savedSearchId);
+
+        if ($search === null) {
             return '#';
+        }
+
+        return $this->searchUrl($search['itemtype'], $search['params']);
+    }
+
+    private function savedSearchData(int $savedSearchId): ?array
+    {
+        if ($savedSearchId <= 0 || !class_exists(\SavedSearch::class)) {
+            return null;
         }
 
         $savedSearch = new \SavedSearch();
         if (!$savedSearch->getFromDB($savedSearchId) || !$this->canUseSavedSearch($savedSearch)) {
-            return '#';
+            return null;
         }
 
         $itemtype = (string) ($savedSearch->fields['itemtype'] ?? 'Ticket');
-        $params = $this->paramsFromQuery((string) ($savedSearch->fields['query'] ?? ''));
+        if ($itemtype === '' || !class_exists($itemtype)) {
+            return null;
+        }
 
-        return $this->searchUrl($itemtype, $params);
+        return [
+            'itemtype' => $itemtype,
+            'params' => $this->paramsFromQuery((string) ($savedSearch->fields['query'] ?? '')),
+        ];
     }
 
     private function countSearch(string $itemtype, array $params): int
@@ -123,6 +130,10 @@ final class CounterService
         if ($params === [] || !class_exists(\Search::class)) {
             return 0;
         }
+
+        $bufferLevel = ob_get_level();
+        ob_start();
+        set_error_handler(static fn (): bool => true);
 
         try {
             $params = array_replace([
@@ -133,11 +144,27 @@ final class CounterService
                 'reset' => 'reset',
             ], $params);
 
+            if (method_exists(\Search::class, 'manageParams')) {
+                $managedParams = \Search::manageParams($itemtype, $params, false, false);
+                if (is_array($managedParams)) {
+                    $params = $managedParams;
+                }
+            }
+
+            $params['start'] = 0;
+            $params['list_limit'] = 1;
+            $params['display_type'] = \Search::HTML_OUTPUT;
+
             $data = \Search::getDatas($itemtype, $params, [2]);
 
             return (int) ($data['data']['totalcount'] ?? 0);
         } catch (\Throwable) {
             return 0;
+        } finally {
+            restore_error_handler();
+            while (ob_get_level() > $bufferLevel) {
+                ob_end_clean();
+            }
         }
     }
 
@@ -209,10 +236,18 @@ final class CounterService
 
     private function paramsFromQuery(string $query): array
     {
+        $query = html_entity_decode(trim($query), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $query = ltrim($query, '?&');
         $params = [];
         parse_str($query, $params);
 
-        return is_array($params) ? $params : [];
+        if (!is_array($params)) {
+            return [];
+        }
+
+        unset($params['_glpi_csrf_token'], $params['csrf_token']);
+
+        return $params;
     }
 
     private function canUseSavedSearch(\SavedSearch $savedSearch): bool

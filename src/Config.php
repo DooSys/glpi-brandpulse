@@ -223,6 +223,21 @@ final class Config
             'pulse:asset' => 'Asset',
             'pulse:brand' => 'Brand',
             'pulse:search' => 'Search',
+            'pulse:category' => 'Category',
+            'pulse:group' => 'Group',
+            'pulse:user' => 'User',
+            'pulse:computer' => 'Computer',
+            'pulse:server' => 'Server',
+            'pulse:network' => 'Network',
+            'pulse:printer' => 'Printer',
+            'pulse:phone' => 'Phone',
+            'pulse:mail' => 'Mail',
+            'pulse:calendar' => 'Calendar',
+            'pulse:shield' => 'Shield',
+            'pulse:database' => 'Database',
+            'pulse:cart' => 'Cart',
+            'pulse:bug' => 'Bug',
+            'pulse:wrench' => 'Wrench',
         ];
     }
 

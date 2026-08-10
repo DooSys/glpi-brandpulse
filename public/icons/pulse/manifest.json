@@ -67,6 +67,81 @@
       "key": "search",
       "file": "search.svg",
       "label": "Search"
+    },
+    {
+      "key": "category",
+      "file": "category.svg",
+      "label": "Category"
+    },
+    {
+      "key": "group",
+      "file": "group.svg",
+      "label": "Group"
+    },
+    {
+      "key": "user",
+      "file": "user.svg",
+      "label": "User"
+    },
+    {
+      "key": "computer",
+      "file": "computer.svg",
+      "label": "Computer"
+    },
+    {
+      "key": "server",
+      "file": "server.svg",
+      "label": "Server"
+    },
+    {
+      "key": "network",
+      "file": "network.svg",
+      "label": "Network"
+    },
+    {
+      "key": "printer",
+      "file": "printer.svg",
+      "label": "Printer"
+    },
+    {
+      "key": "phone",
+      "file": "phone.svg",
+      "label": "Phone"
+    },
+    {
+      "key": "mail",
+      "file": "mail.svg",
+      "label": "Mail"
+    },
+    {
+      "key": "calendar",
+      "file": "calendar.svg",
+      "label": "Calendar"
+    },
+    {
+      "key": "shield",
+      "file": "shield.svg",
+      "label": "Shield"
+    },
+    {
+      "key": "database",
+      "file": "database.svg",
+      "label": "Database"
+    },
+    {
+      "key": "cart",
+      "file": "cart.svg",
+      "label": "Cart"
+    },
+    {
+      "key": "bug",
+      "file": "bug.svg",
+      "label": "Bug"
+    },
+    {
+      "key": "wrench",
+      "file": "wrench.svg",
+      "label": "Wrench"
     }
   ]
 }

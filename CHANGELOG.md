@@ -1,8 +1,15 @@
 # Changelog
 
+## 0.1.4
+
+- Count saved-search Pulse counters through GLPI `Search` parameters instead of calling `SavedSearch::execute()` directly.
+- Protect BrandPulse JSON endpoints from PHP warnings or incidental output corrupting AJAX responses.
+- Render Pulse SVG icons as CSS masks so they adapt to light, dark and custom header colours.
+- Add a visual icon picker, custom SVG URL/path support and a broader local SVG icon pack.
+
 ## 0.1.3
 
-- Use GLPI native `SavedSearch` and `Search` mechanisms for Pulse counter criteria.
+- Use GLPI native SavedSearch and Search mechanisms for Pulse counter criteria.
 - Let Pulse counters target GLPI saved ticket searches, preserving native AND/OR criteria and metacriteria.
 - Run standard presets through the GLPI search engine instead of custom SQL counters.
 - Replace category/group-specific Pulse settings with a saved-search selector.

@@ -67,6 +67,33 @@ function plugin_brandpulse_select(string $name, array $options, string|int $sele
     return $html . '</select>';
 }
 
+function plugin_brandpulse_icon_picker(string $name, array $options, string $selected): string
+{
+    global $CFG_GLPI;
+
+    $selected = array_key_exists($selected, $options) ? $selected : 'pulse:bell';
+    $baseUrl = ($CFG_GLPI['root_doc'] ?? '') . '/plugins/brandpulse/public/icons/pulse/';
+    $html = "<div class='brandpulse-icon-picker'>";
+
+    foreach ($options as $value => $label) {
+        if (!str_starts_with((string) $value, 'pulse:')) {
+            continue;
+        }
+
+        $key = substr((string) $value, 6);
+        $id = preg_replace('/[^a-zA-Z0-9_-]/', '_', $name . '_' . $key);
+        $checked = (string) $value === $selected ? ' checked' : '';
+        $url = $baseUrl . rawurlencode($key) . '.svg';
+
+        $html .= "<label class='brandpulse-icon-choice' title='" . plugin_brandpulse_h(__((string) $label, 'brandpulse')) . "'>";
+        $html .= "<input id='" . plugin_brandpulse_h($id) . "' type='radio' name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h((string) $value) . "'" . $checked . '>';
+        $html .= "<span class='brandpulse-icon-swatch' style='-webkit-mask-image: url(&quot;" . plugin_brandpulse_h($url) . "&quot;); mask-image: url(&quot;" . plugin_brandpulse_h($url) . "&quot;);'></span>";
+        $html .= '</label>';
+    }
+
+    return $html . '</div>';
+}
+
 function plugin_brandpulse_text_input(string $name, string $value, string $type = 'text', string $class = 'form-control'): string
 {
     return "<input class='" . plugin_brandpulse_h($class) . "' type='" . plugin_brandpulse_h($type) . "' name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h($value) . "'>";
@@ -110,10 +137,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ? 'saved_search_' . $savedSearchId
             : (string) ($row['preset_key'] ?? '');
 
+        $iconCustom = trim((string) ($row['icon_custom'] ?? ''));
+        $icon = $iconCustom !== '' ? $iconCustom : (string) ($row['icon'] ?? 'pulse:bell');
+
         $counters[] = [
             'key' => $key,
             'label' => (string) ($row['label'] ?? ''),
-            'icon' => (string) ($row['icon'] ?? 'pulse:bell'),
+            'icon' => $icon,
             'color' => (string) ($row['color'] ?? '#3b82f6'),
             'enabled' => isset($row['enabled']),
             'source_type' => $sourceType,
@@ -255,7 +285,11 @@ if ($tab === 'brand') {
         echo "<td>" . plugin_brandpulse_select("counters[{$index}][source_type]", $sourceTypes, $sourceType) . '</td>';
         echo "<td>" . plugin_brandpulse_select("counters[{$index}][preset_key]", $presetCounters, $presetKey) . '</td>';
         echo "<td>" . plugin_brandpulse_select("counters[{$index}][savedsearches_id]", $savedSearches, $savedSearchId, false) . '</td>';
-        echo "<td>" . plugin_brandpulse_select("counters[{$index}][icon]", $icons, (string) ($counter['icon'] ?? 'pulse:bell')) . '</td>';
+        $iconValue = (string) ($counter['icon'] ?? 'pulse:bell');
+        $customIcon = array_key_exists($iconValue, $icons) ? '' : $iconValue;
+        echo "<td>" . plugin_brandpulse_icon_picker("counters[{$index}][icon]", $icons, $iconValue);
+        echo plugin_brandpulse_text_input("counters[{$index}][icon_custom]", $customIcon, 'text', 'form-control form-control-sm brandpulse-icon-custom');
+        echo "<div class='form-text'>" . __s('Custom SVG URL or path', 'brandpulse') . '</div></td>';
         echo "<td><input class='form-control form-control-sm form-control-color' type='color' name='counters[{$index}][color]' value='" . plugin_brandpulse_h((string) ($counter['color'] ?? '#3b82f6')) . "'></td>";
         echo "<td><input class='form-control form-control-sm' type='number' min='0' name='counters[{$index}][warning_threshold]' value='" . (int) ($counter['warning_threshold'] ?? 0) . "'></td>";
         echo "<td><input class='form-control form-control-sm' type='number' min='0' name='counters[{$index}][critical_threshold]' value='" . (int) ($counter['critical_threshold'] ?? 0) . "'></td>";

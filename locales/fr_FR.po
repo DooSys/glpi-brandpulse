@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI BrandPulse 0.1.3\n"
+"Project-Id-Version: GLPI BrandPulse 0.1.4\n"
 "Report-Msgid-Bugs-To: https://github.com/DooSys/glpi-brandpulse/issues\n"
 "POT-Creation-Date: 2026-08-10 00:00+0000\n"
 "PO-Revision-Date: 2026-08-10 00:00+0000\n"
@@ -212,3 +212,51 @@ msgstr "non"
 
 msgid "not initialized"
 msgstr "non initialisé"
+
+msgid "Custom SVG URL or path"
+msgstr "URL ou chemin SVG personnalisé"
+
+msgid "Category"
+msgstr "Catégorie"
+
+msgid "Group"
+msgstr "Groupe"
+
+msgid "User"
+msgstr "Utilisateur"
+
+msgid "Computer"
+msgstr "Ordinateur"
+
+msgid "Server"
+msgstr "Serveur"
+
+msgid "Network"
+msgstr "Réseau"
+
+msgid "Printer"
+msgstr "Imprimante"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Mail"
+msgstr "E-mail"
+
+msgid "Calendar"
+msgstr "Calendrier"
+
+msgid "Shield"
+msgstr "Bouclier"
+
+msgid "Database"
+msgstr "Base de données"
+
+msgid "Cart"
+msgstr "Panier"
+
+msgid "Bug"
+msgstr "Bug"
+
+msgid "Wrench"
+msgstr "Outil"

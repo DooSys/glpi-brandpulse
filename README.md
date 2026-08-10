@@ -27,7 +27,7 @@ brandpulse
 
 GLPI utilise le nom du dossier pour appeler les fonctions du plugin, par exemple `plugin_init_brandpulse()`.
 
-## État de la v0.1.3
+## État de la v0.1.4
 
 Cette première version pose le socle technique :
 
@@ -41,7 +41,7 @@ Cette première version pose le socle technique :
 - page Brand pour le titre, favicon, logo login, logo menu gauche, fond login et message d'alerte login.
 - page Pulse pour créer des compteurs, choisir icône/couleur/seuils et cibler une recherche sauvegardée GLPI.
 
-La page de configuration est organisée en deux catégories : Brand pour l'identité visuelle et Pulse pour les compteurs du header. La v0.1.2 remplace l'édition JSON brute par des champs de configuration dans deux onglets Brand et Pulse.
+La page de configuration est organisée en deux catégories : Brand pour l'identité visuelle et Pulse pour les compteurs du header. Pulse propose un picker d'icônes SVG local et accepte aussi une URL ou un chemin vers un SVG externe.
 
 
 
@@ -94,22 +94,22 @@ Les versions installables sont publiées depuis des tags Git au format `vX.Y.Z`.
 
 Avant de taguer, vérifier que la constante `PLUGIN_BRANDPULSE_VERSION` dans `setup.php` correspond au tag sans le `v`.
 
-Exemple pour publier la version `0.1.3` :
+Exemple pour publier la version `0.1.4` :
 
 ```bash
 cd /home/Doonix/DooSys_GitHub/glpi-brandpulse
 git status
 git add .
-git commit -m "Prepare GLPI BrandPulse 0.1.3"
+git commit -m "Prepare GLPI BrandPulse 0.1.4"
 git push origin main
-git tag -a v0.1.3 -m "GLPI BrandPulse v0.1.3"
-git push origin v0.1.3
+git tag -a v0.1.4 -m "GLPI BrandPulse v0.1.4"
+git push origin v0.1.4
 ```
 
 Le tag déclenche GitHub Actions. Le workflow construit une archive installable et la publie dans la release GitHub :
 
 ```text
-glpi-brandpulse-0.1.3.zip
+glpi-brandpulse-0.1.4.zip
 ```
 
 L'archive contient directement le dossier GLPI attendu :
@@ -123,7 +123,7 @@ Pour tester une release sur un environnement GLPI de test :
 ```bash
 cd /var/www/html/glpi/plugins
 rm -rf brandpulse
-curl -L -o /tmp/glpi-brandpulse.zip https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.3/glpi-brandpulse-0.1.3.zip
+curl -L -o /tmp/glpi-brandpulse.zip https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.4/glpi-brandpulse-0.1.4.zip
 unzip -q /tmp/glpi-brandpulse.zip -d /var/www/html/glpi/plugins
 ```
 
@@ -180,7 +180,7 @@ Dans la configuration JSON d'un compteur, la syntaxe recommandée est :
 "icon": "pulse:tasks"
 ```
 
-BrandPulse résout alors automatiquement `pulse:tasks` vers `public/icons/pulse/tasks.svg`. Le rendu accepte aussi une URL SVG ou une classe CSS d'icône existante, mais le pack local est le mode par défaut afin d'éviter une dépendance tierce.
+BrandPulse résout alors automatiquement `pulse:tasks` vers `public/icons/pulse/tasks.svg`. Le rendu accepte aussi une URL ou un chemin SVG, par exemple un SVG téléchargé depuis une bibliothèque d'icônes libre. Le pack local reste le mode par défaut afin d'éviter une dépendance externe au runtime.
 
 ## Compteurs historiques repris comme presets
 

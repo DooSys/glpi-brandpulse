@@ -6,11 +6,12 @@
 
   const currentScript = document.currentScript;
   const scriptUrl = currentScript?.src || '';
+  const rootDoc = window.CFG_GLPI?.root_doc || '';
   const pluginBaseUrl = scriptUrl.includes(PLUGIN_MARKER)
     ? scriptUrl.substring(0, scriptUrl.indexOf('/public/js/brandpulse.js'))
-    : `${window.CFG_GLPI?.root_doc || ''}/plugins/brandpulse`;
-  const countersEndpoint = `${pluginBaseUrl}/ajax/counters.php`;
-  const brandingEndpoint = `${pluginBaseUrl}/ajax/branding.php`;
+    : rootDoc + '/plugins/brandpulse';
+  const countersEndpoint = pluginBaseUrl + '/ajax/counters.php';
+  const brandingEndpoint = pluginBaseUrl + '/ajax/branding.php';
 
   const t = (message) => (typeof window.__ === 'function' ? window.__(message, 'brandpulse') : message);
   let refreshTimer = null;
@@ -24,9 +25,57 @@
       return value;
     }
 
-    return `${window.CFG_GLPI?.root_doc || ''}/${value.replace(/^\/+/, '')}`;
+    return rootDoc + '/' + value.replace(/^\/+/, '');
   };
 
+  const parseRgb = (value) => {
+    const match = String(value || '').match(/rgba?\(([^)]+)\)/i);
+    if (!match) {
+      return null;
+    }
+
+    const parts = match[1].split(',').map((part) => Number.parseFloat(part.trim()));
+    if (parts.length < 3 || parts.some((part, index) => index < 3 && Number.isNaN(part))) {
+      return null;
+    }
+
+    return {
+      r: parts[0],
+      g: parts[1],
+      b: parts[2],
+      a: parts.length > 3 && !Number.isNaN(parts[3]) ? parts[3] : 1,
+    };
+  };
+
+  const relativeLuminance = ({ r, g, b }) => {
+    const normalize = (channel) => {
+      const value = channel / 255;
+      return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    };
+
+    return 0.2126 * normalize(r) + 0.7152 * normalize(g) + 0.0722 * normalize(b);
+  };
+
+  const readableColorFor = (element) => {
+    let current = element;
+    while (current && current !== document.documentElement) {
+      const color = parseRgb(window.getComputedStyle(current).backgroundColor);
+      if (color && color.a > 0.2) {
+        return relativeLuminance(color) < 0.46 ? '#ffffff' : '#1f2937';
+      }
+      current = current.parentElement;
+    }
+
+    return document.documentElement.matches('[data-bs-theme="dark"], .theme-dark') ? '#ffffff' : '#1f2937';
+  };
+
+  const setReadableIconColor = (element) => {
+    if (element) {
+      element.style.setProperty('--brandpulse-icon-color', readableColorFor(element));
+    }
+  };
+
+  const cssUrl = (url) => 'url("' + String(url).replace(/["\\\n\r]/g, '') + '")';
   const isSidebarElement = (element) => Boolean(element?.closest?.('#navbar-menu, aside, .navbar-vertical'));
 
   const findHeaderTarget = () => {
@@ -53,6 +102,7 @@
   const ensureContainer = () => {
     const existing = document.getElementById(CONTAINER_ID);
     if (existing) {
+      setReadableIconColor(existing);
       return existing;
     }
 
@@ -65,6 +115,8 @@
     container.id = CONTAINER_ID;
     container.className = 'brandpulse-counters';
     container.setAttribute('aria-label', t('GLPI BrandPulse counters'));
+    setReadableIconColor(target);
+    setReadableIconColor(container);
     target.prepend(container);
 
     return container;
@@ -72,11 +124,11 @@
 
   const resolveIconUrl = (icon) => {
     if (!icon) {
-      return `${pluginBaseUrl}/public/icons/pulse/bell.svg`;
+      return pluginBaseUrl + '/public/icons/pulse/bell.svg';
     }
 
     if (icon.startsWith('pulse:')) {
-      return `${pluginBaseUrl}/public/icons/pulse/${icon.substring(6)}.svg`;
+      return pluginBaseUrl + '/public/icons/pulse/' + icon.substring(6) + '.svg';
     }
 
     if (icon.endsWith('.svg') || icon.startsWith('/') || icon.startsWith('http')) {
@@ -86,19 +138,21 @@
     return null;
   };
 
+  const setMaskIcon = (element, iconUrl) => {
+    element.style.webkitMaskImage = cssUrl(iconUrl);
+    element.style.maskImage = cssUrl(iconUrl);
+  };
+
   const renderIcon = (counter) => {
     const icon = counter.icon || 'pulse:bell';
     const iconUrl = resolveIconUrl(icon);
 
     if (iconUrl) {
-      const image = document.createElement('img');
-      image.className = 'brandpulse-icon';
-      image.src = iconUrl;
-      image.alt = '';
-      image.loading = 'lazy';
-      image.decoding = 'async';
-      image.setAttribute('aria-hidden', 'true');
-      return image;
+      const element = document.createElement('span');
+      element.className = 'brandpulse-icon';
+      element.setAttribute('aria-hidden', 'true');
+      setMaskIcon(element, iconUrl);
+      return element;
     }
 
     const element = document.createElement('i');
@@ -138,6 +192,7 @@
       }
 
       container.classList.add('brandpulse-compact-search');
+      setReadableIconColor(container);
 
       const trigger = document.createElement('button');
       trigger.className = 'brandpulse-search-trigger';
@@ -145,10 +200,10 @@
       trigger.title = t('Search');
       trigger.setAttribute('aria-label', t('Search'));
 
-      const icon = document.createElement('img');
-      icon.src = `${pluginBaseUrl}/public/icons/pulse/search.svg`;
-      icon.alt = '';
+      const icon = document.createElement('span');
+      icon.className = 'brandpulse-search-trigger-icon';
       icon.setAttribute('aria-hidden', 'true');
+      setMaskIcon(icon, pluginBaseUrl + '/public/icons/pulse/search.svg');
       trigger.append(icon);
 
       input.before(trigger);
@@ -175,7 +230,7 @@
     item.className = 'brandpulse-counter';
     item.href = counter.href || '#';
     item.title = counter.label || counter.key || '';
-    item.setAttribute('aria-label', `${counter.label || counter.key}: ${counter.count}`);
+    item.setAttribute('aria-label', (counter.label || counter.key) + ': ' + counter.count);
 
     if (item.href.endsWith('#')) {
       item.addEventListener('click', (event) => event.preventDefault());
@@ -201,6 +256,7 @@
       return;
     }
 
+    setReadableIconColor(container);
     container.replaceChildren();
     container.hidden = false;
     for (const counter of payload.counters) {
@@ -247,7 +303,7 @@
     const backgroundUrl = resolveAssetUrl(branding.login_background);
     if (backgroundUrl && document.querySelector('form[action*="login"], .page-anonymous, .login-box')) {
       document.body.classList.add('brandpulse-login-branded');
-      document.body.style.setProperty('--brandpulse-login-background', `url("${backgroundUrl}")`);
+      document.body.style.setProperty('--brandpulse-login-background', 'url("' + backgroundUrl + '")');
     }
 
     if (branding.login_alert_enabled && branding.login_alert_message) {
@@ -255,7 +311,7 @@
         || document.querySelector('.login-box, .page-anonymous .container');
       if (loginContainer && !document.querySelector('.brandpulse-login-alert')) {
         const alert = document.createElement('div');
-        alert.className = `alert alert-${branding.login_alert_type || 'info'} brandpulse-login-alert`;
+        alert.className = 'alert alert-' + (branding.login_alert_type || 'info') + ' brandpulse-login-alert';
         alert.textContent = branding.login_alert_message;
         loginContainer.prepend(alert);
       }
