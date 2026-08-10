@@ -27,7 +27,7 @@ brandpulse
 
 GLPI utilise le nom du dossier pour appeler les fonctions du plugin, par exemple `plugin_init_brandpulse()`.
 
-## État de la v0.1.6
+## État de la v0.1.7
 
 Cette première version pose le socle technique :
 
@@ -48,6 +48,8 @@ La page de configuration est organisée en deux catégories : Brand pour l'ident
 
 
 ## Portée Pulse
+
+En GLPI 11, les ressources statiques du plugin restent stockées dans `public/`, mais leurs URLs publiques ne contiennent pas `/public`. BrandPulse référence donc ses assets sous `/plugins/brandpulse/css/...`, `/plugins/brandpulse/js/...` et `/plugins/brandpulse/icons/...`, conformément au routage plugin GLPI 11.
 
 Pulse est conçu pour l'interface `central` de GLPI : techniciens, administrateurs, superviseurs, modérateurs et profils équivalents. Le endpoint AJAX vérifie l'interface courante GLPI avant de renvoyer les compteurs, afin de ne pas injecter la barre Pulse ni l'option de recherche compacte dans le portail helpdesk/self-service ou catalogue.
 
@@ -94,22 +96,22 @@ Les versions installables sont publiées depuis des tags Git au format `vX.Y.Z`.
 
 Avant de taguer, vérifier que la constante `PLUGIN_BRANDPULSE_VERSION` dans `setup.php` correspond au tag sans le `v`.
 
-Exemple pour publier la version `0.1.6` :
+Exemple pour publier la version `0.1.7` :
 
 ```bash
 cd /home/Doonix/DooSys_GitHub/glpi-brandpulse
 git status
 git add .
-git commit -m "Prepare GLPI BrandPulse 0.1.6"
+git commit -m "Prepare GLPI BrandPulse 0.1.7"
 git push origin main
-git tag -a v0.1.6 -m "GLPI BrandPulse v0.1.6"
-git push origin v0.1.6
+git tag -a v0.1.7 -m "GLPI BrandPulse v0.1.7"
+git push origin v0.1.7
 ```
 
 Le tag déclenche GitHub Actions. Le workflow construit une archive installable et la publie dans la release GitHub :
 
 ```text
-glpi-brandpulse-0.1.6.zip
+glpi-brandpulse-0.1.7.zip
 ```
 
 L'archive contient directement le dossier GLPI attendu :
@@ -123,7 +125,7 @@ Pour tester une release sur un environnement GLPI de test :
 ```bash
 cd /var/www/html/glpi/plugins
 rm -rf brandpulse
-curl -L -o /tmp/glpi-brandpulse.zip https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.6/glpi-brandpulse-0.1.6.zip
+curl -L -o /tmp/glpi-brandpulse.zip https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.7/glpi-brandpulse-0.1.7.zip
 unzip -q /tmp/glpi-brandpulse.zip -d /var/www/html/glpi/plugins
 ```
 

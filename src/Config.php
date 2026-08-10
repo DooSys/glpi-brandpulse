@@ -209,12 +209,12 @@ final class Config
 
     public static function pulseIcons(): array
     {
-        $manifestPath = __DIR__ . '/../public/icons/pulse/manifest.json';
+        $manifestPath = __DIR__ . '/../public/icons/pulse/index.json';
         $icons = [];
 
         if (is_readable($manifestPath)) {
             $manifest = json_decode((string) file_get_contents($manifestPath), true);
-            $entries = is_array($manifest['icons'] ?? null) ? $manifest['icons'] : [];
+            $entries = is_array($manifest['preferred'] ?? null) ? $manifest['preferred'] : [];
 
             foreach ($entries as $entry) {
                 $rawPath = $entry['path'] ?? $entry['p'] ?? '';

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.7
+
+- Add a robust GLPI bootstrap for direct plugin front/ajax entrypoints without emitting PHP warnings.
+- Prevent BrandPulse JavaScript from running Pulse calls outside real HTML header pages.
+- Align GLPI 11 public asset URLs by removing `/public` from CSS, JavaScript and SVG web paths.
+- Declare legacy script firewall strategies for the configuration page and AJAX endpoints.
+- Split the Solar icon picker into a lightweight index and lazy category chunks instead of loading the whole icon database at popup opening.
+
 ## 0.1.6
 
 - Keep Pulse save actions visible at the top of the tab and as a floating bottom action.

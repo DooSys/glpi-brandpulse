@@ -4,17 +4,16 @@
   const PLUGIN_MARKER = '/plugins/brandpulse/';
   const CONTAINER_ID = 'brandpulse-header-counters';
 
-  const currentScript = document.currentScript;
-  const scriptUrl = currentScript?.src || '';
   const rootDoc = window.CFG_GLPI?.root_doc || '';
-  const pluginBaseUrl = scriptUrl.includes(PLUGIN_MARKER)
-    ? scriptUrl.substring(0, scriptUrl.indexOf('/public/js/brandpulse.js'))
-    : rootDoc + '/plugins/brandpulse';
+  const pluginBaseUrl = rootDoc + PLUGIN_MARKER.slice(0, -1);
   const countersEndpoint = pluginBaseUrl + '/ajax/counters.php';
   const brandingEndpoint = pluginBaseUrl + '/ajax/branding.php';
-  const iconManifestEndpoint = pluginBaseUrl + '/public/icons/pulse/manifest.json';
+  const iconIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';
+  const iconBaseEndpoint = pluginBaseUrl + '/icons/pulse/';
 
   const t = (message) => (typeof window.__ === 'function' ? window.__(message, 'brandpulse') : message);
+  const isHtmlDocument = () => document.contentType.toLowerCase().includes('html')
+    && document.documentElement?.nodeName?.toLowerCase() === 'html';
   let refreshTimer = null;
 
   const resolveAssetUrl = (value) => {
@@ -127,13 +126,13 @@
 
   const resolveIconUrl = (icon) => {
     if (!icon) {
-      return pluginBaseUrl + '/public/icons/pulse/Notifications/Bell.svg';
+      return pluginBaseUrl + '/icons/pulse/Notifications/Bell.svg';
     }
 
     if (icon.startsWith('pulse:')) {
       const iconPath = icon.substring(6);
       const path = iconPath.endsWith('.svg') ? iconPath : iconPath + '.svg';
-      return pluginBaseUrl + '/public/icons/pulse/' + encodeIconPath(path);
+      return pluginBaseUrl + '/icons/pulse/' + encodeIconPath(path);
     }
 
     if (/^(https?:)?\/\//.test(icon) || icon.startsWith('data:') || icon.startsWith('/')) {
@@ -212,7 +211,7 @@
       const icon = document.createElement('span');
       icon.className = 'brandpulse-search-trigger-icon';
       icon.setAttribute('aria-hidden', 'true');
-      setMaskIcon(icon, pluginBaseUrl + '/public/icons/pulse/Search/Magnifer.svg');
+      setMaskIcon(icon, pluginBaseUrl + '/icons/pulse/Search/Magnifer.svg');
       trigger.append(icon);
 
       input.before(trigger);
@@ -347,7 +346,8 @@
     }
   };
 
-  let iconManifestPromise = null;
+  let iconIndexPromise = null;
+  const iconCategoryPromises = new Map();
   let activeIconField = null;
   let iconPage = 0;
   const iconsPerPage = 24;
@@ -357,39 +357,80 @@
     category: '',
   };
 
-  const loadIconManifest = async () => {
-    if (!iconManifestPromise) {
-      iconManifestPromise = fetch(iconManifestEndpoint, {
+  const normalizeIcon = (icon) => {
+    const normalized = {
+      path: String(icon.path || icon.p || ''),
+      label: String(icon.label || icon.l || ''),
+      category: String(icon.category || icon.c || ''),
+      search: String(icon.search || icon.s || ''),
+    };
+    normalized.search = (normalized.search || [normalized.path, normalized.label, normalized.category].join(' ')).toLowerCase();
+    return normalized;
+  };
+
+  const loadIconIndex = async () => {
+    if (!iconIndexPromise) {
+      iconIndexPromise = fetch(iconIndexEndpoint, {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+      })
+        .then((response) => (response.ok ? response.json() : { categories: [], preferred: [] }))
+        .then((index) => ({
+          categories: Array.isArray(index.categories) ? index.categories : [],
+          preferred: Array.isArray(index.preferred) ? index.preferred.map(normalizeIcon).filter((icon) => icon.path !== '') : [],
+        }))
+        .catch(() => ({ categories: [], preferred: [] }));
+    }
+
+    return iconIndexPromise;
+  };
+
+  const loadIconCategory = async (categoryKey) => {
+    const index = await loadIconIndex();
+    const category = index.categories.find((item) => item.key === categoryKey);
+    if (!category?.file) {
+      return [];
+    }
+
+    if (!iconCategoryPromises.has(categoryKey)) {
+      iconCategoryPromises.set(categoryKey, fetch(iconBaseEndpoint + category.file, {
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
       })
         .then((response) => (response.ok ? response.json() : { icons: [] }))
-        .then((manifest) => Array.isArray(manifest.icons) ? manifest.icons.map((icon) => {
-          const normalized = {
-            path: String(icon.path || icon.p || ''),
-            label: String(icon.label || icon.l || ''),
-            category: String(icon.category || icon.c || ''),
-            search: String(icon.search || icon.s || ''),
-          };
-          normalized.search = (normalized.search || [normalized.path, normalized.label, normalized.category].join(' ')).toLowerCase();
-          return normalized;
-        }).filter((icon) => icon.path !== '') : [])
-        .catch(() => []);
+        .then((payload) => Array.isArray(payload.icons) ? payload.icons.map(normalizeIcon).filter((icon) => icon.path !== '') : [])
+        .catch(() => []));
     }
 
-    return iconManifestPromise;
+    return iconCategoryPromises.get(categoryKey);
+  };
+
+  const loadAllCategoryIcons = async () => {
+    const index = await loadIconIndex();
+    const chunks = await Promise.all(index.categories.map((category) => loadIconCategory(category.key)));
+    return chunks.flat();
   };
 
   const iconMatches = (icon) => {
-    if (iconFilters.category && icon.category !== iconFilters.category) {
-      return false;
-    }
-
     if (!iconFilters.query) {
       return true;
     }
 
     return iconFilters.query.split(/\s+/).every((word) => icon.search.includes(word));
+  };
+
+  const iconCandidates = async () => {
+    const index = await loadIconIndex();
+
+    if (iconFilters.category) {
+      return loadIconCategory(iconFilters.category);
+    }
+
+    if (iconFilters.query.length >= 2) {
+      return loadAllCategoryIcons();
+    }
+
+    return index.preferred;
   };
 
   const updateIconField = (field, value, label) => {
@@ -419,7 +460,8 @@
       return;
     }
 
-    const allIcons = await loadIconManifest();
+    const index = await loadIconIndex();
+    const allIcons = await iconCandidates();
     const results = modal.querySelector('[data-icon-results]');
     const pageLabel = modal.querySelector('[data-icon-page]');
     const prev = modal.querySelector('[data-icon-prev]');
@@ -427,10 +469,9 @@
     const categorySelect = modal.querySelector('[data-icon-category]');
 
     if (categorySelect && !categorySelect.dataset.ready) {
-      const categories = [...new Set(allIcons.map((icon) => icon.category).filter(Boolean))].sort();
       categorySelect.replaceChildren(new Option(t('All categories'), ''));
-      for (const category of categories) {
-        categorySelect.append(new Option(category, category));
+      for (const category of index.categories) {
+        categorySelect.append(new Option(category.label + ' (' + category.count + ')', category.key));
       }
       categorySelect.dataset.ready = '1';
     }
@@ -603,10 +644,17 @@
   }
 
   const boot = () => {
+    if (!isHtmlDocument()) {
+      return;
+    }
+
     setupPulseTargets();
     setupIconPickerModal();
     loadBranding();
-    loadCounters();
+
+    if (findHeaderTarget()) {
+      loadCounters();
+    }
   };
 
   if (document.readyState === 'loading') {

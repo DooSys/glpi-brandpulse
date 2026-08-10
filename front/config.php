@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+defined('GLPI_ROOT') or die('No direct access allowed');
+
 $autoload = __DIR__ . '/../vendor/autoload.php';
 if (file_exists($autoload)) {
     require_once $autoload;
@@ -71,12 +73,13 @@ function plugin_brandpulse_icon_field(string $name, array $options, string $sele
 {
     global $CFG_GLPI;
 
-    $baseUrl = ($CFG_GLPI['root_doc'] ?? '') . '/plugins/brandpulse/public/icons/pulse/';
+    $baseUrl = ($CFG_GLPI['root_doc'] ?? '') . '/plugins/brandpulse/icons/pulse/';
     $isKnown = array_key_exists($selected, $options);
-    $value = $isKnown ? $selected : 'pulse:Notifications/Bell.svg';
+    $value = $selected !== '' ? $selected : 'pulse:Notifications/Bell.svg';
     $path = str_starts_with($value, 'pulse:') ? substr($value, 6) : '';
     $url = $path !== '' ? $baseUrl . implode('/', array_map('rawurlencode', explode('/', $path))) : '';
-    $label = $isKnown ? (string) $options[$selected] : __('Custom icon', 'brandpulse');
+    $fallbackLabel = $path !== '' ? str_replace('/', ' / ', preg_replace('/\.svg$/', '', $path)) : __('Custom icon', 'brandpulse');
+    $label = $isKnown ? (string) $options[$selected] : $fallbackLabel;
 
     $html = "<div class='brandpulse-icon-field' data-icon-field>";
     $html .= "<input type='hidden' data-icon-value name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h($value) . "'>";
@@ -282,7 +285,7 @@ if ($tab === 'brand') {
         echo "<div data-pulse-target='saved_search'>" . plugin_brandpulse_select("counters[{$index}][savedsearches_id]", $savedSearches, $savedSearchId, false) . "</div>";
         echo "</td>";
         $iconValue = (string) ($counter['icon'] ?? 'pulse:Notifications/Bell.svg');
-        $customIcon = array_key_exists($iconValue, $icons) ? '' : $iconValue;
+        $customIcon = !array_key_exists($iconValue, $icons) && !str_starts_with($iconValue, 'pulse:') ? $iconValue : '';
         echo "<td>" . plugin_brandpulse_icon_field("counters[{$index}][icon]", $icons, $iconValue);
         echo plugin_brandpulse_text_input("counters[{$index}][icon_custom]", $customIcon, 'text', 'form-control form-control-sm brandpulse-icon-custom');
         echo "<div class='form-text'>" . __s('Custom SVG URL or path', 'brandpulse') . '</div></td>';
