@@ -1,9 +1,17 @@
 # Changelog
 
+## 0.1.12
+
+- Align Brand image imports with GLPI plugin file storage under `GLPI_PLUGIN_DOC_DIR/brandpulse/brand`.
+- Serve imported Brand images through a plugin endpoint and show the storage path in the Brand tab.
+- Use GLPI canonical `/plugins/brandpulse` URLs for plugin assets, including Pulse SVG icons.
+- Improve Pulse icon contrast for light, dark and custom header themes.
+- Refresh the Brand tab layout with grouped upload controls and image previews.
+
 ## 0.1.11
 
 - Add URL-or-upload controls for Brand assets and fill the stored URL after image import.
-- Store imported Brand images under `public/uploads/brand` with image type checks and FR/EN messages.
+- Store imported Brand images under `GLPI_PLUGIN_DOC_DIR/brandpulse/brand` with image type checks and FR/EN messages.
 
 ## 0.1.10
 

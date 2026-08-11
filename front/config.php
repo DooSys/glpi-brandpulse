@@ -9,6 +9,7 @@ if (file_exists($autoload)) {
     require_once $autoload;
 }
 
+use GlpiPlugin\Brandpulse\BrandAssetStore;
 use GlpiPlugin\Brandpulse\Config as BrandpulseConfig;
 
 Session::checkLoginUser();
@@ -56,6 +57,11 @@ function plugin_brandpulse_saved_search_rows(): array
     return $rows;
 }
 
+function plugin_brandpulse_csrf_token_name(): string
+{
+    return defined('Session::CSRF_TOKEN') ? Session::CSRF_TOKEN : '_glpi_csrf_token';
+}
+
 function plugin_brandpulse_select(string $name, array $options, string|int $selected, bool $translate = true): string
 {
     $html = "<select class='form-select form-select-sm' name='" . plugin_brandpulse_h($name) . "'>";
@@ -73,27 +79,12 @@ function plugin_brandpulse_web_base(): string
 {
     global $CFG_GLPI;
 
-    if (class_exists(Plugin::class) && method_exists(Plugin::class, 'getWebDir')) {
-        try {
-            $webDir = (string) Plugin::getWebDir('brandpulse');
-            if ($webDir !== '') {
-                return rtrim($webDir, '/');
-            }
-        } catch (Throwable) {
-        }
-    }
-
     return rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/plugins/brandpulse';
 }
 
 function plugin_brandpulse_config_url(string $tab): string
 {
-    $path = parse_url((string) ($_SERVER["REQUEST_URI"] ?? ""), PHP_URL_PATH);
-    if (!is_string($path) || $path === "") {
-        $path = plugin_brandpulse_web_base() . "/front/config.php";
-    }
-
-    return $path . "?tab=" . rawurlencode($tab);
+    return plugin_brandpulse_web_base() . '/front/config.php?tab=' . rawurlencode($tab);
 }
 
 function plugin_brandpulse_brand_asset_fields(): array
@@ -104,16 +95,6 @@ function plugin_brandpulse_brand_asset_fields(): array
         'menu_logo' => ['label' => 'Left menu logo URL or path', 'column' => 'col-md-6'],
         'login_background' => ['label' => 'Login background URL or path', 'column' => 'col-md-12'],
     ];
-}
-
-function plugin_brandpulse_brand_upload_dir(): string
-{
-    return dirname(__DIR__) . '/public/uploads/brand';
-}
-
-function plugin_brandpulse_uploaded_asset_url(string $filename): string
-{
-    return plugin_brandpulse_web_base() . '/uploads/brand/' . rawurlencode($filename);
 }
 
 function plugin_brandpulse_clean_upload_name(string $name, string $field, string $extension): string
@@ -180,8 +161,8 @@ function plugin_brandpulse_import_brand_asset(string $field, string $label): ?st
         throw plugin_brandpulse_unsupported_image_error($label);
     }
 
-    $uploadDir = plugin_brandpulse_brand_upload_dir();
-    if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
+    $uploadDir = BrandAssetStore::brandDirectory();
+    if (!BrandAssetStore::ensureBrandDirectory()) {
         throw new RuntimeException(__('Unable to create the Brand upload directory.', 'brandpulse'));
     }
 
@@ -193,7 +174,7 @@ function plugin_brandpulse_import_brand_asset(string $field, string $label): ?st
 
     @chmod($destination, 0644);
 
-    return plugin_brandpulse_uploaded_asset_url($filename);
+    return BrandAssetStore::assetUrl($filename);
 }
 
 function plugin_brandpulse_icon_field(string $name, array $options, string $selected): string
@@ -227,8 +208,10 @@ function plugin_brandpulse_brand_asset_input(string $name, string $label, string
     $id = 'brandpulse_' . preg_replace('/[^a-z0-9_]+/', '_', $name);
     $fileId = $id . '_upload';
     $accept = 'image/svg+xml,image/png,image/jpeg,image/gif,image/webp,image/x-icon,.ico';
+    $previewUrl = trim($value);
 
     $html = "<div class='" . plugin_brandpulse_h($columnClass) . "'>";
+    $html .= "<div class='brandpulse-brand-field'>";
     $html .= "<label class='form-label' for='" . plugin_brandpulse_h($id) . "'>" . __s($label, 'brandpulse') . '</label>';
     $html .= "<input class='form-control' id='" . plugin_brandpulse_h($id) . "' type='text' name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h($value) . "'>";
     $html .= "<div class='input-group input-group-sm mt-2'>";
@@ -236,6 +219,13 @@ function plugin_brandpulse_brand_asset_input(string $name, string $label, string
     $html .= "<input class='form-control form-control-sm' id='" . plugin_brandpulse_h($fileId) . "' type='file' name='" . plugin_brandpulse_h($name . '_upload') . "' accept='" . plugin_brandpulse_h($accept) . "'>";
     $html .= '</div>';
     $html .= "<div class='form-text'>" . __s('Enter a URL, or choose an image file and save to fill this URL automatically.', 'brandpulse') . '</div>';
+    if ($previewUrl !== '') {
+        $html .= "<div class='brandpulse-brand-preview mt-2'>";
+        $html .= "<img src='" . plugin_brandpulse_h($previewUrl) . "' alt='" . __s($label, 'brandpulse') . "'>";
+        $html .= "<code>" . plugin_brandpulse_h($previewUrl) . '</code>';
+        $html .= '</div>';
+    }
+    $html .= '</div>';
     $html .= '</div>';
 
     return $html;
@@ -367,12 +357,12 @@ echo "<p class='text-muted'>" . sprintf(
 ) . '</p>';
 
 echo "<ul class='nav nav-tabs mb-3'>";
-echo "<li class='nav-item'><a class='nav-link" . ($tab === 'brand' ? ' active' : '') . "' href='?tab=brand'>" . __s('Brand', 'brandpulse') . '</a></li>';
-echo "<li class='nav-item'><a class='nav-link" . ($tab === 'pulse' ? ' active' : '') . "' href='?tab=pulse'>" . __s('Pulse', 'brandpulse') . '</a></li>';
+echo "<li class='nav-item'><a class='nav-link" . ($tab === 'brand' ? ' active' : '') . "' href='" . plugin_brandpulse_h(plugin_brandpulse_config_url('brand')) . "'>" . __s('Brand', 'brandpulse') . '</a></li>';
+echo "<li class='nav-item'><a class='nav-link" . ($tab === 'pulse' ? ' active' : '') . "' href='" . plugin_brandpulse_h(plugin_brandpulse_config_url('pulse')) . "'>" . __s('Pulse', 'brandpulse') . '</a></li>';
 echo '</ul>';
 
 echo "<form method=\"post\" enctype=\"multipart/form-data\" action=\"" . plugin_brandpulse_h(plugin_brandpulse_config_url($tab)) . "\">";
-echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
+echo Html::hidden(plugin_brandpulse_csrf_token_name(), ['value' => Session::getNewCSRFToken()]);
 echo Html::hidden('tab', ['value' => $tab]);
 echo "<input type='hidden' name='MAX_FILE_SIZE' value='8388608'>";
 
@@ -388,6 +378,10 @@ if ($tab === 'brand') {
     echo "<div class='card mb-3'>";
     echo "<div class='card-header'><strong>" . __s('Brand', 'brandpulse') . '</strong></div>';
     echo "<div class='card-body'>";
+    echo "<div class='brandpulse-brand-storage mb-3'>";
+    echo "<strong>" . __s('Stored files', 'brandpulse') . '</strong>';
+    echo "<span>" . plugin_brandpulse_h(BrandAssetStore::brandDirectory()) . '</span>';
+    echo '</div>';
     echo "<div class='form-check mb-3'>";
     echo "<input class='form-check-input' id='brand_enabled' type='checkbox' name='brand_enabled' value='1'" . ($branding['enabled'] ? ' checked' : '') . '> ';
     echo "<label class='form-check-label' for='brand_enabled'>" . __s('Enable branding customizations', 'brandpulse') . '</label>';

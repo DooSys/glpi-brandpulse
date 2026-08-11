@@ -3,11 +3,8 @@
 
   const CONTAINER_ID = 'brandpulse-header-counters';
 
-  const currentScriptUrl = document.currentScript?.src || '';
   const rootDoc = window.CFG_GLPI?.root_doc || '';
-  const pluginBaseUrl = currentScriptUrl
-    ? currentScriptUrl.replace(/\/js\/brandpulse\.js(?:\?.*)?$/, '')
-    : rootDoc + '/plugins/brandpulse';
+  const pluginBaseUrl = rootDoc + '/plugins/brandpulse';
   const countersEndpoint = pluginBaseUrl + '/ajax/counters.php';
   const brandingEndpoint = pluginBaseUrl + '/ajax/branding.php';
   const iconIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';
@@ -59,6 +56,14 @@
   };
 
   const readableColorFor = (element) => {
+    const header = element.closest('header, .navbar, .navbar-expand, .topbar, .page-header') || element.parentElement;
+    if (header) {
+      const headerColor = parseRgb(window.getComputedStyle(header).color);
+      if (headerColor && headerColor.a > 0.35) {
+        return 'rgb(' + [headerColor.r, headerColor.g, headerColor.b].join(', ') + ')';
+      }
+    }
+
     let current = element;
     while (current && current !== document.documentElement) {
       const color = parseRgb(window.getComputedStyle(current).backgroundColor);

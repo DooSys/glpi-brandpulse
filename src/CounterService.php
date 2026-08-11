@@ -290,16 +290,6 @@ final class CounterService
     {
         global $CFG_GLPI;
 
-        if (class_exists(\Plugin::class) && method_exists(\Plugin::class, 'getWebDir')) {
-            try {
-                $webDir = (string) \Plugin::getWebDir('brandpulse');
-                if ($webDir !== '') {
-                    return rtrim($webDir, '/');
-                }
-            } catch (\Throwable) {
-            }
-        }
-
         return rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/plugins/brandpulse';
     }
 

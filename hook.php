@@ -21,7 +21,13 @@ function plugin_brandpulse_install(): bool
         return false;
     }
 
-    return GlpiPlugin\Brandpulse\Migrator::migrate(PLUGIN_BRANDPULSE_VERSION);
+    $migrated = GlpiPlugin\Brandpulse\Migrator::migrate(PLUGIN_BRANDPULSE_VERSION);
+
+    if ($migrated && class_exists(GlpiPlugin\Brandpulse\BrandAssetStore::class)) {
+        GlpiPlugin\Brandpulse\BrandAssetStore::ensureBrandDirectory();
+    }
+
+    return $migrated;
 }
 
 function plugin_brandpulse_uninstall(): bool

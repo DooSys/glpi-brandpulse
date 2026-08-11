@@ -302,3 +302,6 @@ msgstr "Impossible de créer le dossier d'import Brand."
 
 msgid "Unable to store the uploaded image for \"%s\"."
 msgstr "Impossible d'enregistrer l'image importée pour « %s »."
+
+msgid "Stored files"
+msgstr "Fichiers stockés"

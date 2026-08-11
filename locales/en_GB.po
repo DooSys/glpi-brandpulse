@@ -302,3 +302,6 @@ msgstr "Unable to create the Brand upload directory."
 
 msgid "Unable to store the uploaded image for \"%s\"."
 msgstr "Unable to store the uploaded image for \"%s\"."
+
+msgid "Stored files"
+msgstr "Stored files"
