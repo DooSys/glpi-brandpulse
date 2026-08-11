@@ -127,7 +127,6 @@ $tab = in_array($tab, ['brand', 'pulse'], true) ? $tab : 'brand';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    Session::checkCSRF($_POST);
 
     if ($tab === 'brand') {
         BrandpulseConfig::saveBranding([

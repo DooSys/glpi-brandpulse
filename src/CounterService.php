@@ -46,10 +46,13 @@ final class CounterService
             $key = (string) $definition['key'];
             $count = $this->count($definition);
 
+            $icon = (string) ($definition['icon'] ?? 'pulse:Notifications/Bell.svg');
+
             $counters[] = [
                 'key' => $key,
                 'label' => __((string) ($definition['label'] ?? $key), 'brandpulse'),
-                'icon' => (string) ($definition['icon'] ?? 'pulse:Notifications/Bell.svg'),
+                'icon' => $icon,
+                'icon_url' => $this->iconUrl($icon),
                 'color' => $this->colorForCount($definition, $count),
                 'count' => $count,
                 'href' => $this->href($definition, $count),
@@ -260,6 +263,44 @@ final class CounterService
         }
 
         return (int) ($savedSearch->fields['type'] ?? \SavedSearch::SEARCH) === \SavedSearch::SEARCH;
+    }
+
+    private function iconUrl(string $icon): string
+    {
+        if ($icon === '') {
+            $icon = 'pulse:Notifications/Bell.svg';
+        }
+
+        if (str_starts_with($icon, 'pulse:')) {
+            $path = substr($icon, 6);
+            if ($path === '') {
+                $path = 'Notifications/Bell.svg';
+            }
+            if (!str_ends_with($path, '.svg')) {
+                $path .= '.svg';
+            }
+
+            return $this->pluginWebBase() . '/icons/pulse/' . implode('/', array_map('rawurlencode', explode('/', $path)));
+        }
+
+        return $icon;
+    }
+
+    private function pluginWebBase(): string
+    {
+        global $CFG_GLPI;
+
+        if (class_exists(\Plugin::class) && method_exists(\Plugin::class, 'getWebDir')) {
+            try {
+                $webDir = (string) \Plugin::getWebDir('brandpulse');
+                if ($webDir !== '') {
+                    return rtrim($webDir, '/');
+                }
+            } catch (\Throwable) {
+            }
+        }
+
+        return rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/plugins/brandpulse';
     }
 
     private function colorForCount(array $definition, int $count): string

@@ -27,9 +27,9 @@
   </tags>
   <versions>
     <version>
-      <num>0.1.9</num>
+      <num>0.1.10</num>
       <compatibility>11.0</compatibility>
-      <download_url>https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.9/glpi-brandpulse-0.1.9.zip</download_url>
+      <download_url>https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.10/glpi-brandpulse-0.1.10.zip</download_url>
     </version>
   </versions>
 </root>

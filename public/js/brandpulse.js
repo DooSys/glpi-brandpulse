@@ -155,7 +155,7 @@
 
   const renderIcon = (counter) => {
     const icon = counter.icon || 'pulse:Notifications/Bell.svg';
-    const iconUrl = resolveIconUrl(icon);
+    const iconUrl = counter.icon_url || resolveIconUrl(icon);
 
     if (iconUrl) {
       const element = document.createElement('span');

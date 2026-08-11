@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.10
+
+- Remove the duplicate legacy `Session::checkCSRF()` call from the configuration page and rely on GLPI 11 request CSRF handling.
+- Send a resolved `icon_url` for each Pulse counter so header SVG masks work from both `plugins` and `marketplace` installs.
+
 ## 0.1.9
 
 - Derive BrandPulse public URLs from the actual loaded script URL so marketplace and plugins installs both resolve SVG icons correctly.
