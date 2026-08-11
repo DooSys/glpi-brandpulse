@@ -281,3 +281,24 @@ msgstr "Custom icon"
 
 msgid "Target"
 msgstr "Target"
+
+msgid "Import image"
+msgstr "Import image"
+
+msgid "Enter a URL, or choose an image file and save to fill this URL automatically."
+msgstr "Enter a URL, or choose an image file and save to fill this URL automatically."
+
+msgid "Image upload failed for \"%s\"."
+msgstr "Image upload failed for \"%s\"."
+
+msgid "The image is too large for \"%s\"."
+msgstr "The image is too large for \"%s\"."
+
+msgid "Unsupported image type for \"%s\"."
+msgstr "Unsupported image type for \"%s\"."
+
+msgid "Unable to create the Brand upload directory."
+msgstr "Unable to create the Brand upload directory."
+
+msgid "Unable to store the uploaded image for \"%s\"."
+msgstr "Unable to store the uploaded image for \"%s\"."

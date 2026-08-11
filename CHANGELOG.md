@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.11
+
+- Add URL-or-upload controls for Brand assets and fill the stored URL after image import.
+- Store imported Brand images under `public/uploads/brand` with image type checks and FR/EN messages.
+
 ## 0.1.10
 
 - Remove the duplicate legacy `Session::checkCSRF()` call from the configuration page and rely on GLPI 11 request CSRF handling.

@@ -96,6 +96,106 @@ function plugin_brandpulse_config_url(string $tab): string
     return $path . "?tab=" . rawurlencode($tab);
 }
 
+function plugin_brandpulse_brand_asset_fields(): array
+{
+    return [
+        'favicon' => ['label' => 'Favicon URL or path', 'column' => 'col-md-6'],
+        'login_logo' => ['label' => 'Login logo URL or path', 'column' => 'col-md-6'],
+        'menu_logo' => ['label' => 'Left menu logo URL or path', 'column' => 'col-md-6'],
+        'login_background' => ['label' => 'Login background URL or path', 'column' => 'col-md-12'],
+    ];
+}
+
+function plugin_brandpulse_brand_upload_dir(): string
+{
+    return dirname(__DIR__) . '/public/uploads/brand';
+}
+
+function plugin_brandpulse_uploaded_asset_url(string $filename): string
+{
+    return plugin_brandpulse_web_base() . '/uploads/brand/' . rawurlencode($filename);
+}
+
+function plugin_brandpulse_clean_upload_name(string $name, string $field, string $extension): string
+{
+    $base = pathinfo($name, PATHINFO_FILENAME);
+    $base = strtolower((string) preg_replace('/[^a-zA-Z0-9_-]+/', '-', $base));
+    $base = trim($base, '-_');
+    if ($base === '') {
+        $base = $field;
+    }
+
+    return $field . '-' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '-' . substr($base, 0, 60) . '.' . $extension;
+}
+
+function plugin_brandpulse_unsupported_image_error(string $label): RuntimeException
+{
+    return new RuntimeException(sprintf(__('Unsupported image type for "%s".', 'brandpulse'), __($label, 'brandpulse')));
+}
+
+function plugin_brandpulse_validate_svg_upload(string $tmpName, string $label): void
+{
+    $content = (string) file_get_contents($tmpName);
+    if (!preg_match('/<svg[\s>]/i', $content)) {
+        throw plugin_brandpulse_unsupported_image_error($label);
+    }
+
+    if (preg_match('/<script\b|\bon[a-z]+\s*=|javascript:/i', $content)) {
+        throw plugin_brandpulse_unsupported_image_error($label);
+    }
+}
+
+function plugin_brandpulse_import_brand_asset(string $field, string $label): ?string
+{
+    $file = $_FILES[$field . '_upload'] ?? null;
+    if (!is_array($file) || (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+
+    $error = (int) ($file['error'] ?? UPLOAD_ERR_OK);
+    if ($error !== UPLOAD_ERR_OK) {
+        throw new RuntimeException(sprintf(__('Image upload failed for "%s".', 'brandpulse'), __($label, 'brandpulse')));
+    }
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        throw new RuntimeException(sprintf(__('Image upload failed for "%s".', 'brandpulse'), __($label, 'brandpulse')));
+    }
+
+    $maxSize = 8 * 1024 * 1024;
+    if ((int) ($file['size'] ?? 0) > $maxSize) {
+        throw new RuntimeException(sprintf(__('The image is too large for "%s".', 'brandpulse'), __($label, 'brandpulse')));
+    }
+
+    $originalName = (string) ($file['name'] ?? 'brand-image');
+    $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    $allowedExtensions = ['svg', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'ico'];
+    if (!in_array($extension, $allowedExtensions, true)) {
+        throw plugin_brandpulse_unsupported_image_error($label);
+    }
+
+    if ($extension === 'svg') {
+        plugin_brandpulse_validate_svg_upload($tmpName, $label);
+    } elseif ($extension !== 'ico' && @getimagesize($tmpName) === false) {
+        throw plugin_brandpulse_unsupported_image_error($label);
+    }
+
+    $uploadDir = plugin_brandpulse_brand_upload_dir();
+    if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
+        throw new RuntimeException(__('Unable to create the Brand upload directory.', 'brandpulse'));
+    }
+
+    $filename = plugin_brandpulse_clean_upload_name($originalName, $field, $extension);
+    $destination = $uploadDir . '/' . $filename;
+    if (!move_uploaded_file($tmpName, $destination)) {
+        throw new RuntimeException(sprintf(__('Unable to store the uploaded image for "%s".', 'brandpulse'), __($label, 'brandpulse')));
+    }
+
+    @chmod($destination, 0644);
+
+    return plugin_brandpulse_uploaded_asset_url($filename);
+}
+
 function plugin_brandpulse_icon_field(string $name, array $options, string $selected): string
 {
     $baseUrl = plugin_brandpulse_web_base() . '/icons/pulse/';
@@ -122,6 +222,25 @@ function plugin_brandpulse_text_input(string $name, string $value, string $type 
     return "<input class='" . plugin_brandpulse_h($class) . "' type='" . plugin_brandpulse_h($type) . "' name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h($value) . "'>";
 }
 
+function plugin_brandpulse_brand_asset_input(string $name, string $label, string $value, string $columnClass): string
+{
+    $id = 'brandpulse_' . preg_replace('/[^a-z0-9_]+/', '_', $name);
+    $fileId = $id . '_upload';
+    $accept = 'image/svg+xml,image/png,image/jpeg,image/gif,image/webp,image/x-icon,.ico';
+
+    $html = "<div class='" . plugin_brandpulse_h($columnClass) . "'>";
+    $html .= "<label class='form-label' for='" . plugin_brandpulse_h($id) . "'>" . __s($label, 'brandpulse') . '</label>';
+    $html .= "<input class='form-control' id='" . plugin_brandpulse_h($id) . "' type='text' name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h($value) . "'>";
+    $html .= "<div class='input-group input-group-sm mt-2'>";
+    $html .= "<label class='input-group-text' for='" . plugin_brandpulse_h($fileId) . "'>" . __s('Import image', 'brandpulse') . '</label>';
+    $html .= "<input class='form-control form-control-sm' id='" . plugin_brandpulse_h($fileId) . "' type='file' name='" . plugin_brandpulse_h($name . '_upload') . "' accept='" . plugin_brandpulse_h($accept) . "'>";
+    $html .= '</div>';
+    $html .= "<div class='form-text'>" . __s('Enter a URL, or choose an image file and save to fill this URL automatically.', 'brandpulse') . '</div>';
+    $html .= '</div>';
+
+    return $html;
+}
+
 $tab = (string) ($_GET['tab'] ?? $_POST['tab'] ?? 'brand');
 $tab = in_array($tab, ['brand', 'pulse'], true) ? $tab : 'brand';
 $errors = [];
@@ -129,7 +248,7 @@ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($tab === 'brand') {
-        BrandpulseConfig::saveBranding([
+        $postedBranding = [
             'enabled' => isset($_POST['brand_enabled']),
             'title' => (string) ($_POST['title'] ?? ''),
             'favicon' => (string) ($_POST['favicon'] ?? ''),
@@ -139,55 +258,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'login_alert_enabled' => isset($_POST['login_alert_enabled']),
             'login_alert_type' => (string) ($_POST['login_alert_type'] ?? 'info'),
             'login_alert_message' => (string) ($_POST['login_alert_message'] ?? ''),
-        ]);
+        ];
 
-        Session::addMessageAfterRedirect(__('Brand settings updated.', 'brandpulse'));
-        Html::redirect(plugin_brandpulse_config_url("brand"));
-    }
-
-    $postedCounters = is_array($_POST['counters'] ?? null) ? $_POST['counters'] : [];
-    $counters = [];
-
-    foreach ($postedCounters as $row) {
-        if (!is_array($row)) {
-            continue;
+        foreach (plugin_brandpulse_brand_asset_fields() as $field => $fieldConfig) {
+            try {
+                $uploadedUrl = plugin_brandpulse_import_brand_asset($field, (string) $fieldConfig['label']);
+                if ($uploadedUrl !== null) {
+                    $postedBranding[$field] = $uploadedUrl;
+                }
+            } catch (RuntimeException $e) {
+                $errors[] = $e->getMessage();
+            }
         }
 
-        $sourceType = (string) ($row['source_type'] ?? 'preset');
-        $savedSearchId = (int) ($row['savedsearches_id'] ?? 0);
-        $key = $sourceType === 'saved_search'
-            ? 'saved_search_' . $savedSearchId
-            : (string) ($row['preset_key'] ?? '');
-
-        $iconCustom = trim((string) ($row['icon_custom'] ?? ''));
-        $icon = $iconCustom !== '' ? $iconCustom : (string) ($row['icon'] ?? 'pulse:Notifications/Bell.svg');
-
-        $counters[] = [
-            'key' => $key,
-            'label' => (string) ($row['label'] ?? ''),
-            'icon' => $icon,
-            'color' => (string) ($row['color'] ?? '#3b82f6'),
-            'enabled' => isset($row['enabled']),
-            'source_type' => $sourceType,
-            'savedsearches_id' => $savedSearchId,
-            'warning_threshold' => (int) ($row['warning_threshold'] ?? 0),
-            'critical_threshold' => (int) ($row['critical_threshold'] ?? 0),
-        ];
+        if ($errors === []) {
+            BrandpulseConfig::saveBranding($postedBranding);
+            Session::addMessageAfterRedirect(__('Brand settings updated.', 'brandpulse'));
+            Html::redirect(plugin_brandpulse_config_url("brand"));
+        }
     }
 
-    BrandpulseConfig::savePulse(
-        isset($_POST['enabled']),
-        (int) ($_POST['refresh_interval'] ?? 60),
-        isset($_POST['compact_search_enabled']),
-        $counters
-    );
+    if ($tab === 'pulse') {
+        $postedCounters = is_array($_POST['counters'] ?? null) ? $_POST['counters'] : [];
+        $counters = [];
 
-    Session::addMessageAfterRedirect(__('Pulse settings updated.', 'brandpulse'));
-    Html::redirect(plugin_brandpulse_config_url("pulse"));
+        foreach ($postedCounters as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $sourceType = (string) ($row['source_type'] ?? 'preset');
+            $savedSearchId = (int) ($row['savedsearches_id'] ?? 0);
+            $key = $sourceType === 'saved_search'
+                ? 'saved_search_' . $savedSearchId
+                : (string) ($row['preset_key'] ?? '');
+
+            $iconCustom = trim((string) ($row['icon_custom'] ?? ''));
+            $icon = $iconCustom !== '' ? $iconCustom : (string) ($row['icon'] ?? 'pulse:Notifications/Bell.svg');
+
+            $counters[] = [
+                'key' => $key,
+                'label' => (string) ($row['label'] ?? ''),
+                'icon' => $icon,
+                'color' => (string) ($row['color'] ?? '#3b82f6'),
+                'enabled' => isset($row['enabled']),
+                'source_type' => $sourceType,
+                'savedsearches_id' => $savedSearchId,
+                'warning_threshold' => (int) ($row['warning_threshold'] ?? 0),
+                'critical_threshold' => (int) ($row['critical_threshold'] ?? 0),
+            ];
+        }
+
+        BrandpulseConfig::savePulse(
+            isset($_POST['enabled']),
+            (int) ($_POST['refresh_interval'] ?? 60),
+            isset($_POST['compact_search_enabled']),
+            $counters
+        );
+
+        Session::addMessageAfterRedirect(__('Pulse settings updated.', 'brandpulse'));
+        Html::redirect(plugin_brandpulse_config_url("pulse"));
+    }
 }
 
 $config = BrandpulseConfig::values();
 $branding = $config['branding'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $tab === 'brand' && $errors !== [] && isset($postedBranding)) {
+    $branding = BrandpulseConfig::normalizeBranding($postedBranding);
+}
 $counters = array_values($config['counters']);
 $presetCounters = BrandpulseConfig::presetCounters();
 $savedSearches = plugin_brandpulse_saved_search_rows();
@@ -233,9 +371,18 @@ echo "<li class='nav-item'><a class='nav-link" . ($tab === 'brand' ? ' active' :
 echo "<li class='nav-item'><a class='nav-link" . ($tab === 'pulse' ? ' active' : '') . "' href='?tab=pulse'>" . __s('Pulse', 'brandpulse') . '</a></li>';
 echo '</ul>';
 
-echo "<form method=\"post\" action=\"" . plugin_brandpulse_h(plugin_brandpulse_config_url($tab)) . "\">";
+echo "<form method=\"post\" enctype=\"multipart/form-data\" action=\"" . plugin_brandpulse_h(plugin_brandpulse_config_url($tab)) . "\">";
 echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 echo Html::hidden('tab', ['value' => $tab]);
+echo "<input type='hidden' name='MAX_FILE_SIZE' value='8388608'>";
+
+if ($errors !== []) {
+    echo "<div class='alert alert-danger'>";
+    foreach ($errors as $error) {
+        echo '<div>' . plugin_brandpulse_h($error) . '</div>';
+    }
+    echo '</div>';
+}
 
 if ($tab === 'brand') {
     echo "<div class='card mb-3'>";
@@ -248,10 +395,14 @@ if ($tab === 'brand') {
 
     echo "<div class='row g-3'>";
     echo "<div class='col-md-6'><label class='form-label'>" . __s('Browser title', 'brandpulse') . '</label>' . plugin_brandpulse_text_input('title', (string) $branding['title']) . '</div>';
-    echo "<div class='col-md-6'><label class='form-label'>" . __s('Favicon URL or path', 'brandpulse') . '</label>' . plugin_brandpulse_text_input('favicon', (string) $branding['favicon']) . '</div>';
-    echo "<div class='col-md-6'><label class='form-label'>" . __s('Login logo URL or path', 'brandpulse') . '</label>' . plugin_brandpulse_text_input('login_logo', (string) $branding['login_logo']) . '</div>';
-    echo "<div class='col-md-6'><label class='form-label'>" . __s('Left menu logo URL or path', 'brandpulse') . '</label>' . plugin_brandpulse_text_input('menu_logo', (string) $branding['menu_logo']) . '</div>';
-    echo "<div class='col-md-12'><label class='form-label'>" . __s('Login background URL or path', 'brandpulse') . '</label>' . plugin_brandpulse_text_input('login_background', (string) $branding['login_background']) . '</div>';
+    foreach (plugin_brandpulse_brand_asset_fields() as $field => $fieldConfig) {
+        echo plugin_brandpulse_brand_asset_input(
+            (string) $field,
+            (string) $fieldConfig['label'],
+            (string) $branding[$field],
+            (string) $fieldConfig['column']
+        );
+    }
     echo '</div>';
 
     echo "<hr>";

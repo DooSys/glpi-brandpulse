@@ -281,3 +281,24 @@ msgstr "Icône personnalisée"
 
 msgid "Target"
 msgstr "Cible"
+
+msgid "Import image"
+msgstr "Importer une image"
+
+msgid "Enter a URL, or choose an image file and save to fill this URL automatically."
+msgstr "Saisissez une URL, ou choisissez un fichier image puis enregistrez pour compléter cette URL automatiquement."
+
+msgid "Image upload failed for \"%s\"."
+msgstr "L'import de l'image a échoué pour « %s »."
+
+msgid "The image is too large for \"%s\"."
+msgstr "L'image est trop volumineuse pour « %s »."
+
+msgid "Unsupported image type for \"%s\"."
+msgstr "Type d'image non pris en charge pour « %s »."
+
+msgid "Unable to create the Brand upload directory."
+msgstr "Impossible de créer le dossier d'import Brand."
+
+msgid "Unable to store the uploaded image for \"%s\"."
+msgstr "Impossible d'enregistrer l'image importée pour « %s »."

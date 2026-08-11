@@ -4,3 +4,5 @@
 .DS_Store
 Thumbs.db
 /dist/
+/public/uploads/brand/*
+!/public/uploads/brand/.gitkeep
