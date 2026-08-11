@@ -69,11 +69,36 @@ function plugin_brandpulse_select(string $name, array $options, string|int $sele
     return $html . '</select>';
 }
 
-function plugin_brandpulse_icon_field(string $name, array $options, string $selected): string
+function plugin_brandpulse_web_base(): string
 {
     global $CFG_GLPI;
 
-    $baseUrl = ($CFG_GLPI['root_doc'] ?? '') . '/plugins/brandpulse/icons/pulse/';
+    if (class_exists(Plugin::class) && method_exists(Plugin::class, 'getWebDir')) {
+        try {
+            $webDir = (string) Plugin::getWebDir('brandpulse');
+            if ($webDir !== '') {
+                return rtrim($webDir, '/');
+            }
+        } catch (Throwable) {
+        }
+    }
+
+    return rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/plugins/brandpulse';
+}
+
+function plugin_brandpulse_config_url(string $tab): string
+{
+    $path = parse_url((string) ($_SERVER["REQUEST_URI"] ?? ""), PHP_URL_PATH);
+    if (!is_string($path) || $path === "") {
+        $path = plugin_brandpulse_web_base() . "/front/config.php";
+    }
+
+    return $path . "?tab=" . rawurlencode($tab);
+}
+
+function plugin_brandpulse_icon_field(string $name, array $options, string $selected): string
+{
+    $baseUrl = plugin_brandpulse_web_base() . '/icons/pulse/';
     $isKnown = array_key_exists($selected, $options);
     $value = $selected !== '' ? $selected : 'pulse:Notifications/Bell.svg';
     $path = str_starts_with($value, 'pulse:') ? substr($value, 6) : '';
@@ -118,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         Session::addMessageAfterRedirect(__('Brand settings updated.', 'brandpulse'));
-        Html::redirect($_SERVER['PHP_SELF'] . '?tab=brand');
+        Html::redirect(plugin_brandpulse_config_url("brand"));
     }
 
     $postedCounters = is_array($_POST['counters'] ?? null) ? $_POST['counters'] : [];
@@ -159,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     Session::addMessageAfterRedirect(__('Pulse settings updated.', 'brandpulse'));
-    Html::redirect($_SERVER['PHP_SELF'] . '?tab=pulse');
+    Html::redirect(plugin_brandpulse_config_url("pulse"));
 }
 
 $config = BrandpulseConfig::values();
@@ -193,7 +218,7 @@ while (count($counters) < 8) {
     ];
 }
 
-Html::header(__('GLPI BrandPulse', 'brandpulse'), $_SERVER['PHP_SELF'], 'config', 'plugins');
+Html::header(__("GLPI BrandPulse", "brandpulse"), plugin_brandpulse_config_url($tab), "config", "plugins");
 
 echo "<div class='brandpulse-config'>";
 echo '<h1>' . __s('GLPI BrandPulse', 'brandpulse') . '</h1>';
@@ -209,7 +234,7 @@ echo "<li class='nav-item'><a class='nav-link" . ($tab === 'brand' ? ' active' :
 echo "<li class='nav-item'><a class='nav-link" . ($tab === 'pulse' ? ' active' : '') . "' href='?tab=pulse'>" . __s('Pulse', 'brandpulse') . '</a></li>';
 echo '</ul>';
 
-echo "<form method='post' action='" . Html::entities_deep($_SERVER['PHP_SELF']) . "?tab=" . plugin_brandpulse_h($tab) . "'>";
+echo "<form method=\"post\" action=\"" . plugin_brandpulse_h(plugin_brandpulse_config_url($tab)) . "\">";
 echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 echo Html::hidden('tab', ['value' => $tab]);
 
@@ -313,7 +338,6 @@ if ($tab === 'pulse') {
     echo '</div>';
     echo "<div class='brandpulse-icon-dialog-tools'>";
     echo "<input class='form-control form-control-sm' type='search' data-icon-search placeholder='" . __s('Search', 'brandpulse') . "'>";
-    echo "<select class='form-select form-select-sm' data-icon-category></select>";
     echo '</div>';
     echo "<div class='brandpulse-icon-results' data-icon-results></div>";
     echo "<div class='brandpulse-icon-dialog-footer'>";

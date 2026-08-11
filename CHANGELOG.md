@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.9
+
+- Derive BrandPulse public URLs from the actual loaded script URL so marketplace and plugins installs both resolve SVG icons correctly.
+- Simplify the Pulse icon picker to one flat 170-icon index with search and 24-icon pagination, without category chunks.
+- Remove category JSON chunks from the bundled icon pack to avoid extra requests and stale category state.
+
 ## 0.1.8
 
 - Curate the bundled Solar icon subset for Pulse counters around medical, IT and logistics use cases.

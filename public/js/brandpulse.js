@@ -1,11 +1,13 @@
 (() => {
   'use strict';
 
-  const PLUGIN_MARKER = '/plugins/brandpulse/';
   const CONTAINER_ID = 'brandpulse-header-counters';
 
+  const currentScriptUrl = document.currentScript?.src || '';
   const rootDoc = window.CFG_GLPI?.root_doc || '';
-  const pluginBaseUrl = rootDoc + PLUGIN_MARKER.slice(0, -1);
+  const pluginBaseUrl = currentScriptUrl
+    ? currentScriptUrl.replace(/\/js\/brandpulse\.js(?:\?.*)?$/, '')
+    : rootDoc + '/plugins/brandpulse';
   const countersEndpoint = pluginBaseUrl + '/ajax/counters.php';
   const brandingEndpoint = pluginBaseUrl + '/ajax/branding.php';
   const iconIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';
@@ -347,14 +349,12 @@
   };
 
   let iconIndexPromise = null;
-  const iconCategoryPromises = new Map();
   let activeIconField = null;
   let iconPage = 0;
   const iconsPerPage = 24;
   let iconSearchTimer = null;
   const iconFilters = {
     query: '',
-    category: '',
   };
 
   const normalizeIcon = (icon) => {
@@ -374,41 +374,12 @@
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
       })
-        .then((response) => (response.ok ? response.json() : { categories: [], preferred: [] }))
-        .then((index) => ({
-          categories: Array.isArray(index.categories) ? index.categories : [],
-          preferred: Array.isArray(index.preferred) ? index.preferred.map(normalizeIcon).filter((icon) => icon.path !== '') : [],
-        }))
-        .catch(() => ({ categories: [], preferred: [] }));
+        .then((response) => (response.ok ? response.json() : { icons: [] }))
+        .then((index) => Array.isArray(index.icons) ? index.icons.map(normalizeIcon).filter((icon) => icon.path !== '') : [])
+        .catch(() => []);
     }
 
     return iconIndexPromise;
-  };
-
-  const loadIconCategory = async (categoryKey) => {
-    const index = await loadIconIndex();
-    const category = index.categories.find((item) => item.key === categoryKey);
-    if (!category?.file) {
-      return [];
-    }
-
-    if (!iconCategoryPromises.has(categoryKey)) {
-      iconCategoryPromises.set(categoryKey, fetch(iconBaseEndpoint + category.file, {
-        credentials: 'same-origin',
-        headers: { Accept: 'application/json' },
-      })
-        .then((response) => (response.ok ? response.json() : { icons: [] }))
-        .then((payload) => Array.isArray(payload.icons) ? payload.icons.map(normalizeIcon).filter((icon) => icon.path !== '') : [])
-        .catch(() => []));
-    }
-
-    return iconCategoryPromises.get(categoryKey);
-  };
-
-  const loadAllCategoryIcons = async () => {
-    const index = await loadIconIndex();
-    const chunks = await Promise.all(index.categories.map((category) => loadIconCategory(category.key)));
-    return chunks.flat();
   };
 
   const iconMatches = (icon) => {
@@ -417,20 +388,6 @@
     }
 
     return iconFilters.query.split(/\s+/).every((word) => icon.search.includes(word));
-  };
-
-  const iconCandidates = async () => {
-    const index = await loadIconIndex();
-
-    if (iconFilters.category) {
-      return loadIconCategory(iconFilters.category);
-    }
-
-    if (iconFilters.query.length >= 2) {
-      return loadAllCategoryIcons();
-    }
-
-    return index.preferred;
   };
 
   const updateIconField = (field, value, label) => {
@@ -460,21 +417,11 @@
       return;
     }
 
-    const index = await loadIconIndex();
-    const allIcons = await iconCandidates();
+    const allIcons = await loadIconIndex();
     const results = modal.querySelector('[data-icon-results]');
     const pageLabel = modal.querySelector('[data-icon-page]');
     const prev = modal.querySelector('[data-icon-prev]');
     const next = modal.querySelector('[data-icon-next]');
-    const categorySelect = modal.querySelector('[data-icon-category]');
-
-    if (categorySelect && !categorySelect.dataset.ready) {
-      categorySelect.replaceChildren(new Option(t('All categories'), ''));
-      for (const category of index.categories) {
-        categorySelect.append(new Option(category.label + ' (' + category.count + ')', category.key));
-      }
-      categorySelect.dataset.ready = '1';
-    }
 
     const filtered = allIcons.filter(iconMatches);
     const pageCount = Math.max(1, Math.ceil(filtered.length / iconsPerPage));
@@ -570,12 +517,6 @@
       iconPage = 0;
       window.clearTimeout(iconSearchTimer);
       iconSearchTimer = window.setTimeout(renderIconModal, 140);
-    });
-
-    modal.querySelector('[data-icon-category]')?.addEventListener('change', (event) => {
-      iconFilters.category = event.target.value;
-      iconPage = 0;
-      renderIconModal();
     });
 
     modal.querySelector('[data-icon-prev]')?.addEventListener('click', () => {
