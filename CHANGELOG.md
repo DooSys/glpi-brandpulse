@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.13
+
+- Extend Brand configuration with theme-aware logos for light, dark and neutral variants.
+- Add separate logo slots for expanded sidebar, collapsed sidebar and login views.
+- Add per-asset diagnostics, stricter file type validation and clearer Brand sections.
+- Keep legacy `menu_logo` and `login_logo` values as fallback during migration.
+
 ## 0.1.12
 
 - Align Brand image imports with GLPI plugin file storage under `GLPI_PLUGIN_DOC_DIR/brandpulse/brand`.

@@ -90,10 +90,93 @@ function plugin_brandpulse_config_url(string $tab): string
 function plugin_brandpulse_brand_asset_fields(): array
 {
     return [
-        'favicon' => ['label' => 'Favicon URL or path', 'column' => 'col-md-6'],
-        'login_logo' => ['label' => 'Login logo URL or path', 'column' => 'col-md-6'],
-        'menu_logo' => ['label' => 'Left menu logo URL or path', 'column' => 'col-md-6'],
-        'login_background' => ['label' => 'Login background URL or path', 'column' => 'col-md-12'],
+        'favicon' => [
+            'section' => 'identity',
+            'label' => 'Favicon',
+            'column' => 'col-md-6',
+            'extensions' => ['svg', 'png', 'ico'],
+            'accept' => 'image/svg+xml,image/png,image/x-icon,.ico',
+        ],
+        'logo_sidebar_expanded_light' => [
+            'section' => 'sidebar',
+            'label' => 'Expanded sidebar logo, light theme',
+            'column' => 'col-xl-4 col-md-6',
+            'extensions' => ['svg', 'png'],
+            'accept' => 'image/svg+xml,image/png',
+        ],
+        'logo_sidebar_expanded_dark' => [
+            'section' => 'sidebar',
+            'label' => 'Expanded sidebar logo, dark theme',
+            'column' => 'col-xl-4 col-md-6',
+            'extensions' => ['svg', 'png'],
+            'accept' => 'image/svg+xml,image/png',
+        ],
+        'logo_sidebar_expanded_grey' => [
+            'section' => 'sidebar',
+            'label' => 'Expanded sidebar logo, neutral theme',
+            'column' => 'col-xl-4 col-md-6',
+            'extensions' => ['svg', 'png'],
+            'accept' => 'image/svg+xml,image/png',
+        ],
+        'logo_sidebar_collapsed_light' => [
+            'section' => 'sidebar',
+            'label' => 'Collapsed sidebar logo, light theme',
+            'column' => 'col-xl-4 col-md-6',
+            'extensions' => ['svg', 'png'],
+            'accept' => 'image/svg+xml,image/png',
+        ],
+        'logo_sidebar_collapsed_dark' => [
+            'section' => 'sidebar',
+            'label' => 'Collapsed sidebar logo, dark theme',
+            'column' => 'col-xl-4 col-md-6',
+            'extensions' => ['svg', 'png'],
+            'accept' => 'image/svg+xml,image/png',
+        ],
+        'logo_sidebar_collapsed_grey' => [
+            'section' => 'sidebar',
+            'label' => 'Collapsed sidebar logo, neutral theme',
+            'column' => 'col-xl-4 col-md-6',
+            'extensions' => ['svg', 'png'],
+            'accept' => 'image/svg+xml,image/png',
+        ],
+        'login_logo_light' => [
+            'section' => 'login',
+            'label' => 'Login logo, light theme',
+            'column' => 'col-xl-4 col-md-6',
+            'extensions' => ['svg', 'png'],
+            'accept' => 'image/svg+xml,image/png',
+        ],
+        'login_logo_dark' => [
+            'section' => 'login',
+            'label' => 'Login logo, dark theme',
+            'column' => 'col-xl-4 col-md-6',
+            'extensions' => ['svg', 'png'],
+            'accept' => 'image/svg+xml,image/png',
+        ],
+        'login_logo_grey' => [
+            'section' => 'login',
+            'label' => 'Login logo, neutral theme',
+            'column' => 'col-xl-4 col-md-6',
+            'extensions' => ['svg', 'png'],
+            'accept' => 'image/svg+xml,image/png',
+        ],
+        'login_background' => [
+            'section' => 'login',
+            'label' => 'Login background',
+            'column' => 'col-md-12',
+            'extensions' => ['jpg', 'jpeg', 'png', 'webp'],
+            'accept' => 'image/jpeg,image/png,image/webp',
+        ],
+    ];
+}
+
+function plugin_brandpulse_brand_asset_sections(): array
+{
+    return [
+        'identity' => ['title' => 'Identity', 'description' => 'Browser title, favicon and global identity assets.'],
+        'sidebar' => ['title' => 'Sidebar logos', 'description' => 'Theme-aware logos for expanded and collapsed GLPI navigation.'],
+        'login' => ['title' => 'Login page', 'description' => 'Login logos, background and alert message.'],
+        'diagnostic' => ['title' => 'Diagnostic', 'description' => 'Stored file path, generated URLs and asset state.'],
     ];
 }
 
@@ -126,13 +209,14 @@ function plugin_brandpulse_validate_svg_upload(string $tmpName, string $label): 
     }
 }
 
-function plugin_brandpulse_import_brand_asset(string $field, string $label): ?string
+function plugin_brandpulse_import_brand_asset(string $field, array $fieldConfig): ?string
 {
     $file = $_FILES[$field . '_upload'] ?? null;
     if (!is_array($file) || (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
         return null;
     }
 
+    $label = (string) $fieldConfig['label'];
     $error = (int) ($file['error'] ?? UPLOAD_ERR_OK);
     if ($error !== UPLOAD_ERR_OK) {
         throw new RuntimeException(sprintf(__('Image upload failed for "%s".', 'brandpulse'), __($label, 'brandpulse')));
@@ -150,7 +234,7 @@ function plugin_brandpulse_import_brand_asset(string $field, string $label): ?st
 
     $originalName = (string) ($file['name'] ?? 'brand-image');
     $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-    $allowedExtensions = ['svg', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'ico'];
+    $allowedExtensions = is_array($fieldConfig['extensions'] ?? null) ? $fieldConfig['extensions'] : [];
     if (!in_array($extension, $allowedExtensions, true)) {
         throw plugin_brandpulse_unsupported_image_error($label);
     }
@@ -175,6 +259,36 @@ function plugin_brandpulse_import_brand_asset(string $field, string $label): ?st
     @chmod($destination, 0644);
 
     return BrandAssetStore::assetUrl($filename);
+}
+
+function plugin_brandpulse_brand_asset_filename(string $value): ?string
+{
+    $parts = parse_url($value);
+    if (!is_array($parts) || !str_ends_with((string) ($parts['path'] ?? ''), '/plugins/brandpulse/front/asset.php')) {
+        return null;
+    }
+
+    parse_str((string) ($parts['query'] ?? ''), $query);
+    $file = (string) ($query['file'] ?? '');
+
+    return $file !== '' ? basename(str_replace('\\', '/', $file)) : null;
+}
+
+function plugin_brandpulse_brand_asset_status(string $value): array
+{
+    $value = trim($value);
+    if ($value === '') {
+        return ['class' => 'secondary', 'label' => 'Not configured', 'detail' => ''];
+    }
+
+    $filename = plugin_brandpulse_brand_asset_filename($value);
+    if ($filename !== null) {
+        return BrandAssetStore::assetPath($filename) !== null
+            ? ['class' => 'success', 'label' => 'Stored file OK', 'detail' => $filename]
+            : ['class' => 'danger', 'label' => 'Stored file missing', 'detail' => $filename];
+    }
+
+    return ['class' => 'info', 'label' => 'External URL or path', 'detail' => $value];
 }
 
 function plugin_brandpulse_icon_field(string $name, array $options, string $selected): string
@@ -203,26 +317,33 @@ function plugin_brandpulse_text_input(string $name, string $value, string $type 
     return "<input class='" . plugin_brandpulse_h($class) . "' type='" . plugin_brandpulse_h($type) . "' name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h($value) . "'>";
 }
 
-function plugin_brandpulse_brand_asset_input(string $name, string $label, string $value, string $columnClass): string
+function plugin_brandpulse_brand_asset_input(string $name, array $fieldConfig, string $value): string
 {
+    $label = (string) $fieldConfig['label'];
+    $columnClass = (string) $fieldConfig['column'];
     $id = 'brandpulse_' . preg_replace('/[^a-z0-9_]+/', '_', $name);
     $fileId = $id . '_upload';
-    $accept = 'image/svg+xml,image/png,image/jpeg,image/gif,image/webp,image/x-icon,.ico';
+    $accept = (string) ($fieldConfig['accept'] ?? 'image/*');
+    $extensions = implode(', ', array_map(static fn ($extension): string => '.' . $extension, $fieldConfig['extensions'] ?? []));
     $previewUrl = trim($value);
+    $status = plugin_brandpulse_brand_asset_status($value);
 
     $html = "<div class='" . plugin_brandpulse_h($columnClass) . "'>";
     $html .= "<div class='brandpulse-brand-field'>";
+    $html .= "<div class='brandpulse-brand-field-head'>";
     $html .= "<label class='form-label' for='" . plugin_brandpulse_h($id) . "'>" . __s($label, 'brandpulse') . '</label>';
+    $html .= "<span class='badge bg-" . plugin_brandpulse_h($status['class']) . "'>" . __s($status['label'], 'brandpulse') . '</span>';
+    $html .= '</div>';
     $html .= "<input class='form-control' id='" . plugin_brandpulse_h($id) . "' type='text' name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h($value) . "'>";
     $html .= "<div class='input-group input-group-sm mt-2'>";
     $html .= "<label class='input-group-text' for='" . plugin_brandpulse_h($fileId) . "'>" . __s('Import image', 'brandpulse') . '</label>';
     $html .= "<input class='form-control form-control-sm' id='" . plugin_brandpulse_h($fileId) . "' type='file' name='" . plugin_brandpulse_h($name . '_upload') . "' accept='" . plugin_brandpulse_h($accept) . "'>";
     $html .= '</div>';
-    $html .= "<div class='form-text'>" . __s('Enter a URL, or choose an image file and save to fill this URL automatically.', 'brandpulse') . '</div>';
+    $html .= "<div class='form-text'>" . sprintf(__s('Accepted formats: %s', 'brandpulse'), plugin_brandpulse_h($extensions)) . '</div>';
     if ($previewUrl !== '') {
         $html .= "<div class='brandpulse-brand-preview mt-2'>";
         $html .= "<img src='" . plugin_brandpulse_h($previewUrl) . "' alt='" . __s($label, 'brandpulse') . "'>";
-        $html .= "<code>" . plugin_brandpulse_h($previewUrl) . '</code>';
+        $html .= "<code title='" . plugin_brandpulse_h($previewUrl) . "'>" . plugin_brandpulse_h($previewUrl) . '</code>';
         $html .= '</div>';
     }
     $html .= '</div>';
@@ -231,40 +352,69 @@ function plugin_brandpulse_brand_asset_input(string $name, string $label, string
     return $html;
 }
 
+function plugin_brandpulse_brand_section(string $title, string $description, string $content): string
+{
+    return "<section class='brandpulse-brand-section'>"
+        . "<div class='brandpulse-brand-section-head'><strong>" . __s($title, 'brandpulse') . "</strong><span>" . __s($description, 'brandpulse') . "</span></div>"
+        . $content
+        . '</section>';
+}
+
+function plugin_brandpulse_brand_diagnostic(array $fields, array $branding): string
+{
+    $html = "<div class='table-responsive'><table class='table table-sm align-middle brandpulse-brand-diagnostic mb-0'>";
+    $html .= '<thead><tr><th>' . __s('Asset', 'brandpulse') . '</th><th>' . __s('Status', 'brandpulse') . '</th><th>' . __s('URL or path', 'brandpulse') . '</th></tr></thead><tbody>';
+
+    foreach ($fields as $field => $fieldConfig) {
+        $value = (string) ($branding[$field] ?? '');
+        $status = plugin_brandpulse_brand_asset_status($value);
+        $detail = $status['detail'] !== '' ? $status['detail'] : $value;
+        $html .= '<tr>';
+        $html .= '<td>' . __s((string) $fieldConfig['label'], 'brandpulse') . '</td>';
+        $html .= "<td><span class='badge bg-" . plugin_brandpulse_h($status['class']) . "'>" . __s($status['label'], 'brandpulse') . '</span></td>';
+        $html .= '<td><code>' . plugin_brandpulse_h($detail) . '</code></td>';
+        $html .= '</tr>';
+    }
+
+    return $html . '</tbody></table></div>';
+}
+
+
 $tab = (string) ($_GET['tab'] ?? $_POST['tab'] ?? 'brand');
 $tab = in_array($tab, ['brand', 'pulse'], true) ? $tab : 'brand';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     if ($tab === 'brand') {
+        $assetFields = plugin_brandpulse_brand_asset_fields();
         $postedBranding = [
             'enabled' => isset($_POST['brand_enabled']),
             'title' => (string) ($_POST['title'] ?? ''),
-            'favicon' => (string) ($_POST['favicon'] ?? ''),
-            'login_logo' => (string) ($_POST['login_logo'] ?? ''),
-            'menu_logo' => (string) ($_POST['menu_logo'] ?? ''),
-            'login_background' => (string) ($_POST['login_background'] ?? ''),
             'login_alert_enabled' => isset($_POST['login_alert_enabled']),
             'login_alert_type' => (string) ($_POST['login_alert_type'] ?? 'info'),
             'login_alert_message' => (string) ($_POST['login_alert_message'] ?? ''),
         ];
 
-        foreach (plugin_brandpulse_brand_asset_fields() as $field => $fieldConfig) {
+        foreach ($assetFields as $field => $fieldConfig) {
+            $postedBranding[(string) $field] = (string) ($_POST[(string) $field] ?? '');
+
             try {
-                $uploadedUrl = plugin_brandpulse_import_brand_asset($field, (string) $fieldConfig['label']);
+                $uploadedUrl = plugin_brandpulse_import_brand_asset((string) $field, $fieldConfig);
                 if ($uploadedUrl !== null) {
-                    $postedBranding[$field] = $uploadedUrl;
+                    $postedBranding[(string) $field] = $uploadedUrl;
                 }
             } catch (RuntimeException $e) {
                 $errors[] = $e->getMessage();
             }
         }
 
+        $postedBranding['menu_logo'] = (string) ($postedBranding['logo_sidebar_expanded_light'] ?? '');
+        $postedBranding['login_logo'] = (string) ($postedBranding['login_logo_light'] ?? '');
+
         if ($errors === []) {
             BrandpulseConfig::saveBranding($postedBranding);
             Session::addMessageAfterRedirect(__('Brand settings updated.', 'brandpulse'));
-            Html::redirect(plugin_brandpulse_config_url("brand"));
+            Html::redirect(plugin_brandpulse_config_url('brand'));
         }
     }
 
@@ -307,7 +457,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         Session::addMessageAfterRedirect(__('Pulse settings updated.', 'brandpulse'));
-        Html::redirect(plugin_brandpulse_config_url("pulse"));
+        Html::redirect(plugin_brandpulse_config_url('pulse'));
     }
 }
 
@@ -345,7 +495,7 @@ while (count($counters) < 8) {
     ];
 }
 
-Html::header(__("GLPI BrandPulse", "brandpulse"), plugin_brandpulse_config_url($tab), "config", "plugins");
+Html::header(__('GLPI BrandPulse', 'brandpulse'), plugin_brandpulse_config_url($tab), 'config', 'plugins');
 
 echo "<div class='brandpulse-config'>";
 echo '<h1>' . __s('GLPI BrandPulse', 'brandpulse') . '</h1>';
@@ -361,7 +511,7 @@ echo "<li class='nav-item'><a class='nav-link" . ($tab === 'brand' ? ' active' :
 echo "<li class='nav-item'><a class='nav-link" . ($tab === 'pulse' ? ' active' : '') . "' href='" . plugin_brandpulse_h(plugin_brandpulse_config_url('pulse')) . "'>" . __s('Pulse', 'brandpulse') . '</a></li>';
 echo '</ul>';
 
-echo "<form method=\"post\" enctype=\"multipart/form-data\" action=\"" . plugin_brandpulse_h(plugin_brandpulse_config_url($tab)) . "\">";
+echo '<form method="post" enctype="multipart/form-data" action="' . plugin_brandpulse_h(plugin_brandpulse_config_url($tab)) . '">';
 echo Html::hidden(plugin_brandpulse_csrf_token_name(), ['value' => Session::getNewCSRFToken()]);
 echo Html::hidden('tab', ['value' => $tab]);
 echo "<input type='hidden' name='MAX_FILE_SIZE' value='8388608'>";
@@ -375,40 +525,55 @@ if ($errors !== []) {
 }
 
 if ($tab === 'brand') {
-    echo "<div class='card mb-3'>";
-    echo "<div class='card-header'><strong>" . __s('Brand', 'brandpulse') . '</strong></div>';
-    echo "<div class='card-body'>";
-    echo "<div class='brandpulse-brand-storage mb-3'>";
-    echo "<strong>" . __s('Stored files', 'brandpulse') . '</strong>';
-    echo "<span>" . plugin_brandpulse_h(BrandAssetStore::brandDirectory()) . '</span>';
-    echo '</div>';
-    echo "<div class='form-check mb-3'>";
-    echo "<input class='form-check-input' id='brand_enabled' type='checkbox' name='brand_enabled' value='1'" . ($branding['enabled'] ? ' checked' : '') . '> ';
-    echo "<label class='form-check-label' for='brand_enabled'>" . __s('Enable branding customizations', 'brandpulse') . '</label>';
-    echo '</div>';
+    $assetFields = plugin_brandpulse_brand_asset_fields();
+    $sections = plugin_brandpulse_brand_asset_sections();
 
-    echo "<div class='row g-3'>";
-    echo "<div class='col-md-6'><label class='form-label'>" . __s('Browser title', 'brandpulse') . '</label>' . plugin_brandpulse_text_input('title', (string) $branding['title']) . '</div>';
-    foreach (plugin_brandpulse_brand_asset_fields() as $field => $fieldConfig) {
-        echo plugin_brandpulse_brand_asset_input(
-            (string) $field,
-            (string) $fieldConfig['label'],
-            (string) $branding[$field],
-            (string) $fieldConfig['column']
-        );
+    echo "<div class='brandpulse-brand-layout'>";
+
+    $identityContent = "<div class='row g-3'>";
+    $identityContent .= "<div class='col-md-6'><div class='brandpulse-brand-field'><div class='brandpulse-brand-field-head'><label class='form-label'>" . __s('Browser title', 'brandpulse') . '</label></div>' . plugin_brandpulse_text_input('title', (string) $branding['title']) . '</div></div>';
+    $identityContent .= plugin_brandpulse_brand_asset_input('favicon', $assetFields['favicon'], (string) $branding['favicon']);
+    $identityContent .= '</div>';
+    $identityContent .= "<div class='form-check mt-3'>";
+    $identityContent .= "<input class='form-check-input' id='brand_enabled' type='checkbox' name='brand_enabled' value='1'" . ($branding['enabled'] ? ' checked' : '') . '> ';
+    $identityContent .= "<label class='form-check-label' for='brand_enabled'>" . __s('Enable branding customizations', 'brandpulse') . '</label>';
+    $identityContent .= '</div>';
+    echo plugin_brandpulse_brand_section($sections['identity']['title'], $sections['identity']['description'], $identityContent);
+
+    $sidebarContent = "<div class='row g-3'>";
+    foreach ($assetFields as $field => $fieldConfig) {
+        if (($fieldConfig['section'] ?? '') === 'sidebar') {
+            $sidebarContent .= plugin_brandpulse_brand_asset_input((string) $field, $fieldConfig, (string) $branding[$field]);
+        }
     }
-    echo '</div>';
+    $sidebarContent .= '</div>';
+    echo plugin_brandpulse_brand_section($sections['sidebar']['title'], $sections['sidebar']['description'], $sidebarContent);
 
-    echo "<hr>";
-    echo "<div class='form-check mb-3'>";
-    echo "<input class='form-check-input' id='login_alert_enabled' type='checkbox' name='login_alert_enabled' value='1'" . ($branding['login_alert_enabled'] ? ' checked' : '') . '> ';
-    echo "<label class='form-check-label' for='login_alert_enabled'>" . __s('Show a login page alert message', 'brandpulse') . '</label>';
-    echo '</div>';
-    echo "<div class='row g-3'>";
-    echo "<div class='col-md-3'><label class='form-label'>" . __s('Alert type', 'brandpulse') . '</label>' . plugin_brandpulse_select('login_alert_type', $alertTypes, (string) $branding['login_alert_type']) . '</div>';
-    echo "<div class='col-md-9'><label class='form-label'>" . __s('Login alert message', 'brandpulse') . "</label><textarea class='form-control' name='login_alert_message' rows='3'>" . plugin_brandpulse_h((string) $branding['login_alert_message']) . '</textarea></div>';
-    echo '</div>';
-    echo '</div>';
+    $loginContent = "<div class='row g-3'>";
+    foreach ($assetFields as $field => $fieldConfig) {
+        if (($fieldConfig['section'] ?? '') === 'login') {
+            $loginContent .= plugin_brandpulse_brand_asset_input((string) $field, $fieldConfig, (string) $branding[$field]);
+        }
+    }
+    $loginContent .= '</div>';
+    $loginContent .= "<div class='brandpulse-brand-alert mt-3'>";
+    $loginContent .= "<div class='form-check mb-3'>";
+    $loginContent .= "<input class='form-check-input' id='login_alert_enabled' type='checkbox' name='login_alert_enabled' value='1'" . ($branding['login_alert_enabled'] ? ' checked' : '') . '> ';
+    $loginContent .= "<label class='form-check-label' for='login_alert_enabled'>" . __s('Show a login page alert message', 'brandpulse') . '</label>';
+    $loginContent .= '</div>';
+    $loginContent .= "<div class='row g-3'>";
+    $loginContent .= "<div class='col-md-3'><label class='form-label'>" . __s('Alert type', 'brandpulse') . '</label>' . plugin_brandpulse_select('login_alert_type', $alertTypes, (string) $branding['login_alert_type']) . '</div>';
+    $loginContent .= "<div class='col-md-9'><label class='form-label'>" . __s('Login alert message', 'brandpulse') . "</label><textarea class='form-control' name='login_alert_message' rows='3'>" . plugin_brandpulse_h((string) $branding['login_alert_message']) . '</textarea></div>';
+    $loginContent .= '</div></div>';
+    echo plugin_brandpulse_brand_section($sections['login']['title'], $sections['login']['description'], $loginContent);
+
+    $diagnosticContent = "<div class='brandpulse-brand-storage mb-3'>";
+    $diagnosticContent .= "<strong>" . __s('Stored files', 'brandpulse') . '</strong>';
+    $diagnosticContent .= '<span>' . plugin_brandpulse_h(BrandAssetStore::brandDirectory()) . '</span>';
+    $diagnosticContent .= '</div>';
+    $diagnosticContent .= plugin_brandpulse_brand_diagnostic($assetFields, $branding);
+    echo plugin_brandpulse_brand_section($sections['diagnostic']['title'], $sections['diagnostic']['description'], $diagnosticContent);
+
     echo '</div>';
 } else {
     echo "<div class='card mb-3'>";
@@ -447,15 +612,15 @@ if ($tab === 'brand') {
 
         echo '<tr>';
         echo "<td><input class='form-check-input' type='checkbox' name='counters[{$index}][enabled]' value='1'" . (!empty($counter['enabled']) ? ' checked' : '') . '></td>';
-        echo "<td>" . plugin_brandpulse_text_input("counters[{$index}][label]", (string) ($counter['label'] ?? ''), 'text', 'form-control form-control-sm') . plugin_brandpulse_text_input("counters[{$index}][key]", (string) ($counter['key'] ?? ''), 'hidden') . '</td>';
-        echo "<td>" . str_replace("<select ", "<select data-pulse-source ", plugin_brandpulse_select("counters[{$index}][source_type]", $sourceTypes, $sourceType)) . '</td>';
+        echo '<td>' . plugin_brandpulse_text_input("counters[{$index}][label]", (string) ($counter['label'] ?? ''), 'text', 'form-control form-control-sm') . plugin_brandpulse_text_input("counters[{$index}][key]", (string) ($counter['key'] ?? ''), 'hidden') . '</td>';
+        echo '<td>' . str_replace('<select ', '<select data-pulse-source ', plugin_brandpulse_select("counters[{$index}][source_type]", $sourceTypes, $sourceType)) . '</td>';
         echo "<td class='brandpulse-target-cell'>";
-        echo "<div data-pulse-target='preset'>" . plugin_brandpulse_select("counters[{$index}][preset_key]", $presetCounters, $presetKey) . "</div>";
-        echo "<div data-pulse-target='saved_search'>" . plugin_brandpulse_select("counters[{$index}][savedsearches_id]", $savedSearches, $savedSearchId, false) . "</div>";
-        echo "</td>";
+        echo "<div data-pulse-target='preset'>" . plugin_brandpulse_select("counters[{$index}][preset_key]", $presetCounters, $presetKey) . '</div>';
+        echo "<div data-pulse-target='saved_search'>" . plugin_brandpulse_select("counters[{$index}][savedsearches_id]", $savedSearches, $savedSearchId, false) . '</div>';
+        echo '</td>';
         $iconValue = (string) ($counter['icon'] ?? 'pulse:Notifications/Bell.svg');
         $customIcon = !array_key_exists($iconValue, $icons) && !str_starts_with($iconValue, 'pulse:') ? $iconValue : '';
-        echo "<td>" . plugin_brandpulse_icon_field("counters[{$index}][icon]", $icons, $iconValue);
+        echo '<td>' . plugin_brandpulse_icon_field("counters[{$index}][icon]", $icons, $iconValue);
         echo plugin_brandpulse_text_input("counters[{$index}][icon_custom]", $customIcon, 'text', 'form-control form-control-sm brandpulse-icon-custom');
         echo "<div class='form-text'>" . __s('Custom SVG URL or path', 'brandpulse') . '</div></td>';
         echo "<td><input class='form-control form-control-sm form-control-color' type='color' name='counters[{$index}][color]' value='" . plugin_brandpulse_h((string) ($counter['color'] ?? '#3b82f6')) . "'></td>";
@@ -477,7 +642,7 @@ if ($tab === 'pulse') {
     echo "<div class='brandpulse-icon-modal-backdrop' data-icon-close></div>";
     echo "<div class='brandpulse-icon-dialog' role='dialog' aria-modal='true' aria-label='" . __s('Choose an icon', 'brandpulse') . "'>";
     echo "<div class='brandpulse-icon-dialog-header'>";
-    echo "<strong>" . __s('Choose an icon', 'brandpulse') . '</strong>';
+    echo '<strong>' . __s('Choose an icon', 'brandpulse') . '</strong>';
     echo "<button type='button' class='btn-close' data-icon-close aria-label='" . __s('Close', 'brandpulse') . "'></button>";
     echo '</div>';
     echo "<div class='brandpulse-icon-dialog-tools'>";

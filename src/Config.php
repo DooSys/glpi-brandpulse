@@ -139,6 +139,15 @@ final class Config
             'favicon' => '',
             'login_logo' => '',
             'menu_logo' => '',
+            'login_logo_light' => '',
+            'login_logo_dark' => '',
+            'login_logo_grey' => '',
+            'logo_sidebar_expanded_light' => '',
+            'logo_sidebar_expanded_dark' => '',
+            'logo_sidebar_expanded_grey' => '',
+            'logo_sidebar_collapsed_light' => '',
+            'logo_sidebar_collapsed_dark' => '',
+            'logo_sidebar_collapsed_grey' => '',
             'login_background' => '',
             'login_alert_enabled' => false,
             'login_alert_type' => 'info',
@@ -252,12 +261,26 @@ final class Config
         $branding = array_replace(self::defaultBranding(), $branding);
         $allowedAlertTypes = ['info', 'warning', 'danger', 'success'];
 
+        $menuLogo = trim((string) $branding['menu_logo']);
+        $loginLogo = trim((string) $branding['login_logo']);
+        $sidebarExpandedLight = trim((string) $branding['logo_sidebar_expanded_light']) ?: $menuLogo;
+        $loginLogoLight = trim((string) $branding['login_logo_light']) ?: $loginLogo;
+
         return [
             'enabled' => !empty($branding['enabled']),
             'title' => trim((string) $branding['title']),
             'favicon' => trim((string) $branding['favicon']),
-            'login_logo' => trim((string) $branding['login_logo']),
-            'menu_logo' => trim((string) $branding['menu_logo']),
+            'login_logo' => $loginLogo,
+            'menu_logo' => $menuLogo,
+            'login_logo_light' => $loginLogoLight,
+            'login_logo_dark' => trim((string) $branding['login_logo_dark']),
+            'login_logo_grey' => trim((string) $branding['login_logo_grey']),
+            'logo_sidebar_expanded_light' => $sidebarExpandedLight,
+            'logo_sidebar_expanded_dark' => trim((string) $branding['logo_sidebar_expanded_dark']),
+            'logo_sidebar_expanded_grey' => trim((string) $branding['logo_sidebar_expanded_grey']),
+            'logo_sidebar_collapsed_light' => trim((string) $branding['logo_sidebar_collapsed_light']),
+            'logo_sidebar_collapsed_dark' => trim((string) $branding['logo_sidebar_collapsed_dark']),
+            'logo_sidebar_collapsed_grey' => trim((string) $branding['logo_sidebar_collapsed_grey']),
             'login_background' => trim((string) $branding['login_background']),
             'login_alert_enabled' => !empty($branding['login_alert_enabled']),
             'login_alert_type' => in_array($branding['login_alert_type'], $allowedAlertTypes, true)

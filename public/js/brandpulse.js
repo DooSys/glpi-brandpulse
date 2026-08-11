@@ -27,6 +27,22 @@
     return rootDoc + '/' + value.replace(/^\/+/, '');
   };
 
+  const detectsDarkTheme = () => document.documentElement.matches('[data-bs-theme="dark"], .theme-dark, .dark')
+    || document.body.matches('[data-bs-theme="dark"], .theme-dark, .dark')
+    || window.matchMedia?.('(prefers-color-scheme: dark)')?.matches === true;
+
+  const chooseThemeAsset = (branding, prefix, fallback = '') => {
+    const light = branding?.[prefix + '_light'] || '';
+    const dark = branding?.[prefix + '_dark'] || '';
+    const neutral = branding?.[prefix + '_grey'] || '';
+
+    if (detectsDarkTheme()) {
+      return dark || neutral || light || fallback || '';
+    }
+
+    return light || neutral || dark || fallback || '';
+  };
+
   const parseRgb = (value) => {
     const match = String(value || '').match(/rgba?\(([^)]+)\)/i);
     if (!match) {
@@ -300,17 +316,34 @@
       link.href = faviconUrl;
     }
 
-    const menuLogoUrl = resolveAssetUrl(branding.menu_logo);
-    if (menuLogoUrl) {
+    const sidebarExpandedLogoUrl = resolveAssetUrl(
+      chooseThemeAsset(branding, 'logo_sidebar_expanded', branding.menu_logo)
+    );
+    const sidebarCollapsedLogoUrl = resolveAssetUrl(
+      chooseThemeAsset(branding, 'logo_sidebar_collapsed', sidebarExpandedLogoUrl || branding.menu_logo)
+    );
+
+    if (sidebarExpandedLogoUrl) {
       for (const logo of document.querySelectorAll('aside .navbar-brand img, .navbar-vertical .navbar-brand img, #navbar-menu .navbar-brand img')) {
-        logo.src = menuLogoUrl;
+        logo.src = sidebarExpandedLogoUrl;
       }
     }
 
-    const loginLogoUrl = resolveAssetUrl(branding.login_logo);
+    if (sidebarCollapsedLogoUrl) {
+      for (const logo of document.querySelectorAll([
+        'aside .navbar-brand img.logo-sm',
+        '.navbar-vertical .navbar-brand img.logo-sm',
+        '#navbar-menu .navbar-brand img.logo-sm',
+        '.navbar-brand .navbar-brand-image-small',
+        '.navbar-brand img[data-logo-size="small"]',
+      ].join(','))) {
+        logo.src = sidebarCollapsedLogoUrl;
+      }
+    }
+
+    const loginLogoUrl = resolveAssetUrl(chooseThemeAsset(branding, 'login_logo', branding.login_logo));
     if (loginLogoUrl) {
-      const loginLogo = document.querySelector('.page-anonymous .navbar-brand img, .login-box img, form[action*="login"] img');
-      if (loginLogo) {
+      for (const loginLogo of document.querySelectorAll('.page-anonymous .navbar-brand img, .login-box img, form[action*="login"] img')) {
         loginLogo.src = loginLogoUrl;
       }
     }
