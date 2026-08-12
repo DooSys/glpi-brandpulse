@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.17
+
+- Render Pulse icon picker previews as real SVG images instead of CSS masks.
+- Improve icon picker pagination wording and missing-image fallback styling.
+
 ## 0.1.16
 
 - Serve the Pulse icon manifest through a GLPI AJAX endpoint.

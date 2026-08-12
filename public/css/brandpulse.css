@@ -309,8 +309,15 @@ body.brandpulse-login-branded {
 }
 
 .brandpulse-icon-result-preview {
-  width: 1.45rem;
-  height: 1.45rem;
+  display: block;
+  width: 1.8rem;
+  height: 1.8rem;
+  object-fit: contain;
+  filter: var(--brandpulse-icon-picker-filter, none);
+}
+
+.brandpulse-icon-result-missing .brandpulse-icon-result-preview {
+  opacity: 0.18;
 }
 
 .brandpulse-icon-result span:last-child {

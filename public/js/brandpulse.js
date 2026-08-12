@@ -511,9 +511,14 @@
       button.dataset.iconValue = 'pulse:' + icon.path;
       button.dataset.iconLabel = icon.category + ' / ' + icon.label;
 
-      const preview = document.createElement('span');
+      const preview = document.createElement('img');
       preview.className = 'brandpulse-icon-result-preview';
-      setMaskIcon(preview, resolveIconUrl(button.dataset.iconValue));
+      preview.src = resolveIconUrl(button.dataset.iconValue);
+      preview.alt = '';
+      preview.loading = 'lazy';
+      preview.decoding = 'async';
+      preview.setAttribute('aria-hidden', 'true');
+      preview.addEventListener('error', () => button.classList.add('brandpulse-icon-result-missing'), { once: true });
 
       const label = document.createElement('span');
       label.textContent = icon.label;
@@ -523,7 +528,7 @@
     }
 
     if (pageLabel) {
-      pageLabel.textContent = String(iconPage + 1) + ' / ' + String(pageCount) + ' - ' + String(filtered.length);
+      pageLabel.textContent = t('Page') + ' ' + String(iconPage + 1) + ' / ' + String(pageCount) + ' - ' + String(filtered.length) + ' ' + t('icons');
     }
     if (prev) {
       prev.disabled = iconPage <= 0;

@@ -386,3 +386,9 @@ msgstr "URL ou chemin"
 
 msgid "Enter a URL, or choose a local image and save to fill this URL automatically."
 msgstr "Saisissez une URL, ou choisissez une image locale puis enregistrez pour remplir cette URL automatiquement."
+
+msgid "Page"
+msgstr "Page"
+
+msgid "icons"
+msgstr "icônes"
