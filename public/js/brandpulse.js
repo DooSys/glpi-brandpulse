@@ -16,6 +16,7 @@
   const iconIndexEndpoint = pluginBaseUrl + '/ajax/icons.php';
   const iconStaticIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';
   const iconBaseEndpoint = pluginBaseUrl + '/icons/pulse/';
+  const iconAssetEndpoint = pluginBaseUrl + '/ajax/icon.php?file=';
 
   const t = (message) => (typeof window.__ === 'function' ? window.__(message, 'brandpulse') : message);
   const isHtmlDocument = () => document.contentType.toLowerCase().includes('html')
@@ -156,13 +157,13 @@
 
   const resolveIconUrl = (icon) => {
     if (!icon) {
-      return iconBaseEndpoint + 'Notifications/Bell.svg';
+      return iconAssetEndpoint + encodeURIComponent('Notifications/Bell.svg');
     }
 
     if (icon.startsWith('pulse:')) {
       const iconPath = icon.substring(6);
       const path = iconPath.endsWith('.svg') ? iconPath : iconPath + '.svg';
-      return iconBaseEndpoint + encodeIconPath(path);
+      return iconAssetEndpoint + encodeURIComponent(path);
     }
 
     if (/^(https?:)?\/\//.test(icon) || icon.startsWith('data:') || icon.startsWith('/')) {
@@ -241,7 +242,7 @@
       const icon = document.createElement('span');
       icon.className = 'brandpulse-search-trigger-icon';
       icon.setAttribute('aria-hidden', 'true');
-      setMaskIcon(icon, iconBaseEndpoint + 'Search/Magnifer.svg');
+      setMaskIcon(icon, iconAssetEndpoint + encodeURIComponent('Search/Magnifer.svg'));
       trigger.append(icon);
 
       input.before(trigger);

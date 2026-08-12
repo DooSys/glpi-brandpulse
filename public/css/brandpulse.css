@@ -188,8 +188,7 @@ body.brandpulse-login-branded {
   white-space: nowrap;
 }
 
-.brandpulse-icon-preview,
-.brandpulse-icon-result-preview {
+.brandpulse-icon-preview {
   display: inline-block;
   background-color: currentColor;
   -webkit-mask-position: center;
@@ -313,7 +312,9 @@ body.brandpulse-login-branded {
   width: 1.8rem;
   height: 1.8rem;
   object-fit: contain;
-  filter: var(--brandpulse-icon-picker-filter, none);
+  padding: 0.12rem;
+  background: transparent;
+  filter: none;
 }
 
 .brandpulse-icon-result-missing .brandpulse-icon-result-preview {

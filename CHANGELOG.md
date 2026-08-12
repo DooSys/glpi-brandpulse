@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.18
+
+- Serve individual Pulse SVG icons through a validated GLPI endpoint.
+- Remove inherited CSS mask styling from icon picker image previews.
+
 ## 0.1.17
 
 - Render Pulse icon picker previews as real SVG images instead of CSS masks.
