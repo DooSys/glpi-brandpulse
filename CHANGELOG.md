@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.15
+
+- Fix frontend plugin base URL detection when GLPI serves plugin assets without the public path segment.
+- Restore Pulse counters and SVG icon picker endpoints after the v0.1.14 path regression.
+
 ## 0.1.14
 
 - Fix gettext MO generation so accented French labels render correctly.

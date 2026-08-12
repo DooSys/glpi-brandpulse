@@ -5,8 +5,12 @@
 
   const rootDoc = window.CFG_GLPI?.root_doc || '';
   const currentScriptUrl = document.currentScript?.src || '';
-  const detectedPluginBaseUrl = currentScriptUrl.replace(/\/public\/js\/brandpulse\.js(?:\?.*)?$/, '');
-  const pluginBaseUrl = detectedPluginBaseUrl || rootDoc + '/plugins/brandpulse';
+  const defaultPluginBaseUrl = rootDoc + '/plugins/brandpulse';
+  const detectPluginBaseUrl = () => {
+    const match = currentScriptUrl.match(/^(.*\/(?:plugins|marketplace)\/brandpulse)\/(?:public\/)?js\/brandpulse\.js(?:\?.*)?$/);
+    return match?.[1] || defaultPluginBaseUrl;
+  };
+  const pluginBaseUrl = detectPluginBaseUrl();
   const countersEndpoint = pluginBaseUrl + '/ajax/counters.php';
   const brandingEndpoint = pluginBaseUrl + '/ajax/branding.php';
   const iconIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';

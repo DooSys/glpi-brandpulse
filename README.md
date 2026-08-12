@@ -27,7 +27,7 @@ brandpulse
 
 GLPI utilise le nom du dossier pour appeler les fonctions du plugin, par exemple `plugin_init_brandpulse()`.
 
-## État de la v0.1.14
+## État de la v0.1.15
 
 Cette version pose le socle technique :
 
@@ -98,22 +98,22 @@ Les versions installables sont publiées depuis des tags Git au format `vX.Y.Z`.
 
 Avant de taguer, vérifier que la constante `PLUGIN_BRANDPULSE_VERSION` dans `setup.php` correspond au tag sans le `v`.
 
-Exemple pour publier la version `0.1.14` :
+Exemple pour publier la version `0.1.15` :
 
 ```bash
 cd /home/Doonix/DooSys_GitHub/glpi-brandpulse
 git status
 git add .
-git commit -m "Prepare GLPI BrandPulse 0.1.14"
+git commit -m "Prepare GLPI BrandPulse 0.1.15"
 git push origin main
-git tag -a v0.1.14 -m "GLPI BrandPulse v0.1.14"
-git push origin v0.1.14
+git tag -a v0.1.15 -m "GLPI BrandPulse v0.1.15"
+git push origin v0.1.15
 ```
 
 Le tag déclenche GitHub Actions. Le workflow construit une archive installable et la publie dans la release GitHub :
 
 ```text
-glpi-brandpulse-0.1.14.zip
+glpi-brandpulse-0.1.15.zip
 ```
 
 L'archive contient directement le dossier GLPI attendu :
@@ -127,7 +127,7 @@ Pour tester une release sur un environnement GLPI de test :
 ```bash
 cd /var/www/html/glpi/plugins
 rm -rf brandpulse
-curl -L -o /tmp/glpi-brandpulse.zip https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.14/glpi-brandpulse-0.1.14.zip
+curl -L -o /tmp/glpi-brandpulse.zip https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.15/glpi-brandpulse-0.1.15.zip
 unzip -q /tmp/glpi-brandpulse.zip -d /var/www/html/glpi/plugins
 ```
 
