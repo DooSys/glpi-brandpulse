@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI BrandPulse 0.1.13\n"
+"Project-Id-Version: GLPI BrandPulse 0.1.14\n"
 "Report-Msgid-Bugs-To: https://github.com/DooSys/glpi-brandpulse/issues\n"
 "POT-Creation-Date: 2026-08-10 00:00+0000\n"
 "PO-Revision-Date: 2026-08-10 00:00+0000\n"
@@ -383,3 +383,6 @@ msgstr "Logos adaptés au thème pour la navigation GLPI étendue et réduite."
 
 msgid "URL or path"
 msgstr "URL ou chemin"
+
+msgid "Enter a URL, or choose a local image and save to fill this URL automatically."
+msgstr "Saisissez une URL, ou choisissez une image locale puis enregistrez pour remplir cette URL automatiquement."

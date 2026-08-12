@@ -223,7 +223,7 @@ final class Config
 
         if (is_readable($manifestPath)) {
             $manifest = json_decode((string) file_get_contents($manifestPath), true);
-            $entries = is_array($manifest['preferred'] ?? null) ? $manifest['preferred'] : [];
+            $entries = is_array($manifest['preferred'] ?? null) ? $manifest['preferred'] : ($manifest['icons'] ?? []);
 
             foreach ($entries as $entry) {
                 $rawPath = $entry['path'] ?? $entry['p'] ?? '';

@@ -7,7 +7,7 @@ use Glpi\Plugin\Hooks;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_BRANDPULSE_VERSION = '0.1.13';
+const PLUGIN_BRANDPULSE_VERSION = '0.1.14';
 const PLUGIN_BRANDPULSE_MIN_GLPI = '11.0.0';
 const PLUGIN_BRANDPULSE_MAX_GLPI = '12.0.0';
 const PLUGIN_BRANDPULSE_MIN_PHP = '8.2.0';
@@ -40,6 +40,13 @@ function plugin_init_brandpulse(): void
     if (class_exists(Plugin::class) && Plugin::isPluginActive('brandpulse')) {
         $PLUGIN_HOOKS[Hooks::ADD_CSS]['brandpulse'][] = 'css/brandpulse.css';
         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['brandpulse'][] = 'js/brandpulse.js';
+
+        if (defined(Hooks::class . '::ADD_CSS_ANONYMOUS_PAGE')) {
+            $PLUGIN_HOOKS[Hooks::ADD_CSS_ANONYMOUS_PAGE]['brandpulse'][] = 'css/brandpulse.css';
+        }
+        if (defined(Hooks::class . '::ADD_JAVASCRIPT_ANONYMOUS_PAGE')) {
+            $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_ANONYMOUS_PAGE]['brandpulse'][] = 'js/brandpulse.js';
+        }
     }
 }
 

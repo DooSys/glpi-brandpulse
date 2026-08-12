@@ -335,11 +335,9 @@ function plugin_brandpulse_brand_asset_input(string $name, array $fieldConfig, s
     $html .= "<span class='badge bg-" . plugin_brandpulse_h($status['class']) . "'>" . __s($status['label'], 'brandpulse') . '</span>';
     $html .= '</div>';
     $html .= "<input class='form-control' id='" . plugin_brandpulse_h($id) . "' type='text' name='" . plugin_brandpulse_h($name) . "' value='" . plugin_brandpulse_h($value) . "'>";
-    $html .= "<div class='input-group input-group-sm mt-2'>";
-    $html .= "<label class='input-group-text' for='" . plugin_brandpulse_h($fileId) . "'>" . __s('Import image', 'brandpulse') . '</label>';
-    $html .= "<input class='form-control form-control-sm' id='" . plugin_brandpulse_h($fileId) . "' type='file' name='" . plugin_brandpulse_h($name . '_upload') . "' accept='" . plugin_brandpulse_h($accept) . "'>";
-    $html .= '</div>';
-    $html .= "<div class='form-text'>" . sprintf(__s('Accepted formats: %s', 'brandpulse'), plugin_brandpulse_h($extensions)) . '</div>';
+    $html .= "<input class='form-control form-control-sm mt-2 brandpulse-brand-upload' id='" . plugin_brandpulse_h($fileId) . "' type='file' name='" . plugin_brandpulse_h($name . '_upload') . "' accept='" . plugin_brandpulse_h($accept) . "'>";
+    $html .= "<div class='form-text'>" . __s('Enter a URL, or choose a local image and save to fill this URL automatically.', 'brandpulse') . ' ';
+    $html .= sprintf(__s('Accepted formats: %s', 'brandpulse'), plugin_brandpulse_h($extensions)) . '</div>';
     if ($previewUrl !== '') {
         $html .= "<div class='brandpulse-brand-preview mt-2'>";
         $html .= "<img src='" . plugin_brandpulse_h($previewUrl) . "' alt='" . __s($label, 'brandpulse') . "'>";

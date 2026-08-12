@@ -4,7 +4,9 @@
   const CONTAINER_ID = 'brandpulse-header-counters';
 
   const rootDoc = window.CFG_GLPI?.root_doc || '';
-  const pluginBaseUrl = rootDoc + '/plugins/brandpulse';
+  const currentScriptUrl = document.currentScript?.src || '';
+  const detectedPluginBaseUrl = currentScriptUrl.replace(/\/public\/js\/brandpulse\.js(?:\?.*)?$/, '');
+  const pluginBaseUrl = detectedPluginBaseUrl || rootDoc + '/plugins/brandpulse';
   const countersEndpoint = pluginBaseUrl + '/ajax/counters.php';
   const brandingEndpoint = pluginBaseUrl + '/ajax/branding.php';
   const iconIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';
@@ -149,13 +151,13 @@
 
   const resolveIconUrl = (icon) => {
     if (!icon) {
-      return pluginBaseUrl + '/icons/pulse/Notifications/Bell.svg';
+      return iconBaseEndpoint + 'Notifications/Bell.svg';
     }
 
     if (icon.startsWith('pulse:')) {
       const iconPath = icon.substring(6);
       const path = iconPath.endsWith('.svg') ? iconPath : iconPath + '.svg';
-      return pluginBaseUrl + '/icons/pulse/' + encodeIconPath(path);
+      return iconBaseEndpoint + encodeIconPath(path);
     }
 
     if (/^(https?:)?\/\//.test(icon) || icon.startsWith('data:') || icon.startsWith('/')) {
@@ -234,7 +236,7 @@
       const icon = document.createElement('span');
       icon.className = 'brandpulse-search-trigger-icon';
       icon.setAttribute('aria-hidden', 'true');
-      setMaskIcon(icon, pluginBaseUrl + '/icons/pulse/Search/Magnifer.svg');
+      setMaskIcon(icon, iconBaseEndpoint + 'Search/Magnifer.svg');
       trigger.append(icon);
 
       input.before(trigger);
@@ -323,23 +325,42 @@
       chooseThemeAsset(branding, 'logo_sidebar_collapsed', sidebarExpandedLogoUrl || branding.menu_logo)
     );
 
-    if (sidebarExpandedLogoUrl) {
-      for (const logo of document.querySelectorAll('aside .navbar-brand img, .navbar-vertical .navbar-brand img, #navbar-menu .navbar-brand img')) {
-        logo.src = sidebarExpandedLogoUrl;
+    const applyLogoUrl = (targets, url) => {
+      if (!url) {
+        return;
       }
-    }
 
-    if (sidebarCollapsedLogoUrl) {
-      for (const logo of document.querySelectorAll([
-        'aside .navbar-brand img.logo-sm',
-        '.navbar-vertical .navbar-brand img.logo-sm',
-        '#navbar-menu .navbar-brand img.logo-sm',
-        '.navbar-brand .navbar-brand-image-small',
-        '.navbar-brand img[data-logo-size="small"]',
-      ].join(','))) {
-        logo.src = sidebarCollapsedLogoUrl;
+      for (const target of document.querySelectorAll(targets.join(','))) {
+        if (target instanceof HTMLImageElement) {
+          target.src = url;
+          target.srcset = '';
+          continue;
+        }
+
+        target.style.backgroundImage = cssUrl(url);
+        target.style.backgroundRepeat = 'no-repeat';
+        target.style.backgroundPosition = 'center';
+        target.style.backgroundSize = 'contain';
       }
-    }
+    };
+
+    applyLogoUrl([
+      'aside .navbar-brand img:not(.logo-sm)',
+      '.navbar-vertical .navbar-brand img:not(.logo-sm)',
+      '#navbar-menu .navbar-brand img:not(.logo-sm)',
+      'aside .navbar-brand-image:not(.logo-sm)',
+      '.navbar-vertical .navbar-brand-image:not(.logo-sm)',
+      '#navbar-menu .navbar-brand-image:not(.logo-sm)',
+    ], sidebarExpandedLogoUrl);
+
+    applyLogoUrl([
+      'aside .navbar-brand img.logo-sm',
+      '.navbar-vertical .navbar-brand img.logo-sm',
+      '#navbar-menu .navbar-brand img.logo-sm',
+      '.navbar-brand .navbar-brand-image-small',
+      '.navbar-brand img[data-logo-size="small"]',
+      '.navbar-brand .logo-sm',
+    ], sidebarCollapsedLogoUrl);
 
     const loginLogoUrl = resolveAssetUrl(chooseThemeAsset(branding, 'login_logo', branding.login_logo));
     if (loginLogoUrl) {
@@ -413,7 +434,10 @@
         headers: { Accept: 'application/json' },
       })
         .then((response) => (response.ok ? response.json() : { icons: [] }))
-        .then((index) => Array.isArray(index.icons) ? index.icons.map(normalizeIcon).filter((icon) => icon.path !== '') : [])
+        .then((index) => {
+          const entries = Array.isArray(index.icons) ? index.icons : (Array.isArray(index.preferred) ? index.preferred : []);
+          return entries.map(normalizeIcon).filter((icon) => icon.path !== '');
+        })
         .catch(() => []);
     }
 

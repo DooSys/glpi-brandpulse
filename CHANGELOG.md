@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.14
+
+- Fix gettext MO generation so accented French labels render correctly.
+- Make Brand and Pulse frontend asset URLs resilient to GLPI plugin path variants.
+- Load Brand assets on anonymous pages when the GLPI hook is available.
+- Improve GLPI 11 logo replacement across image, background and navbar brand containers.
+- Restore Pulse icon picker results when the manifest only exposes the compact icons index.
+
 ## 0.1.13
 
 - Extend Brand configuration with theme-aware logos for light, dark and neutral variants.
