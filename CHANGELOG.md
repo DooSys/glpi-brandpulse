@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.19
+
+- Remove the custom SVG URL field from Pulse rows.
+- Save only the selected Pulse icon value and serve header icons through the GLPI SVG endpoint.
+
 ## 0.1.18
 
 - Serve individual Pulse SVG icons through a validated GLPI endpoint.

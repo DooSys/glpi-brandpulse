@@ -280,7 +280,7 @@ final class CounterService
                 $path .= '.svg';
             }
 
-            return $this->pluginWebBase() . '/icons/pulse/' . implode('/', array_map('rawurlencode', explode('/', $path)));
+            return $this->pluginWebBase() . '/ajax/icon.php?file=' . rawurlencode($path);
         }
 
         return $icon;

@@ -431,8 +431,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ? 'saved_search_' . $savedSearchId
                 : (string) ($row['preset_key'] ?? '');
 
-            $iconCustom = trim((string) ($row['icon_custom'] ?? ''));
-            $icon = $iconCustom !== '' ? $iconCustom : (string) ($row['icon'] ?? 'pulse:Notifications/Bell.svg');
 
             $counters[] = [
                 'key' => $key,
@@ -618,9 +616,7 @@ if ($tab === 'brand') {
         echo '</td>';
         $iconValue = (string) ($counter['icon'] ?? 'pulse:Notifications/Bell.svg');
         $customIcon = !array_key_exists($iconValue, $icons) && !str_starts_with($iconValue, 'pulse:') ? $iconValue : '';
-        echo '<td>' . plugin_brandpulse_icon_field("counters[{$index}][icon]", $icons, $iconValue);
-        echo plugin_brandpulse_text_input("counters[{$index}][icon_custom]", $customIcon, 'text', 'form-control form-control-sm brandpulse-icon-custom');
-        echo "<div class='form-text'>" . __s('Custom SVG URL or path', 'brandpulse') . '</div></td>';
+        echo '<td>' . plugin_brandpulse_icon_field("counters[{$index}][icon]", $icons, $iconValue) . '</td>';
         echo "<td><input class='form-control form-control-sm form-control-color' type='color' name='counters[{$index}][color]' value='" . plugin_brandpulse_h((string) ($counter['color'] ?? '#3b82f6')) . "'></td>";
         echo "<td><input class='form-control form-control-sm' type='number' min='0' name='counters[{$index}][warning_threshold]' value='" . (int) ($counter['warning_threshold'] ?? 0) . "'></td>";
         echo "<td><input class='form-control form-control-sm' type='number' min='0' name='counters[{$index}][critical_threshold]' value='" . (int) ($counter['critical_threshold'] ?? 0) . "'></td>";

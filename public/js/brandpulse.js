@@ -469,8 +469,6 @@
     const input = field.querySelector('[data-icon-value]');
     const preview = field.querySelector('[data-icon-preview]');
     const textLabel = field.querySelector('[data-icon-label]');
-    const row = field.closest('tr');
-    const customInput = row?.querySelector('.brandpulse-icon-custom');
 
     if (input) {
       input.value = value;
@@ -480,9 +478,6 @@
     }
     if (textLabel) {
       textLabel.textContent = label;
-    }
-    if (customInput) {
-      customInput.value = '';
     }
   };
 

@@ -205,10 +205,6 @@ body.brandpulse-login-branded {
   flex: 0 0 1rem;
 }
 
-.brandpulse-icon-custom {
-  min-width: 12rem;
-  margin-top: 0.25rem;
-}
 
 .brandpulse-action-bar {
   position: fixed;
