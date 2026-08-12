@@ -13,7 +13,8 @@
   const pluginBaseUrl = detectPluginBaseUrl();
   const countersEndpoint = pluginBaseUrl + '/ajax/counters.php';
   const brandingEndpoint = pluginBaseUrl + '/ajax/branding.php';
-  const iconIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';
+  const iconIndexEndpoint = pluginBaseUrl + '/ajax/icons.php';
+  const iconStaticIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';
   const iconBaseEndpoint = pluginBaseUrl + '/icons/pulse/';
 
   const t = (message) => (typeof window.__ === 'function' ? window.__(message, 'brandpulse') : message);
@@ -433,15 +434,22 @@
 
   const loadIconIndex = async () => {
     if (!iconIndexPromise) {
-      iconIndexPromise = fetch(iconIndexEndpoint, {
+      const fetchIconIndex = (url) => fetch(url, {
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
-      })
-        .then((response) => (response.ok ? response.json() : { icons: [] }))
+      }).then((response) => (response.ok ? response.json() : null));
+
+      iconIndexPromise = fetchIconIndex(iconIndexEndpoint)
         .then((index) => {
-          const entries = Array.isArray(index.icons) ? index.icons : (Array.isArray(index.preferred) ? index.preferred : []);
-          return entries.map(normalizeIcon).filter((icon) => icon.path !== '');
+          const entries = Array.isArray(index?.icons) ? index.icons : (Array.isArray(index?.preferred) ? index.preferred : []);
+          if (entries.length > 0) {
+            return entries;
+          }
+          return fetchIconIndex(iconStaticIndexEndpoint).then((fallbackIndex) => (
+            Array.isArray(fallbackIndex?.icons) ? fallbackIndex.icons : (Array.isArray(fallbackIndex?.preferred) ? fallbackIndex.preferred : [])
+          ));
         })
+        .then((entries) => entries.map(normalizeIcon).filter((icon) => icon.path !== ''))
         .catch(() => []);
     }
 

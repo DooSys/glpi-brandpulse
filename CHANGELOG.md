@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.16
+
+- Serve the Pulse icon manifest through a GLPI AJAX endpoint.
+- Keep the static icon manifest as a browser-side fallback.
+
 ## 0.1.15
 
 - Fix frontend plugin base URL detection when GLPI serves plugin assets without the public path segment.

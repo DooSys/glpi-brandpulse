@@ -7,7 +7,7 @@ use Glpi\Plugin\Hooks;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_BRANDPULSE_VERSION = '0.1.15';
+const PLUGIN_BRANDPULSE_VERSION = '0.1.16';
 const PLUGIN_BRANDPULSE_MIN_GLPI = '11.0.0';
 const PLUGIN_BRANDPULSE_MAX_GLPI = '12.0.0';
 const PLUGIN_BRANDPULSE_MIN_PHP = '8.2.0';
@@ -35,6 +35,7 @@ function plugin_init_brandpulse(): void
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/front/asset\.php$#', Firewall::STRATEGY_NO_CHECK);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/counters\.php$#', Firewall::STRATEGY_CENTRAL_ACCESS);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/branding\.php$#', Firewall::STRATEGY_NO_CHECK);
+        Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/icons\.php$#', Firewall::STRATEGY_CENTRAL_ACCESS);
     }
 
     if (class_exists(Plugin::class) && Plugin::isPluginActive('brandpulse')) {
