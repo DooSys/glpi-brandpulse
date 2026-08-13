@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.24
+
+- Persist the last Pulse header state in browser local storage so it survives GLPI page navigations more reliably.
+- Register a GLPI 11 head-loaded compact-search stylesheet only when the Pulse compact search option is enabled.
+- Align Pulse header/search integration with GLPI 11 `page_header`, `user_header` and `global_search_form` selectors.
+- Rehydrate cached Pulse counters as soon as the header appears, including on delayed header DOM insertion.
+
 ## 0.1.23
 
 - Rehydrate Pulse counters and compact search from the last successful browser payload when navigating between GLPI pages.

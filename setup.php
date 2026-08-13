@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 use Glpi\Http\Firewall;
 use Glpi\Plugin\Hooks;
+use GlpiPlugin\Brandpulse\Config as BrandpulseConfig;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_BRANDPULSE_VERSION = '0.1.23';
+const PLUGIN_BRANDPULSE_VERSION = '0.1.24';
 const PLUGIN_BRANDPULSE_MIN_GLPI = '11.0.0';
 const PLUGIN_BRANDPULSE_MAX_GLPI = '12.0.0';
 const PLUGIN_BRANDPULSE_MIN_PHP = '8.2.0';
@@ -41,6 +42,15 @@ function plugin_init_brandpulse(): void
 
     if (class_exists(Plugin::class) && Plugin::isPluginActive('brandpulse')) {
         $PLUGIN_HOOKS[Hooks::ADD_CSS]['brandpulse'][] = 'css/brandpulse.css';
+
+        $brandpulse_config = class_exists(BrandpulseConfig::class) ? BrandpulseConfig::rawValues() : [];
+        if (
+            (bool) (int) ($brandpulse_config['enabled'] ?? 0)
+            && (bool) (int) ($brandpulse_config['compact_search_enabled'] ?? 0)
+        ) {
+            $PLUGIN_HOOKS[Hooks::ADD_CSS]['brandpulse'][] = 'css/brandpulse-compact-search.css';
+        }
+
         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['brandpulse'][] = 'js/brandpulse.js';
 
         if (defined(Hooks::class . '::ADD_CSS_ANONYMOUS_PAGE')) {

@@ -1,0 +1,43 @@
+header[data-testid="main-header"] form[role="search"]:not(.brandpulse-compact-search),
+.secondary-bar form[role="search"]:not(.brandpulse-compact-search) {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  max-width: 2.4rem;
+  max-height: 2.4rem;
+  overflow: hidden;
+  color: currentColor;
+  vertical-align: middle;
+}
+
+header[data-testid="main-header"] form[role="search"]:not(.brandpulse-compact-search)::before,
+.secondary-bar form[role="search"]:not(.brandpulse-compact-search)::before {
+  content: "";
+  display: inline-block;
+  width: 2.2rem;
+  height: 2.2rem;
+  flex: 0 0 2.2rem;
+  background-color: currentColor;
+  -webkit-mask: url("../icons/pulse/Search/Magnifer.svg") center / 1.2rem 1.2rem no-repeat;
+  mask: url("../icons/pulse/Search/Magnifer.svg") center / 1.2rem 1.2rem no-repeat;
+}
+
+header[data-testid="main-header"] form[role="search"]:not(.brandpulse-compact-search) .input-group,
+.secondary-bar form[role="search"]:not(.brandpulse-compact-search) .input-group {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  margin: 0;
+}
+
+header[data-testid="main-header"] form[role="search"]:not(.brandpulse-compact-search) #global-search,
+.secondary-bar form[role="search"]:not(.brandpulse-compact-search) #global-search {
+  min-width: 12rem;
+  opacity: 0;
+  pointer-events: none;
+}
+
+header[data-testid="main-header"] form[role="search"]:not(.brandpulse-compact-search) .input-group-text,
+.secondary-bar form[role="search"]:not(.brandpulse-compact-search) .input-group-text {
+  display: none !important;
+}
