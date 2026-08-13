@@ -273,14 +273,14 @@ msgstr "This switch must be enabled before logos, favicon, login background and 
 msgid "Square icon. Recommended source: 64 x 64 px or SVG."
 msgstr "Square icon. Recommended source: 64 x 64 px or SVG."
 
-msgid "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px or SVG."
-msgstr "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px or SVG."
+msgid "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px, SVG, PNG or WebP."
+msgstr "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px, SVG, PNG or WebP."
 
-msgid "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px or SVG."
-msgstr "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px or SVG."
+msgid "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px, SVG, PNG or WebP."
+msgstr "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px, SVG, PNG or WebP."
 
-msgid "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px or SVG."
-msgstr "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px or SVG."
+msgid "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px, SVG, PNG or WebP."
+msgstr "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px, SVG, PNG or WebP."
 
 msgid "Recommended source: 1920 x 1080 px, 16:9."
 msgstr "Recommended source: 1920 x 1080 px, 16:9."

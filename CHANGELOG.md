@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.30
+
+- Allow WebP uploads for Brand sidebar and login logos in addition to SVG and PNG.
+- Update Brand image guidance and gettext catalogs to mention WebP logo support.
+
 ## 0.1.29
 
 - Add a recognizable BrandPulse header comment to the generated entity CSS block.

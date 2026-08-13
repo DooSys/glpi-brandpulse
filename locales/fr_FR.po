@@ -294,14 +294,14 @@ msgstr "Cet interrupteur doit être activé pour appliquer les logos, le favicon
 msgid "Square icon. Recommended source: 64 x 64 px or SVG."
 msgstr "Icône carrée. Source recommandée : 64 x 64 px ou SVG."
 
-msgid "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px or SVG."
-msgstr "Affiché par GLPI 11 en 100 x 55 px. Source recommandée : 200 x 110 px ou SVG."
+msgid "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px, SVG, PNG or WebP."
+msgstr "Affiché par GLPI 11 en 100 x 55 px. Source recommandée : 200 x 110 px, SVG, PNG ou WebP."
 
-msgid "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px or SVG."
-msgstr "Affiché par GLPI 11 en 40 x 40 px. Source recommandée : 80 x 80 px ou SVG."
+msgid "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px, SVG, PNG or WebP."
+msgstr "Affiché par GLPI 11 en 40 x 40 px. Source recommandée : 80 x 80 px, SVG, PNG ou WebP."
 
-msgid "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px or SVG."
-msgstr "Affiché par GLPI 11 en 200 x 110 px. Source recommandée : 400 x 220 px ou SVG."
+msgid "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px, SVG, PNG or WebP."
+msgstr "Affiché par GLPI 11 en 200 x 110 px. Source recommandée : 400 x 220 px, SVG, PNG ou WebP."
 
 msgid "Recommended source: 1920 x 1080 px, 16:9."
 msgstr "Source recommandée : 1920 x 1080 px, 16:9."
