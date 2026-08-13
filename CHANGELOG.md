@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.31
+
+- Increase the generated GLPI entity CSS sidebar logo display area for expanded and collapsed menus.
+- Expose BrandPulse sidebar logo sizing variables in the generated CSS block.
+
 ## 0.1.30
 
 - Allow WebP uploads for Brand sidebar and login logos in addition to SVG and PNG.
