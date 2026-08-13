@@ -369,6 +369,7 @@ function plugin_brandpulse_generated_brand_css(): string
     $css .= "}\n\n";
     $css .= ".page-anonymous .glpi-logo {\n";
     $css .= "  --logo: var(--glpi-logo-dark-login) !important;\n";
+    $css .= "  background: none !important;\n";
     $css .= "  content: var(--logo) !important;\n";
     $css .= "  width: 200px !important;\n";
     $css .= "  height: 110px !important;\n";

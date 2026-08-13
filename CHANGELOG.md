@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.32
+
+- Stop applying login logos directly on GLPI `.glpi-logo` spans to avoid duplicated logo rendering on the login page.
+- Avoid stacking the login background on both `body` and `.page-anonymous` in the JavaScript fallback CSS.
+
 ## 0.1.31
 
 - Increase the generated GLPI entity CSS sidebar logo display area for expanded and collapsed menus.

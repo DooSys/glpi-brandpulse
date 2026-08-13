@@ -461,7 +461,8 @@
     setCssUrlVariable('--glpi-logo-light-login', loginLightLogoUrl);
     setCssUrlVariable('--glpi-logo-dark-login', loginDarkLogoUrl);
 
-    for (const glpiLogo of document.querySelectorAll('.page .navbar-brand .glpi-logo, #navbar-menu .glpi-logo')) {
+    for (const glpiLogo of document.querySelectorAll('.page .navbar-brand .glpi-logo, #navbar-menu .glpi-logo, .page-anonymous .glpi-logo, .login-box .glpi-logo')) {
+      glpiLogo.style.removeProperty('--logo');
       glpiLogo.style.removeProperty('background-image');
       glpiLogo.style.removeProperty('background-repeat');
       glpiLogo.style.removeProperty('background-position');
@@ -508,19 +509,11 @@
 
     const loginLogoUrl = resolveAssetUrl(chooseThemeAsset(branding, 'login_logo', branding.login_logo));
     if (loginLogoUrl) {
-      for (const loginLogo of document.querySelectorAll('.page-anonymous .glpi-logo, .page-anonymous .navbar-brand img, .login-box img, form[action*="login"] img')) {
+      for (const loginLogo of document.querySelectorAll('.page-anonymous .navbar-brand img, .login-box img, form[action*="login"] img')) {
         if (loginLogo instanceof HTMLImageElement) {
           loginLogo.src = loginLogoUrl;
           loginLogo.srcset = '';
-          continue;
         }
-
-        loginLogo.style.setProperty('--logo', cssUrl(loginLogoUrl), 'important');
-        loginLogo.style.content = cssUrl(loginLogoUrl);
-        loginLogo.style.backgroundImage = cssUrl(loginLogoUrl);
-        loginLogo.style.backgroundRepeat = 'no-repeat';
-        loginLogo.style.backgroundPosition = 'center';
-        loginLogo.style.backgroundSize = 'contain';
       }
     }
 
