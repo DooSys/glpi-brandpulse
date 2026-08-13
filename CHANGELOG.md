@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.23
+
+- Rehydrate Pulse counters and compact search from the last successful browser payload when navigating between GLPI pages.
+- Refresh existing Pulse counter badges in place when only counts, colours or links change.
+
 ## 0.1.22
 
 - Fix compact global search so GLPI native search buttons do not create a second magnifier.

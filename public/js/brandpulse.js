@@ -22,6 +22,8 @@
   const isHtmlDocument = () => document.contentType.toLowerCase().includes('html')
     && document.documentElement?.nodeName?.toLowerCase() === 'html';
   let refreshTimer = null;
+  const pulseCacheKey = 'brandpulse:pulse-payload:v1';
+  const pulseCacheMaxAge = 5 * 60 * 1000;
 
   const resolveAssetUrl = (value) => {
     if (!value) {
@@ -182,6 +184,39 @@
     element.style.maskImage = cssUrl(iconUrl);
   };
 
+  const cachePulsePayload = (payload) => {
+    try {
+      if (!payload?.enabled || !Array.isArray(payload.counters)) {
+        window.sessionStorage?.removeItem(pulseCacheKey);
+        return;
+      }
+
+      window.sessionStorage?.setItem(pulseCacheKey, JSON.stringify({
+        payload,
+        stored_at: Date.now(),
+      }));
+    } catch (error) {
+      window.console?.debug?.(t('BrandPulse counters unavailable'), error);
+    }
+  };
+
+  const cachedPulsePayload = () => {
+    try {
+      const cached = JSON.parse(window.sessionStorage?.getItem(pulseCacheKey) || 'null');
+      if (!cached?.payload?.enabled || !Array.isArray(cached.payload.counters)) {
+        return null;
+      }
+      if (Date.now() - Number(cached.stored_at || 0) > pulseCacheMaxAge) {
+        window.sessionStorage?.removeItem(pulseCacheKey);
+        return null;
+      }
+
+      return cached.payload;
+    } catch (error) {
+      return null;
+    }
+  };
+
   const renderIcon = (counter) => {
     const icon = counter.icon || 'pulse:Notifications/Bell.svg';
     const iconUrl = counter.icon_url || resolveIconUrl(icon);
@@ -275,23 +310,43 @@
     }
   };
 
-  const renderCounter = (counter) => {
-    const item = document.createElement('a');
-    item.className = 'brandpulse-counter';
-    item.href = counter.href || '#';
+  const counterSignature = (counter, index) => [
+    index,
+    counter.key || '',
+    counter.label || '',
+    counter.icon || '',
+    counter.icon_url || '',
+  ].join('|');
+
+  const updateCounterElement = (item, counter) => {
+    const href = counter.href || '#';
+    item.href = href;
     item.title = counter.label || counter.key || '';
     item.setAttribute('aria-label', (counter.label || counter.key) + ': ' + counter.count);
 
-    if (item.href.endsWith('#')) {
-      item.addEventListener('click', (event) => event.preventDefault());
+    const badge = item.querySelector('.brandpulse-badge');
+    if (badge) {
+      badge.textContent = String(counter.count ?? 0);
+      badge.style.backgroundColor = counter.color || '#3b82f6';
     }
+  };
+
+  const renderCounter = (counter, index) => {
+    const item = document.createElement('a');
+    item.className = 'brandpulse-counter';
+    item.dataset.brandpulseCounterSignature = counterSignature(counter, index);
+    item.addEventListener('click', (event) => {
+      if (item.getAttribute('href') === '#') {
+        event.preventDefault();
+      }
+    });
 
     const badge = document.createElement('span');
     badge.className = 'brandpulse-badge';
-    badge.textContent = String(counter.count ?? 0);
-    badge.style.backgroundColor = counter.color || '#3b82f6';
 
     item.append(renderIcon(counter), badge);
+    updateCounterElement(item, counter);
+
     return item;
   };
 
@@ -307,11 +362,22 @@
     }
 
     setReadableIconColor(container);
+    const existingCounters = [...container.querySelectorAll('.brandpulse-counter')];
+    const canUpdateCounters = existingCounters.length === payload.counters.length
+      && payload.counters.every((counter, index) => (
+        existingCounters[index]?.dataset.brandpulseCounterSignature === counterSignature(counter, index)
+      ));
+
+    if (canUpdateCounters) {
+      payload.counters.forEach((counter, index) => updateCounterElement(existingCounters[index], counter));
+      return;
+    }
+
     container.replaceChildren();
     container.hidden = false;
-    for (const counter of payload.counters) {
-      container.append(renderCounter(counter));
-    }
+    payload.counters.forEach((counter, index) => {
+      container.append(renderCounter(counter, index));
+    });
   };
 
   const applyBranding = (payload) => {
@@ -786,6 +852,7 @@
       }
 
       const payload = await response.json();
+      cachePulsePayload(payload);
       setupCompactSearch(payload.compact_search_enabled);
       render(payload);
       scheduleRefresh(payload);
@@ -805,6 +872,11 @@
     loadBranding();
 
     if (findHeaderTarget()) {
+      const cachedPayload = cachedPulsePayload();
+      if (cachedPayload) {
+        setupCompactSearch(cachedPayload.compact_search_enabled);
+        render(cachedPayload);
+      }
       loadCounters();
     }
   };
