@@ -93,10 +93,13 @@
 .brandpulse-compact-search {
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
   max-width: 2.4rem;
+  max-height: 2.4rem;
   overflow: hidden;
   color: var(--brandpulse-icon-color, currentColor);
   transition: max-width 180ms ease;
+  vertical-align: middle;
 }
 
 .brandpulse-compact-search.is-expanded,
@@ -116,6 +119,19 @@
   color: var(--brandpulse-icon-color, currentColor);
   cursor: pointer;
   flex: 0 0 2.2rem;
+}
+
+.brandpulse-compact-search .input-group,
+.brandpulse-compact-search .search,
+.brandpulse-compact-search .navbar-search {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  margin: 0;
+}
+
+.brandpulse-compact-search .brandpulse-native-search-control {
+  display: none !important;
 }
 
 .brandpulse-search-trigger-icon {

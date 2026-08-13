@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.22
+
+- Fix compact global search so GLPI native search buttons do not create a second magnifier.
+- Keep the compact search container constrained to avoid growing the GLPI header.
+
 ## 0.1.21
 
 - Use the validated SVG endpoint for Pulse icon previews in the configuration table.

@@ -206,7 +206,11 @@
     if (!enabled) {
       for (const container of document.querySelectorAll('.brandpulse-compact-search')) {
         container.querySelector('.brandpulse-search-trigger')?.remove();
+        for (const nativeControl of container.querySelectorAll('.brandpulse-native-search-control')) {
+          nativeControl.classList.remove('brandpulse-native-search-control');
+        }
         container.classList.remove('brandpulse-compact-search', 'is-expanded');
+        container.removeAttribute('data-brandpulse-compact-search');
       }
       return;
     }
@@ -214,22 +218,23 @@
     const inputs = document.querySelectorAll([
       'header.navbar input[type="search"]',
       'header.navbar input[name="globalsearch"]',
-      'header.navbar input[name="criteria"]',
+      'header.navbar input[type="text"][name="criteria"]',
       '.navbar:not(#navbar-menu) input[type="search"]',
       '.navbar:not(#navbar-menu) input[name="globalsearch"]',
-      '.navbar:not(#navbar-menu) input[name="criteria"]',
+      '.navbar:not(#navbar-menu) input[type="text"][name="criteria"]',
     ].join(','));
 
     for (const input of inputs) {
-      if (isSidebarElement(input)) {
+      if (isSidebarElement(input) || input.type === 'hidden' || input.offsetParent === null) {
         continue;
       }
 
-      const container = input.closest('form, .input-group, .search, .navbar-search') || input.parentElement;
-      if (!container || container.classList.contains('brandpulse-compact-search') || isSidebarElement(container)) {
+      const container = input.closest('form') || input.closest('.input-group, .search, .navbar-search') || input.parentElement;
+      if (!container || container.dataset.brandpulseCompactSearch === '1' || isSidebarElement(container)) {
         continue;
       }
 
+      container.dataset.brandpulseCompactSearch = '1';
       container.classList.add('brandpulse-compact-search');
       setReadableIconColor(container);
 
@@ -246,6 +251,12 @@
       trigger.append(icon);
 
       input.before(trigger);
+      const inputParent = input.parentElement;
+      for (const nativeControl of inputParent.querySelectorAll('button, .input-group-text, .input-group-addon')) {
+        if (nativeControl !== trigger && !nativeControl.contains(input)) {
+          nativeControl.classList.add('brandpulse-native-search-control');
+        }
+      }
 
       const expand = () => {
         container.classList.add('is-expanded');
