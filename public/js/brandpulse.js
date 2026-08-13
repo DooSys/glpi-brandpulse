@@ -409,8 +409,101 @@
   const setupPulseTargets = () => {
     for (const select of document.querySelectorAll('[data-pulse-source]')) {
       syncPulseTargetRow(select);
-      select.addEventListener('change', () => syncPulseTargetRow(select));
     }
+
+    document.addEventListener('change', (event) => {
+      const select = event.target.closest('[data-pulse-source]');
+      if (select) {
+        syncPulseTargetRow(select);
+      }
+    });
+  };
+
+  const pulseRows = () => [...document.querySelectorAll('[data-pulse-rows] > [data-pulse-row]')];
+
+  const renumberPulseRows = () => {
+    pulseRows().forEach((row, index) => {
+      for (const field of row.querySelectorAll('[name^="counters["]')) {
+        field.name = field.name.replace(/counters\[[^\]]+\]/, 'counters[' + String(index) + ']');
+      }
+    });
+  };
+
+  const refreshPulseOrderControls = () => {
+    const rows = pulseRows();
+    const count = rows.length;
+    document.querySelector('[data-pulse-row-count]')?.replaceChildren(String(count));
+
+    rows.forEach((row, index) => {
+      const up = row.querySelector('[data-pulse-move="up"]');
+      const down = row.querySelector('[data-pulse-move="down"]');
+      if (up) {
+        up.disabled = index === 0;
+      }
+      if (down) {
+        down.disabled = index === count - 1;
+      }
+    });
+  };
+
+  const nextPulseRowIndex = () => {
+    let nextIndex = 0;
+    for (const field of document.querySelectorAll('[name^="counters["]')) {
+      const match = field.name.match(/^counters\[(\d+)\]/);
+      if (match) {
+        nextIndex = Math.max(nextIndex, Number.parseInt(match[1], 10) + 1);
+      }
+    }
+    return nextIndex;
+  };
+
+  const clonePulseRowTemplate = () => {
+    const template = document.querySelector('[data-pulse-row-template]');
+    const tbody = document.querySelector('[data-pulse-rows]');
+    if (!template || !tbody) {
+      return;
+    }
+
+    const wrapper = document.createElement('tbody');
+    wrapper.innerHTML = template.innerHTML.replaceAll('__INDEX__', String(nextPulseRowIndex()));
+    const row = wrapper.querySelector('[data-pulse-row]');
+    if (!row) {
+      return;
+    }
+
+    tbody.append(row);
+    syncPulseTargetRow(row.querySelector('[data-pulse-source]'));
+    refreshPulseOrderControls();
+  };
+
+  const setupPulseTableControls = () => {
+    const table = document.querySelector('[data-pulse-table]');
+    if (!table || table.dataset.ready) {
+      return;
+    }
+
+    table.dataset.ready = '1';
+    document.querySelector('[data-pulse-add]')?.addEventListener('click', clonePulseRowTemplate);
+
+    table.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-pulse-move]');
+      const row = button?.closest('[data-pulse-row]');
+      if (!button || !row) {
+        return;
+      }
+
+      if (button.dataset.pulseMove === 'up' && row.previousElementSibling) {
+        row.previousElementSibling.before(row);
+      }
+      if (button.dataset.pulseMove === 'down' && row.nextElementSibling) {
+        row.nextElementSibling.after(row);
+      }
+
+      refreshPulseOrderControls();
+    });
+
+    table.closest('form')?.addEventListener('submit', renumberPulseRows);
+    refreshPulseOrderControls();
   };
 
   let iconIndexPromise = null;
@@ -696,6 +789,7 @@
     }
 
     setupPulseTargets();
+    setupPulseTableControls();
     setupIconPickerModal();
     loadBranding();
 

@@ -156,6 +156,17 @@
   min-width: 3.25rem;
 }
 
+.brandpulse-order-cell {
+  width: 4.75rem;
+  white-space: nowrap;
+}
+
+.brandpulse-order-cell .btn {
+  width: 2rem;
+  padding-right: 0;
+  padding-left: 0;
+}
+
 
 body.brandpulse-login-branded {
   background-image: var(--brandpulse-login-background);

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Use the validated SVG endpoint for Pulse icon previews in the configuration table.
+- Add Pulse row ordering controls and save counters in the visible table order.
+- Replace pre-rendered empty Pulse rows with an on-demand add button.
 - Regenerate the Pulse icon manifest from the full local SVG pack.
 - Add a category filter next to the Pulse icon picker search field.
 

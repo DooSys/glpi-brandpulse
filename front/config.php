@@ -293,11 +293,10 @@ function plugin_brandpulse_brand_asset_status(string $value): array
 
 function plugin_brandpulse_icon_field(string $name, array $options, string $selected): string
 {
-    $baseUrl = plugin_brandpulse_web_base() . '/icons/pulse/';
     $isKnown = array_key_exists($selected, $options);
     $value = $selected !== '' ? $selected : BrandpulseConfig::DEFAULT_PULSE_ICON;
     $path = str_starts_with($value, 'pulse:') ? substr($value, 6) : '';
-    $url = $path !== '' ? $baseUrl . implode('/', array_map('rawurlencode', explode('/', $path))) : '';
+    $url = $path !== '' ? plugin_brandpulse_web_base() . '/ajax/icon.php?file=' . rawurlencode($path) : '';
     $fallbackLabel = $path !== '' ? str_replace('/', ' / ', preg_replace('/\.svg$/', '', $path)) : __('Custom icon', 'brandpulse');
     $label = $isKnown ? (string) $options[$selected] : $fallbackLabel;
 
@@ -308,6 +307,55 @@ function plugin_brandpulse_icon_field(string $name, array $options, string $sele
     $html .= "<span data-icon-label>" . plugin_brandpulse_h($label) . '</span>';
     $html .= '</button>';
     $html .= '</div>';
+
+    return $html;
+}
+
+function plugin_brandpulse_blank_pulse_counter(): array
+{
+    return [
+        'key' => '',
+        'label' => '',
+        'icon' => BrandpulseConfig::DEFAULT_PULSE_ICON,
+        'color' => '#3b82f6',
+        'enabled' => false,
+        'source_type' => 'saved_search',
+        'savedsearches_id' => 0,
+        'warning_threshold' => 0,
+        'critical_threshold' => 0,
+    ];
+}
+
+function plugin_brandpulse_pulse_row(
+    string|int $index,
+    array $counter,
+    array $presetCounters,
+    array $savedSearches,
+    array $icons,
+    array $sourceTypes
+): string {
+    $sourceType = (string) ($counter['source_type'] ?? 'preset');
+    $savedSearchId = (int) ($counter['savedsearches_id'] ?? 0);
+    $presetKey = array_key_exists((string) ($counter['key'] ?? ''), $presetCounters) ? (string) $counter['key'] : 'my_tasks';
+    $iconValue = (string) ($counter['icon'] ?? BrandpulseConfig::DEFAULT_PULSE_ICON);
+
+    $html = "<tr data-pulse-row>";
+    $html .= "<td><input class='form-check-input' type='checkbox' name='counters[{$index}][enabled]' value='1'" . (!empty($counter['enabled']) ? ' checked' : '') . '></td>';
+    $html .= '<td>' . plugin_brandpulse_text_input("counters[{$index}][label]", (string) ($counter['label'] ?? ''), 'text', 'form-control form-control-sm') . plugin_brandpulse_text_input("counters[{$index}][key]", (string) ($counter['key'] ?? ''), 'hidden') . '</td>';
+    $html .= '<td>' . str_replace('<select ', '<select data-pulse-source ', plugin_brandpulse_select("counters[{$index}][source_type]", $sourceTypes, $sourceType)) . '</td>';
+    $html .= "<td class='brandpulse-target-cell'>";
+    $html .= "<div data-pulse-target='preset'>" . plugin_brandpulse_select("counters[{$index}][preset_key]", $presetCounters, $presetKey) . '</div>';
+    $html .= "<div data-pulse-target='saved_search'>" . plugin_brandpulse_select("counters[{$index}][savedsearches_id]", $savedSearches, $savedSearchId, false) . '</div>';
+    $html .= '</td>';
+    $html .= '<td>' . plugin_brandpulse_icon_field("counters[{$index}][icon]", $icons, $iconValue) . '</td>';
+    $html .= "<td><input class='form-control form-control-sm form-control-color' type='color' name='counters[{$index}][color]' value='" . plugin_brandpulse_h((string) ($counter['color'] ?? '#3b82f6')) . "'></td>";
+    $html .= "<td><input class='form-control form-control-sm' type='number' min='0' name='counters[{$index}][warning_threshold]' value='" . (int) ($counter['warning_threshold'] ?? 0) . "'></td>";
+    $html .= "<td><input class='form-control form-control-sm' type='number' min='0' name='counters[{$index}][critical_threshold]' value='" . (int) ($counter['critical_threshold'] ?? 0) . "'></td>";
+    $html .= "<td class='brandpulse-order-cell'><div class='btn-group btn-group-sm' role='group' aria-label='" . __s('Order', 'brandpulse') . "'>";
+    $html .= "<button class='btn btn-outline-secondary' type='button' data-pulse-move='up' title='" . __s('Move up', 'brandpulse') . "' aria-label='" . __s('Move up', 'brandpulse') . "'>&uarr;</button>";
+    $html .= "<button class='btn btn-outline-secondary' type='button' data-pulse-move='down' title='" . __s('Move down', 'brandpulse') . "' aria-label='" . __s('Move down', 'brandpulse') . "'>&darr;</button>";
+    $html .= '</div></td>';
+    $html .= '</tr>';
 
     return $html;
 }
@@ -477,20 +525,6 @@ $alertTypes = [
     'success' => 'Success',
 ];
 
-while (count($counters) < 8) {
-    $counters[] = [
-        'key' => '',
-        'label' => '',
-        'icon' => BrandpulseConfig::DEFAULT_PULSE_ICON,
-        'color' => '#3b82f6',
-        'enabled' => false,
-        'source_type' => 'saved_search',
-        'savedsearches_id' => 0,
-        'warning_threshold' => 0,
-        'critical_threshold' => 0,
-    ];
-}
-
 Html::header(__('GLPI BrandPulse', 'brandpulse'), plugin_brandpulse_config_url($tab), 'config', 'plugins');
 
 echo "<div class='brandpulse-config'>";
@@ -573,7 +607,7 @@ if ($tab === 'brand') {
     echo '</div>';
 } else {
     echo "<div class='card mb-3'>";
-    echo "<div class='card-header d-flex align-items-center justify-content-between gap-2'><strong>" . __s('Pulse', 'brandpulse') . "</strong><button class='btn btn-primary btn-sm' type='submit'>" . __s('Save', 'brandpulse') . "</button></div>";
+    echo "<div class='card-header d-flex align-items-center justify-content-between gap-2'><strong>" . __s('Pulse', 'brandpulse') . "<span class='badge bg-secondary ms-2' data-pulse-row-count>" . count($counters) . "</span></strong><div class='d-flex gap-2'><button class='btn btn-outline-secondary btn-sm' type='button' data-pulse-add title='" . __s('Add Pulse counter', 'brandpulse') . "' aria-label='" . __s('Add Pulse counter', 'brandpulse') . "'>+</button><button class='btn btn-primary btn-sm' type='submit'>" . __s('Save', 'brandpulse') . "</button></div></div>";
     echo "<div class='card-body'>";
     echo "<div class='row g-3 align-items-end'>";
     echo "<div class='col-md-3'><div class='form-check'>";
@@ -589,7 +623,7 @@ if ($tab === 'brand') {
     echo '</div>';
 
     echo "<div class='table-responsive'>";
-    echo "<table class='table table-sm align-middle mb-0 brandpulse-pulse-table'>";
+    echo "<table class='table table-sm align-middle mb-0 brandpulse-pulse-table' data-pulse-table>";
     echo '<thead><tr>';
     echo '<th>' . __s('Enabled', 'brandpulse') . '</th>';
     echo '<th>' . __s('Label', 'brandpulse') . '</th>';
@@ -599,31 +633,15 @@ if ($tab === 'brand') {
     echo '<th>' . __s('Color', 'brandpulse') . '</th>';
     echo '<th>' . __s('Warning', 'brandpulse') . '</th>';
     echo '<th>' . __s('Critical', 'brandpulse') . '</th>';
-    echo '</tr></thead><tbody>';
+    echo '<th>' . __s('Order', 'brandpulse') . '</th>';
+    echo '</tr></thead><tbody data-pulse-rows>';
 
     foreach ($counters as $index => $counter) {
-        $sourceType = (string) ($counter['source_type'] ?? 'preset');
-        $savedSearchId = (int) ($counter['savedsearches_id'] ?? 0);
-        $presetKey = array_key_exists((string) ($counter['key'] ?? ''), $presetCounters) ? (string) $counter['key'] : 'my_tasks';
-
-        echo '<tr>';
-        echo "<td><input class='form-check-input' type='checkbox' name='counters[{$index}][enabled]' value='1'" . (!empty($counter['enabled']) ? ' checked' : '') . '></td>';
-        echo '<td>' . plugin_brandpulse_text_input("counters[{$index}][label]", (string) ($counter['label'] ?? ''), 'text', 'form-control form-control-sm') . plugin_brandpulse_text_input("counters[{$index}][key]", (string) ($counter['key'] ?? ''), 'hidden') . '</td>';
-        echo '<td>' . str_replace('<select ', '<select data-pulse-source ', plugin_brandpulse_select("counters[{$index}][source_type]", $sourceTypes, $sourceType)) . '</td>';
-        echo "<td class='brandpulse-target-cell'>";
-        echo "<div data-pulse-target='preset'>" . plugin_brandpulse_select("counters[{$index}][preset_key]", $presetCounters, $presetKey) . '</div>';
-        echo "<div data-pulse-target='saved_search'>" . plugin_brandpulse_select("counters[{$index}][savedsearches_id]", $savedSearches, $savedSearchId, false) . '</div>';
-        echo '</td>';
-        $iconValue = (string) ($counter['icon'] ?? BrandpulseConfig::DEFAULT_PULSE_ICON);
-        $customIcon = !array_key_exists($iconValue, $icons) && !str_starts_with($iconValue, 'pulse:') ? $iconValue : '';
-        echo '<td>' . plugin_brandpulse_icon_field("counters[{$index}][icon]", $icons, $iconValue) . '</td>';
-        echo "<td><input class='form-control form-control-sm form-control-color' type='color' name='counters[{$index}][color]' value='" . plugin_brandpulse_h((string) ($counter['color'] ?? '#3b82f6')) . "'></td>";
-        echo "<td><input class='form-control form-control-sm' type='number' min='0' name='counters[{$index}][warning_threshold]' value='" . (int) ($counter['warning_threshold'] ?? 0) . "'></td>";
-        echo "<td><input class='form-control form-control-sm' type='number' min='0' name='counters[{$index}][critical_threshold]' value='" . (int) ($counter['critical_threshold'] ?? 0) . "'></td>";
-        echo '</tr>';
+        echo plugin_brandpulse_pulse_row($index, $counter, $presetCounters, $savedSearches, $icons, $sourceTypes);
     }
 
     echo '</tbody></table>';
+    echo '<template data-pulse-row-template>' . plugin_brandpulse_pulse_row('__INDEX__', plugin_brandpulse_blank_pulse_counter(), $presetCounters, $savedSearches, $icons, $sourceTypes) . '</template>';
     echo '</div>';
     echo "<div class='card-footer text-muted'>" . __s('Use GLPI presets or GLPI saved searches. Saved searches keep the native AND/OR criteria builder.', 'brandpulse') . '</div>';
     echo '</div>';
