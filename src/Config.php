@@ -8,6 +8,7 @@ final class Config
 {
     public const CONTEXT = 'plugin:brandpulse';
     public const SCHEMA_VERSION_KEY = 'schema_version';
+    public const DEFAULT_PULSE_ICON = 'pulse:Notifications/Bell.svg';
 
     public static function installDefaults(): void
     {
@@ -172,7 +173,7 @@ final class Config
             [
                 'key' => 'my_waiting_tickets',
                 'label' => 'Waiting tickets',
-                'icon' => 'pulse:Notifications/Bell.svg',
+                'icon' => self::DEFAULT_PULSE_ICON,
                 'color' => '#f59f00',
                 'enabled' => true,
                 'source_type' => 'preset',
@@ -240,7 +241,7 @@ final class Config
 
         return $icons !== [] ? $icons : [
             'pulse:Search/Magnifer.svg' => 'Search / Magnifer',
-            'pulse:Notifications/Bell.svg' => 'Notifications / Bell',
+            self::DEFAULT_PULSE_ICON => 'Notifications / Bell',
             'pulse:List/Checklist Minimalistic.svg' => 'List / Checklist Minimalistic',
         ];
     }
@@ -331,7 +332,7 @@ final class Config
             $normalized[] = [
                 'key' => $key,
                 'label' => $label,
-                'icon' => trim((string) ($counter['icon'] ?? 'pulse:Notifications/Bell.svg')) ?: 'pulse:Notifications/Bell.svg',
+                'icon' => self::normalizeIcon((string) ($counter['icon'] ?? '')),
                 'color' => self::normalizeColor((string) ($counter['color'] ?? '#3b82f6')),
                 'enabled' => !empty($counter['enabled']),
                 'source_type' => $sourceType,
@@ -361,6 +362,51 @@ final class Config
         $color = trim($color);
 
         return preg_match('/^#[0-9a-fA-F]{6}$/', $color) === 1 ? $color : '#3b82f6';
+    }
+
+    private static function normalizeIcon(string $icon): string
+    {
+        $icon = trim($icon);
+
+        if ($icon === '') {
+            return self::DEFAULT_PULSE_ICON;
+        }
+
+        if (!str_starts_with($icon, 'pulse:')) {
+            return self::DEFAULT_PULSE_ICON;
+        }
+
+        $path = str_replace('\\', '/', substr($icon, 6));
+        $path = ltrim($path, '/');
+        if ($path === '' || str_contains($path, "\0")) {
+            return self::DEFAULT_PULSE_ICON;
+        }
+
+        $parts = array_values(array_filter(explode('/', $path), static fn (string $part): bool => $part !== ''));
+        if (in_array('..', $parts, true) || in_array('.', $parts, true)) {
+            return self::DEFAULT_PULSE_ICON;
+        }
+        $path = implode('/', $parts);
+
+        if (!str_ends_with(strtolower($path), '.svg')) {
+            $path .= '.svg';
+        }
+
+        return self::localPulseIconExists($path) ? 'pulse:' . $path : self::DEFAULT_PULSE_ICON;
+    }
+
+    private static function localPulseIconExists(string $path): bool
+    {
+        $baseDirectory = realpath(__DIR__ . '/../public/icons/pulse');
+        if ($baseDirectory === false) {
+            return false;
+        }
+
+        $realPath = realpath($baseDirectory . '/' . $path);
+
+        return $realPath !== false
+            && is_file($realPath)
+            && str_starts_with($realPath, $baseDirectory . DIRECTORY_SEPARATOR);
     }
 
     private static function slug(string $value): string

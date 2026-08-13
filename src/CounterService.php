@@ -46,7 +46,7 @@ final class CounterService
             $key = (string) $definition['key'];
             $count = $this->count($definition);
 
-            $icon = (string) ($definition['icon'] ?? 'pulse:Notifications/Bell.svg');
+            $icon = (string) ($definition['icon'] ?? Config::DEFAULT_PULSE_ICON);
 
             $counters[] = [
                 'key' => $key,
@@ -268,13 +268,13 @@ final class CounterService
     private function iconUrl(string $icon): string
     {
         if ($icon === '') {
-            $icon = 'pulse:Notifications/Bell.svg';
+            $icon = Config::DEFAULT_PULSE_ICON;
         }
 
         if (str_starts_with($icon, 'pulse:')) {
             $path = substr($icon, 6);
             if ($path === '') {
-                $path = 'Notifications/Bell.svg';
+                $path = substr(Config::DEFAULT_PULSE_ICON, 6);
             }
             if (!str_ends_with($path, '.svg')) {
                 $path .= '.svg';

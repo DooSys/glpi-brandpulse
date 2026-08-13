@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.20
+
+- Fix Pulse saves so each row preserves its selected SVG icon instead of falling back to the default icon.
+- Validate stored Pulse icons against the bundled local SVG pack.
+- Align release metadata with GLPI 11 plugin catalogue packaging for v0.1.20.
+
 ## 0.1.19
 
 - Remove the custom SVG URL field from Pulse rows.

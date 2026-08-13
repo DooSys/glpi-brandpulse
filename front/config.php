@@ -295,7 +295,7 @@ function plugin_brandpulse_icon_field(string $name, array $options, string $sele
 {
     $baseUrl = plugin_brandpulse_web_base() . '/icons/pulse/';
     $isKnown = array_key_exists($selected, $options);
-    $value = $selected !== '' ? $selected : 'pulse:Notifications/Bell.svg';
+    $value = $selected !== '' ? $selected : BrandpulseConfig::DEFAULT_PULSE_ICON;
     $path = str_starts_with($value, 'pulse:') ? substr($value, 6) : '';
     $url = $path !== '' ? $baseUrl . implode('/', array_map('rawurlencode', explode('/', $path))) : '';
     $fallbackLabel = $path !== '' ? str_replace('/', ' / ', preg_replace('/\.svg$/', '', $path)) : __('Custom icon', 'brandpulse');
@@ -430,7 +430,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $key = $sourceType === 'saved_search'
                 ? 'saved_search_' . $savedSearchId
                 : (string) ($row['preset_key'] ?? '');
-
+            $icon = (string) ($row['icon'] ?? BrandpulseConfig::DEFAULT_PULSE_ICON);
 
             $counters[] = [
                 'key' => $key,
@@ -481,7 +481,7 @@ while (count($counters) < 8) {
     $counters[] = [
         'key' => '',
         'label' => '',
-        'icon' => 'pulse:Notifications/Bell.svg',
+        'icon' => BrandpulseConfig::DEFAULT_PULSE_ICON,
         'color' => '#3b82f6',
         'enabled' => false,
         'source_type' => 'saved_search',
@@ -614,7 +614,7 @@ if ($tab === 'brand') {
         echo "<div data-pulse-target='preset'>" . plugin_brandpulse_select("counters[{$index}][preset_key]", $presetCounters, $presetKey) . '</div>';
         echo "<div data-pulse-target='saved_search'>" . plugin_brandpulse_select("counters[{$index}][savedsearches_id]", $savedSearches, $savedSearchId, false) . '</div>';
         echo '</td>';
-        $iconValue = (string) ($counter['icon'] ?? 'pulse:Notifications/Bell.svg');
+        $iconValue = (string) ($counter['icon'] ?? BrandpulseConfig::DEFAULT_PULSE_ICON);
         $customIcon = !array_key_exists($iconValue, $icons) && !str_starts_with($iconValue, 'pulse:') ? $iconValue : '';
         echo '<td>' . plugin_brandpulse_icon_field("counters[{$index}][icon]", $icons, $iconValue) . '</td>';
         echo "<td><input class='form-control form-control-sm form-control-color' type='color' name='counters[{$index}][color]' value='" . plugin_brandpulse_h((string) ($counter['color'] ?? '#3b82f6')) . "'></td>";
