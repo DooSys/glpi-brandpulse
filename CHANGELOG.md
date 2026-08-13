@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.21
 
 - Use the validated SVG endpoint for Pulse icon previews in the configuration table.
 - Add Pulse row ordering controls and save counters in the visible table order.
