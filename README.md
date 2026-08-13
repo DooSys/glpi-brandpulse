@@ -41,7 +41,7 @@ Cette version pose le socle technique :
 - page Brand pour le titre, favicon, logo login, logo menu gauche, fond login et message d'alerte login.
 - page Pulse pour créer des compteurs, choisir icône/couleur/seuils et cibler une recherche sauvegardée GLPI.
 
-La page de configuration est organisée en deux catégories : Brand pour l'identité visuelle et Pulse pour les compteurs du header. Pulse propose un picker d'icônes SVG local en popup avec recherche et pagination par pages de 24 icônes. Le pack embarqué est volontairement resserré autour des usages médicaux, IT et logistiques afin d'éviter les doublons visuels.
+La page de configuration est organisée en deux catégories : Brand pour l'identité visuelle et Pulse pour les compteurs du header. Pulse propose un picker d'icônes SVG local en popup avec recherche, filtre par catégorie et pagination par pages de 24 icônes. Le pack embarqué reprend la base SVG locale complète afin de laisser le choix fonctionnel le plus large possible.
 
 
 

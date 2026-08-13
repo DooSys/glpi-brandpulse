@@ -641,6 +641,9 @@ if ($tab === 'pulse') {
     echo '</div>';
     echo "<div class='brandpulse-icon-dialog-tools'>";
     echo "<input class='form-control form-control-sm' type='search' data-icon-search placeholder='" . __s('Search', 'brandpulse') . "'>";
+    echo "<select class='form-select form-select-sm' data-icon-category aria-label='" . __s('Category', 'brandpulse') . "'>";
+    echo "<option value=''>" . __s('All categories', 'brandpulse') . '</option>';
+    echo '</select>';
     echo '</div>';
     echo "<div class='brandpulse-icon-results' data-icon-results></div>";
     echo "<div class='brandpulse-icon-dialog-footer'>";

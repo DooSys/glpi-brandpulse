@@ -419,6 +419,7 @@
   const iconsPerPage = 24;
   let iconSearchTimer = null;
   const iconFilters = {
+    category: '',
     query: '',
   };
 
@@ -458,11 +459,34 @@
   };
 
   const iconMatches = (icon) => {
+    if (iconFilters.category && icon.category !== iconFilters.category) {
+      return false;
+    }
+
     if (!iconFilters.query) {
       return true;
     }
 
     return iconFilters.query.split(/\s+/).every((word) => icon.search.includes(word));
+  };
+
+  const populateIconCategories = (modal, icons) => {
+    const select = modal.querySelector('[data-icon-category]');
+    if (!select || select.dataset.ready) {
+      return;
+    }
+
+    const categories = [...new Set(icons.map((icon) => icon.category).filter(Boolean))]
+      .sort((left, right) => left.localeCompare(right, undefined, { sensitivity: 'base' }));
+
+    for (const category of categories) {
+      const option = document.createElement('option');
+      option.value = category;
+      option.textContent = category;
+      select.append(option);
+    }
+
+    select.dataset.ready = '1';
   };
 
   const updateIconField = (field, value, label) => {
@@ -488,6 +512,7 @@
     }
 
     const allIcons = await loadIconIndex();
+    populateIconCategories(modal, allIcons);
     const results = modal.querySelector('[data-icon-results]');
     const pageLabel = modal.querySelector('[data-icon-page]');
     const prev = modal.querySelector('[data-icon-prev]');
@@ -592,6 +617,12 @@
       iconPage = 0;
       window.clearTimeout(iconSearchTimer);
       iconSearchTimer = window.setTimeout(renderIconModal, 140);
+    });
+
+    modal.querySelector('[data-icon-category]')?.addEventListener('change', (event) => {
+      iconFilters.category = event.target.value;
+      iconPage = 0;
+      renderIconModal();
     });
 
     modal.querySelector('[data-icon-prev]')?.addEventListener('click', () => {

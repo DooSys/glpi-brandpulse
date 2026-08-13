@@ -2,7 +2,7 @@
 
 This directory contains the local SVG icon pack used by GLPI BrandPulse Pulse counters.
 
-The current pack is a Solar Icon Set outline subset copied into category folders. The generated manifest.json indexes every SVG recursively and exposes:
+The current pack is a Solar Icon Set outline pack copied into category folders. The generated manifest.json indexes every SVG recursively and exposes:
 
 - path: stable path relative to public/icons/pulse/
 - label: display label
@@ -11,16 +11,22 @@ The current pack is a Solar Icon Set outline subset copied into category folders
 
 Configuration values use the stable syntax:
 
-`	ext
+```text
 pulse:Category/Icon.svg
-`
+```
 
 Example:
 
-`	ext
+```text
 pulse:Notifications/Bell.svg
 pulse:List/Checklist Minimalistic.svg
 pulse:Search/Magnifer.svg
-`
+```
 
-BrandPulse also accepts a custom SVG URL or path from the Pulse configuration screen.
+BrandPulse stores Pulse icons as local `pulse:...` values so saves remain deterministic across plugin updates.
+
+Regenerate the index after adding or removing SVG files:
+
+```bash
+node scripts/generate-icon-index.js
+```

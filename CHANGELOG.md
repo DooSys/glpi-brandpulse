@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Regenerate the Pulse icon manifest from the full local SVG pack.
+- Add a category filter next to the Pulse icon picker search field.
+
 ## 0.1.20
 
 - Fix Pulse saves so each row preserves its selected SVG icon instead of falling back to the default icon.
