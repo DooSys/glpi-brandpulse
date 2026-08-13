@@ -560,6 +560,27 @@ body.dark #brandpulse-header-counters.brandpulse-counters {
   margin-bottom: 0;
 }
 
+.brandpulse-generated-css-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.brandpulse-generated-css-head .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+
+.brandpulse-generated-css-head .btn.is-copied {
+  color: var(--tblr-success, #2fb344);
+  border-color: color-mix(in srgb, var(--tblr-success, #2fb344) 45%, var(--tblr-border-color, #d9dee3));
+}
+
 .brandpulse-generated-css {
   min-height: 22rem;
   white-space: pre;

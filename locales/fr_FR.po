@@ -342,6 +342,12 @@ msgstr "Ensuite, changer les images Brand dans ce plugin met à jour les endpoin
 msgid "Generated entity CSS"
 msgstr "CSS d'entité généré"
 
+msgid "Copy CSS"
+msgstr "Copier le CSS"
+
+msgid "Copied"
+msgstr "Copié"
+
 msgid "Target"
 msgstr "Cible"
 

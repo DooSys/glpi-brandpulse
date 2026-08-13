@@ -321,6 +321,12 @@ msgstr "After that, changing Brand images in this plugin updates the BrandPulse 
 msgid "Generated entity CSS"
 msgstr "Generated entity CSS"
 
+msgid "Copy CSS"
+msgstr "Copy CSS"
+
+msgid "Copied"
+msgstr "Copied"
+
 msgid "Wrench"
 msgstr "Wrench"
 

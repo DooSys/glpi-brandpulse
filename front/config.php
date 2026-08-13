@@ -329,7 +329,10 @@ function plugin_brandpulse_generated_brand_css(): string
     $loginDark = plugin_brandpulse_brand_slot_css_url('login_logo_dark');
     $loginBackground = plugin_brandpulse_brand_slot_css_url('login_background');
 
-    $css = ":root {\n";
+    $css = "/* ============================================================\n";
+    $css .= "   BrandPulse Plugin - Gestion des fonctions du plugin dans le CSS GLPI\n";
+    $css .= "   ============================================================ */\n\n";
+    $css .= ":root {\n";
     $css .= plugin_brandpulse_brand_css_line('--glpi-logo-light', $expandedLight);
     $css .= plugin_brandpulse_brand_css_line('--glpi-logo-dark', $expandedDark);
     $css .= plugin_brandpulse_brand_css_line('--glpi-logo-light-reduced', $collapsedLight);
@@ -705,7 +708,10 @@ if ($tab === 'brand') {
     $installContent = "<div class='brandpulse-brand-install'>";
     $installContent .= '<p>' . __s('Copy this stable CSS once into the GLPI entity interface customization where BrandPulse branding must be active. It tells GLPI which native logo variables are managed by BrandPulse.', 'brandpulse') . '</p>';
     $installContent .= '<p class="text-muted">' . __s('After that, changing Brand images in this plugin updates the BrandPulse endpoints without editing the entity CSS again.', 'brandpulse') . '</p>';
-    $installContent .= "<label class='form-label' for='brandpulse_generated_css'>" . __s('Generated entity CSS', 'brandpulse') . '</label>';
+    $installContent .= "<div class='brandpulse-generated-css-head'>";
+    $installContent .= "<label class='form-label mb-0' for='brandpulse_generated_css'>" . __s('Generated entity CSS', 'brandpulse') . '</label>';
+    $installContent .= "<button class='btn btn-outline-secondary btn-sm' type='button' data-brand-css-copy='#brandpulse_generated_css' data-brand-css-copy-label='" . __s('Copy CSS', 'brandpulse') . "' data-brand-css-copied-label='" . __s('Copied', 'brandpulse') . "' title='" . __s('Copy CSS', 'brandpulse') . "' aria-label='" . __s('Copy CSS', 'brandpulse') . "'><i class='ti ti-copy' aria-hidden='true'></i></button>";
+    $installContent .= '</div>';
     $installContent .= "<textarea class='form-control font-monospace brandpulse-generated-css' id='brandpulse_generated_css' rows='18' readonly spellcheck='false'>" . plugin_brandpulse_h(plugin_brandpulse_generated_brand_css()) . '</textarea>';
     $installContent .= '</div>';
     echo plugin_brandpulse_brand_section('install', $sections['install']['title'], $sections['install']['description'], $installContent);

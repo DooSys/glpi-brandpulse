@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.29
+
+- Add a recognizable BrandPulse header comment to the generated entity CSS block.
+- Add a copy button for the generated Brand entity CSS.
+
 ## 0.1.28
 
 - Add a BrandPulse installation CSS block designed to be pasted once into GLPI entity interface customization.

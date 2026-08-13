@@ -884,6 +884,49 @@
     });
   };
 
+  const setupGeneratedCssCopy = () => {
+    for (const button of document.querySelectorAll('[data-brand-css-copy]')) {
+      button.addEventListener('click', async () => {
+        const selector = button.dataset.brandCssCopy || '';
+        if (!selector) {
+          return;
+        }
+
+        const target = document.querySelector(selector);
+        const value = target?.value || target?.textContent || '';
+        if (!value) {
+          return;
+        }
+
+        try {
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(value);
+          } else if (target instanceof HTMLTextAreaElement || target instanceof HTMLInputElement) {
+            target.focus();
+            target.select();
+            document.execCommand('copy');
+          }
+
+          const copiedLabel = button.dataset.brandCssCopiedLabel || 'Copied';
+          button.classList.add('is-copied');
+          button.title = copiedLabel;
+          button.setAttribute('aria-label', copiedLabel);
+          button.querySelector('i')?.classList.replace('ti-copy', 'ti-check');
+
+          window.setTimeout(() => {
+            const copyLabel = button.dataset.brandCssCopyLabel || 'Copy CSS';
+            button.classList.remove('is-copied');
+            button.title = copyLabel;
+            button.setAttribute('aria-label', copyLabel);
+            button.querySelector('i')?.classList.replace('ti-check', 'ti-copy');
+          }, 1600);
+        } catch (error) {
+          window.console?.debug?.(t('BrandPulse CSS copy unavailable'), error);
+        }
+      });
+    }
+  };
+
   const scheduleRefresh = (payload) => {
     if (refreshTimer) {
       window.clearTimeout(refreshTimer);
@@ -941,6 +984,7 @@
     setupPulseTargets();
     setupPulseTableControls();
     setupIconPickerModal();
+    setupGeneratedCssCopy();
     loadBranding();
 
     if (findHeaderTarget()) {
