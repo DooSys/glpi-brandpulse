@@ -53,7 +53,8 @@
     return rootDoc + '/' + value.replace(/^\/+/, '');
   };
 
-  const detectsDarkTheme = () => document.documentElement.matches('[data-bs-theme="dark"], .theme-dark, .dark')
+  const detectsDarkTheme = () => document.documentElement.dataset.glpiThemeDark === '1'
+    || document.documentElement.matches('[data-bs-theme="dark"], .theme-dark, .dark')
     || document.body.matches('[data-bs-theme="dark"], .theme-dark, .dark')
     || window.matchMedia?.('(prefers-color-scheme: dark)')?.matches === true;
 
@@ -127,6 +128,12 @@
   const cssUrl = (url) => 'url("' + String(url).replace(/["\\\n\r]/g, '') + '")';
   const isSidebarElement = (element) => Boolean(element?.closest?.('#navbar-menu, aside, .navbar-vertical'));
   const isVisibleElement = (element) => Boolean(element?.offsetParent || element?.getClientRects?.().length);
+
+  const setCssUrlVariable = (name, url) => {
+    if (url) {
+      document.documentElement.style.setProperty(name, cssUrl(url), 'important');
+    }
+  };
 
   const findHeaderTarget = () => {
     const selectors = [
@@ -438,6 +445,21 @@
     const sidebarCollapsedLogoUrl = resolveAssetUrl(
       chooseThemeAsset(branding, 'logo_sidebar_collapsed', sidebarExpandedLogoUrl || branding.menu_logo)
     );
+    const sidebarLightLogoUrl = resolveAssetUrl(branding.logo_sidebar_expanded_light || branding.menu_logo || sidebarExpandedLogoUrl);
+    const sidebarDarkLogoUrl = resolveAssetUrl(branding.logo_sidebar_expanded_dark || sidebarLightLogoUrl);
+    const sidebarReducedLightLogoUrl = resolveAssetUrl(branding.logo_sidebar_collapsed_light || sidebarLightLogoUrl);
+    const sidebarReducedDarkLogoUrl = resolveAssetUrl(branding.logo_sidebar_collapsed_dark || sidebarReducedLightLogoUrl);
+    const loginLightLogoUrl = resolveAssetUrl(branding.login_logo_light || branding.login_logo || sidebarLightLogoUrl);
+    const loginDarkLogoUrl = resolveAssetUrl(branding.login_logo_dark || loginLightLogoUrl);
+
+    setCssUrlVariable('--glpi-logo-light', sidebarLightLogoUrl);
+    setCssUrlVariable('--glpi-logo-dark', sidebarDarkLogoUrl);
+    setCssUrlVariable('--glpi-logo', detectsDarkTheme() ? sidebarDarkLogoUrl : sidebarLightLogoUrl);
+    setCssUrlVariable('--glpi-logo-light-reduced', sidebarReducedLightLogoUrl);
+    setCssUrlVariable('--glpi-logo-dark-reduced', sidebarReducedDarkLogoUrl);
+    setCssUrlVariable('--glpi-logo-reduced', detectsDarkTheme() ? sidebarReducedDarkLogoUrl : sidebarReducedLightLogoUrl);
+    setCssUrlVariable('--glpi-logo-light-login', loginLightLogoUrl);
+    setCssUrlVariable('--glpi-logo-dark-login', loginDarkLogoUrl);
 
     const applyLogoUrl = (targets, url) => {
       if (!url) {
@@ -455,10 +477,15 @@
         target.style.backgroundRepeat = 'no-repeat';
         target.style.backgroundPosition = 'center';
         target.style.backgroundSize = 'contain';
+        target.style.content = cssUrl(url);
       }
     };
 
     applyLogoUrl([
+      'body > .page header[data-testid="main-header"] .navbar-brand .glpi-logo',
+      'body > .page aside.navbar .navbar-brand .glpi-logo',
+      '.page header.navbar .navbar-brand .glpi-logo',
+      '.page aside.navbar .navbar-brand .glpi-logo',
       'aside .navbar-brand img:not(.logo-sm)',
       '.navbar-vertical .navbar-brand img:not(.logo-sm)',
       '#navbar-menu .navbar-brand img:not(.logo-sm)',
@@ -468,6 +495,8 @@
     ], sidebarExpandedLogoUrl);
 
     applyLogoUrl([
+      'body.navbar-collapsed aside.navbar .navbar-brand .glpi-logo',
+      'body.navbar-collapsed .navbar-vertical .navbar-brand .glpi-logo',
       'aside .navbar-brand img.logo-sm',
       '.navbar-vertical .navbar-brand img.logo-sm',
       '#navbar-menu .navbar-brand img.logo-sm',
@@ -478,15 +507,26 @@
 
     const loginLogoUrl = resolveAssetUrl(chooseThemeAsset(branding, 'login_logo', branding.login_logo));
     if (loginLogoUrl) {
-      for (const loginLogo of document.querySelectorAll('.page-anonymous .navbar-brand img, .login-box img, form[action*="login"] img')) {
-        loginLogo.src = loginLogoUrl;
+      for (const loginLogo of document.querySelectorAll('.page-anonymous .glpi-logo, .page-anonymous .navbar-brand img, .login-box img, form[action*="login"] img')) {
+        if (loginLogo instanceof HTMLImageElement) {
+          loginLogo.src = loginLogoUrl;
+          loginLogo.srcset = '';
+          continue;
+        }
+
+        loginLogo.style.setProperty('--logo', cssUrl(loginLogoUrl), 'important');
+        loginLogo.style.content = cssUrl(loginLogoUrl);
+        loginLogo.style.backgroundImage = cssUrl(loginLogoUrl);
+        loginLogo.style.backgroundRepeat = 'no-repeat';
+        loginLogo.style.backgroundPosition = 'center';
+        loginLogo.style.backgroundSize = 'contain';
       }
     }
 
     const backgroundUrl = resolveAssetUrl(branding.login_background);
     if (backgroundUrl && document.querySelector('form[action*="login"], .page-anonymous, .login-box')) {
       document.body.classList.add('brandpulse-login-branded');
-      document.body.style.setProperty('--brandpulse-login-background', 'url("' + backgroundUrl + '")');
+      document.body.style.setProperty('--brandpulse-login-background', cssUrl(backgroundUrl));
     }
 
     if (branding.login_alert_enabled && branding.login_alert_message) {

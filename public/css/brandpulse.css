@@ -191,6 +191,14 @@ body.brandpulse-login-branded {
   background-attachment: fixed;
 }
 
+body.brandpulse-login-branded .page-anonymous {
+  min-height: 100vh;
+  background-image: var(--brandpulse-login-background);
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
 .brandpulse-login-alert {
   margin-bottom: 1rem;
 }

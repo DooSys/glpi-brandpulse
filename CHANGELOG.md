@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.25
+
+- Apply Brand logos through GLPI 11 official CSS variables so header, sidebar, collapsed menu and login logos update reliably.
+- Detect GLPI 11 dark theme metadata when selecting theme-aware Brand assets.
+- Target GLPI 11 anonymous login layout for login logo, background and alert rendering.
+
 ## 0.1.24
 
 - Persist the last Pulse header state in browser local storage so it survives GLPI page navigations more reliably.
