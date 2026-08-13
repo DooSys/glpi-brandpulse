@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.27
+
+- Add a prominent Pulse activation switch matching the Brand activation panel.
+- Update English and French gettext catalogs for the new Brand and Pulse settings labels.
+- Rework the Brand settings page with internal section navigation, denser image fields and a collapsed diagnostic area.
+
 ## 0.1.26
 
 - Make the Brand activation switch prominent at the top of the Brand settings page.

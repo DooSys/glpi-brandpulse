@@ -258,6 +258,54 @@ msgstr "Cart"
 msgid "Bug"
 msgstr "Bug"
 
+msgid "Brand customizations"
+msgstr "Brand customizations"
+
+msgid "Brand is active"
+msgstr "Brand is active"
+
+msgid "Brand is inactive"
+msgstr "Brand is inactive"
+
+msgid "This switch must be enabled before logos, favicon, login background and login alert are applied in GLPI."
+msgstr "This switch must be enabled before logos, favicon, login background and login alert are applied in GLPI."
+
+msgid "Square icon. Recommended source: 64 x 64 px or SVG."
+msgstr "Square icon. Recommended source: 64 x 64 px or SVG."
+
+msgid "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px or SVG."
+msgstr "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px or SVG."
+
+msgid "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px or SVG."
+msgstr "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px or SVG."
+
+msgid "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px or SVG."
+msgstr "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px or SVG."
+
+msgid "Recommended source: 1920 x 1080 px, 16:9."
+msgstr "Recommended source: 1920 x 1080 px, 16:9."
+
+msgid "Pulse counters"
+msgstr "Pulse counters"
+
+msgid "This switch must be enabled before Pulse counters and compact search are applied in the GLPI header."
+msgstr "This switch must be enabled before Pulse counters and compact search are applied in the GLPI header."
+
+msgid "Pulse is active"
+msgstr "Pulse is active"
+
+msgid "Pulse is inactive"
+msgstr "Pulse is inactive"
+
+msgid "Add Pulse counter"
+msgstr "Add Pulse counter"
+
+msgid "Move up"
+msgstr "Move up"
+
+msgid "Move down"
+msgstr "Move down"
+
 msgid "Wrench"
 msgstr "Wrench"
 
