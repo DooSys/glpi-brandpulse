@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.28
+
+- Add a BrandPulse installation CSS block designed to be pasted once into GLPI entity interface customization.
+- Serve Brand image slots through stable `front/asset.php?field=...` endpoints so changing images does not require editing entity CSS again.
+- Stop applying sidebar logos directly on GLPI `.glpi-logo` spans to avoid expanded/collapsed logo overlap and stale reduced logos after sidebar toggles.
+
 ## 0.1.27
 
 - Add a prominent Pulse activation switch matching the Brand activation panel.

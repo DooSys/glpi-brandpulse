@@ -461,6 +461,14 @@
     setCssUrlVariable('--glpi-logo-light-login', loginLightLogoUrl);
     setCssUrlVariable('--glpi-logo-dark-login', loginDarkLogoUrl);
 
+    for (const glpiLogo of document.querySelectorAll('.page .navbar-brand .glpi-logo, #navbar-menu .glpi-logo')) {
+      glpiLogo.style.removeProperty('background-image');
+      glpiLogo.style.removeProperty('background-repeat');
+      glpiLogo.style.removeProperty('background-position');
+      glpiLogo.style.removeProperty('background-size');
+      glpiLogo.style.removeProperty('content');
+    }
+
     const applyLogoUrl = (targets, url) => {
       if (!url) {
         return;
@@ -470,14 +478,7 @@
         if (target instanceof HTMLImageElement) {
           target.src = url;
           target.srcset = '';
-          continue;
         }
-
-        target.style.backgroundImage = cssUrl(url);
-        target.style.backgroundRepeat = 'no-repeat';
-        target.style.backgroundPosition = 'center';
-        target.style.backgroundSize = 'contain';
-        target.style.content = cssUrl(url);
       }
     };
 

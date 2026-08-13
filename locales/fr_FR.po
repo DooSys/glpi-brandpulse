@@ -327,6 +327,21 @@ msgstr "Monter"
 msgid "Move down"
 msgstr "Descendre"
 
+msgid "Install BrandPulse"
+msgstr "Installer BrandPulse"
+
+msgid "Generated CSS for GLPI entity interface customization."
+msgstr "CSS généré pour la personnalisation d'interface d'une entité GLPI."
+
+msgid "Copy this stable CSS once into the GLPI entity interface customization where BrandPulse branding must be active. It tells GLPI which native logo variables are managed by BrandPulse."
+msgstr "Copiez une seule fois ce CSS stable dans la personnalisation d'interface de l'entité GLPI où le branding BrandPulse doit être actif. Il indique à GLPI quelles variables natives de logo sont gérées par BrandPulse."
+
+msgid "After that, changing Brand images in this plugin updates the BrandPulse endpoints without editing the entity CSS again."
+msgstr "Ensuite, changer les images Brand dans ce plugin met à jour les endpoints BrandPulse sans modifier à nouveau le CSS de l'entité."
+
+msgid "Generated entity CSS"
+msgstr "CSS d'entité généré"
+
 msgid "Target"
 msgstr "Cible"
 

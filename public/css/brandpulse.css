@@ -540,9 +540,29 @@ body.dark #brandpulse-header-counters.brandpulse-counters {
 .brandpulse-brand-section > .row,
 .brandpulse-brand-section > .table-responsive,
 .brandpulse-brand-section > .brandpulse-brand-diagnostic-box,
+.brandpulse-brand-section > .brandpulse-brand-install,
 .brandpulse-brand-section > .brandpulse-brand-alert,
 .brandpulse-brand-section > .form-check {
   margin-top: 0.75rem;
+}
+
+.brandpulse-brand-install {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.85rem;
+  background: color-mix(in srgb, var(--tblr-primary, #206bc4) 6%, var(--tblr-bg-surface, #ffffff));
+  border: 1px solid color-mix(in srgb, var(--tblr-primary, #206bc4) 16%, var(--tblr-border-color, #d9dee3));
+  border-radius: 0.45rem;
+}
+
+.brandpulse-brand-install p {
+  max-width: 58rem;
+  margin-bottom: 0;
+}
+
+.brandpulse-generated-css {
+  min-height: 22rem;
+  white-space: pre;
 }
 
 .brandpulse-brand-field {
@@ -698,6 +718,7 @@ body.dark #brandpulse-header-counters.brandpulse-counters {
   .brandpulse-brand-section > .row,
   .brandpulse-brand-section > .table-responsive,
   .brandpulse-brand-section > .brandpulse-brand-diagnostic-box,
+  .brandpulse-brand-section > .brandpulse-brand-install,
   .brandpulse-brand-section > .brandpulse-brand-alert,
   .brandpulse-brand-section > .form-check {
     margin-top: 0.75rem;

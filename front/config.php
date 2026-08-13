@@ -184,6 +184,7 @@ function plugin_brandpulse_brand_asset_fields(): array
 function plugin_brandpulse_brand_asset_sections(): array
 {
     return [
+        'install' => ['title' => 'Install BrandPulse', 'description' => 'Generated CSS for GLPI entity interface customization.'],
         'identity' => ['title' => 'Identity', 'description' => 'Browser title, favicon and global identity assets.'],
         'sidebar' => ['title' => 'Sidebar logos', 'description' => 'Theme-aware logos for expanded and collapsed GLPI navigation.'],
         'login' => ['title' => 'Login page', 'description' => 'Login logos, background and alert message.'],
@@ -283,6 +284,92 @@ function plugin_brandpulse_brand_asset_filename(string $value): ?string
     $file = (string) ($query['file'] ?? '');
 
     return $file !== '' ? basename(str_replace('\\', '/', $file)) : null;
+}
+
+function plugin_brandpulse_brand_asset_url(string $value): string
+{
+    global $CFG_GLPI;
+
+    $value = trim($value);
+    if ($value === '') {
+        return '';
+    }
+
+    if (preg_match('/^(https?:)?\/\//', $value) || str_starts_with($value, 'data:') || str_starts_with($value, '/')) {
+        return $value;
+    }
+
+    return rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/' . ltrim($value, '/');
+}
+
+function plugin_brandpulse_css_url(string $value): string
+{
+    $url = plugin_brandpulse_brand_asset_url($value);
+
+    return $url !== '' ? 'url("' . str_replace(['\\', '"', "\r", "\n"], ['\\\\', '\"', '', ''], $url) . '")' : '';
+}
+
+function plugin_brandpulse_brand_css_line(string $name, string $url): string
+{
+    return $url !== '' ? '  ' . $name . ': ' . $url . ' !important;' . "\n" : '';
+}
+
+function plugin_brandpulse_brand_slot_css_url(string $field): string
+{
+    return plugin_brandpulse_css_url(plugin_brandpulse_web_base() . '/front/asset.php?field=' . rawurlencode($field));
+}
+
+function plugin_brandpulse_generated_brand_css(): string
+{
+    $expandedLight = plugin_brandpulse_brand_slot_css_url('logo_sidebar_expanded_light');
+    $expandedDark = plugin_brandpulse_brand_slot_css_url('logo_sidebar_expanded_dark');
+    $collapsedLight = plugin_brandpulse_brand_slot_css_url('logo_sidebar_collapsed_light');
+    $collapsedDark = plugin_brandpulse_brand_slot_css_url('logo_sidebar_collapsed_dark');
+    $loginLight = plugin_brandpulse_brand_slot_css_url('login_logo_light');
+    $loginDark = plugin_brandpulse_brand_slot_css_url('login_logo_dark');
+    $loginBackground = plugin_brandpulse_brand_slot_css_url('login_background');
+
+    $css = ":root {\n";
+    $css .= plugin_brandpulse_brand_css_line('--glpi-logo-light', $expandedLight);
+    $css .= plugin_brandpulse_brand_css_line('--glpi-logo-dark', $expandedDark);
+    $css .= plugin_brandpulse_brand_css_line('--glpi-logo-light-reduced', $collapsedLight);
+    $css .= plugin_brandpulse_brand_css_line('--glpi-logo-dark-reduced', $collapsedDark);
+    $css .= plugin_brandpulse_brand_css_line('--glpi-logo-dark-login', $loginDark);
+    $css .= plugin_brandpulse_brand_css_line('--glpi-logo-light-login', $loginLight);
+    $css .= "  --glpi-logo: var(--glpi-logo-light) !important;\n";
+    $css .= "  --glpi-logo-reduced: var(--glpi-logo-light-reduced) !important;\n";
+    $css .= "}\n\n";
+    $css .= "[data-bs-theme=\"dark\"],\n.theme-dark,\nbody.dark {\n";
+    $css .= "  --glpi-logo: var(--glpi-logo-dark) !important;\n";
+    $css .= "  --glpi-logo-reduced: var(--glpi-logo-dark-reduced) !important;\n";
+    $css .= "}\n\n";
+    $css .= ".page .glpi-logo {\n";
+    $css .= "  background-image: var(--glpi-logo) !important;\n";
+    $css .= "  background-repeat: no-repeat !important;\n";
+    $css .= "  background-size: contain !important;\n";
+    $css .= "}\n\n";
+    $css .= "body.navbar-collapsed #navbar-menu .navbar-brand .glpi-logo {\n";
+    $css .= "  background-image: var(--glpi-logo-reduced) !important;\n";
+    $css .= "  width: 40px !important;\n";
+    $css .= "  height: 40px !important;\n";
+    $css .= "}\n\n";
+    $css .= ".page-anonymous .glpi-logo {\n";
+    $css .= "  --logo: var(--glpi-logo-dark-login) !important;\n";
+    $css .= "  content: var(--logo) !important;\n";
+    $css .= "  width: 200px !important;\n";
+    $css .= "  height: 110px !important;\n";
+    $css .= "}\n\n";
+    $css .= "[data-bs-theme=\"dark\"] .page-anonymous .glpi-logo,\n.theme-dark .page-anonymous .glpi-logo,\nbody.dark .page-anonymous .glpi-logo {\n";
+    $css .= "  --logo: var(--glpi-logo-light-login) !important;\n";
+    $css .= "}\n";
+
+    $css .= "\n.page-anonymous {\n";
+    $css .= "  background-image: " . $loginBackground . " !important;\n";
+    $css .= "  background-position: center !important;\n";
+    $css .= "  background-size: cover !important;\n";
+    $css .= "}\n";
+
+    return $css;
 }
 
 function plugin_brandpulse_brand_asset_status(string $value): array
@@ -420,7 +507,7 @@ function plugin_brandpulse_brand_nav(array $sections): string
 {
     $html = "<nav class='brandpulse-brand-nav' aria-label='" . __s('Brand', 'brandpulse') . "'>";
 
-    foreach (['identity', 'sidebar', 'login', 'diagnostic'] as $sectionKey) {
+    foreach (['install', 'identity', 'sidebar', 'login', 'diagnostic'] as $sectionKey) {
         if (!isset($sections[$sectionKey])) {
             continue;
         }
@@ -614,6 +701,15 @@ if ($tab === 'brand') {
     echo "<div class='brandpulse-brand-workspace'>";
     echo plugin_brandpulse_brand_nav($sections);
     echo "<div class='brandpulse-brand-main'>";
+
+    $installContent = "<div class='brandpulse-brand-install'>";
+    $installContent .= '<p>' . __s('Copy this stable CSS once into the GLPI entity interface customization where BrandPulse branding must be active. It tells GLPI which native logo variables are managed by BrandPulse.', 'brandpulse') . '</p>';
+    $installContent .= '<p class="text-muted">' . __s('After that, changing Brand images in this plugin updates the BrandPulse endpoints without editing the entity CSS again.', 'brandpulse') . '</p>';
+    $installContent .= "<label class='form-label' for='brandpulse_generated_css'>" . __s('Generated entity CSS', 'brandpulse') . '</label>';
+    $installContent .= "<textarea class='form-control font-monospace brandpulse-generated-css' id='brandpulse_generated_css' rows='18' readonly spellcheck='false'>" . plugin_brandpulse_h(plugin_brandpulse_generated_brand_css()) . '</textarea>';
+    $installContent .= '</div>';
+    echo plugin_brandpulse_brand_section('install', $sections['install']['title'], $sections['install']['description'], $installContent);
+
     echo plugin_brandpulse_brand_section('identity', $sections['identity']['title'], $sections['identity']['description'], $identityContent);
 
     $sidebarContent = "<div class='row g-3'>";
