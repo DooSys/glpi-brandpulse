@@ -96,6 +96,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-md-6',
             'extensions' => ['svg', 'png', 'ico'],
             'accept' => 'image/svg+xml,image/png,image/x-icon,.ico',
+            'dimensions' => 'Square icon. Recommended source: 64 x 64 px or SVG.',
         ],
         'logo_sidebar_expanded_light' => [
             'section' => 'sidebar',
@@ -103,6 +104,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png'],
             'accept' => 'image/svg+xml,image/png',
+            'dimensions' => 'Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px or SVG.',
         ],
         'logo_sidebar_expanded_dark' => [
             'section' => 'sidebar',
@@ -110,6 +112,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png'],
             'accept' => 'image/svg+xml,image/png',
+            'dimensions' => 'Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px or SVG.',
         ],
         'logo_sidebar_expanded_grey' => [
             'section' => 'sidebar',
@@ -117,6 +120,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png'],
             'accept' => 'image/svg+xml,image/png',
+            'dimensions' => 'Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px or SVG.',
         ],
         'logo_sidebar_collapsed_light' => [
             'section' => 'sidebar',
@@ -124,6 +128,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png'],
             'accept' => 'image/svg+xml,image/png',
+            'dimensions' => 'Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px or SVG.',
         ],
         'logo_sidebar_collapsed_dark' => [
             'section' => 'sidebar',
@@ -131,6 +136,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png'],
             'accept' => 'image/svg+xml,image/png',
+            'dimensions' => 'Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px or SVG.',
         ],
         'logo_sidebar_collapsed_grey' => [
             'section' => 'sidebar',
@@ -138,6 +144,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png'],
             'accept' => 'image/svg+xml,image/png',
+            'dimensions' => 'Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px or SVG.',
         ],
         'login_logo_light' => [
             'section' => 'login',
@@ -145,6 +152,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png'],
             'accept' => 'image/svg+xml,image/png',
+            'dimensions' => 'Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px or SVG.',
         ],
         'login_logo_dark' => [
             'section' => 'login',
@@ -152,6 +160,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png'],
             'accept' => 'image/svg+xml,image/png',
+            'dimensions' => 'Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px or SVG.',
         ],
         'login_logo_grey' => [
             'section' => 'login',
@@ -159,6 +168,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png'],
             'accept' => 'image/svg+xml,image/png',
+            'dimensions' => 'Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px or SVG.',
         ],
         'login_background' => [
             'section' => 'login',
@@ -166,6 +176,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-md-12',
             'extensions' => ['jpg', 'jpeg', 'png', 'webp'],
             'accept' => 'image/jpeg,image/png,image/webp',
+            'dimensions' => 'Recommended source: 1920 x 1080 px, 16:9.',
         ],
     ];
 }
@@ -373,6 +384,7 @@ function plugin_brandpulse_brand_asset_input(string $name, array $fieldConfig, s
     $fileId = $id . '_upload';
     $accept = (string) ($fieldConfig['accept'] ?? 'image/*');
     $extensions = implode(', ', array_map(static fn ($extension): string => '.' . $extension, $fieldConfig['extensions'] ?? []));
+    $dimensions = trim((string) ($fieldConfig['dimensions'] ?? ''));
     $previewUrl = trim($value);
     $status = plugin_brandpulse_brand_asset_status($value);
 
@@ -386,6 +398,9 @@ function plugin_brandpulse_brand_asset_input(string $name, array $fieldConfig, s
     $html .= "<input class='form-control form-control-sm mt-2 brandpulse-brand-upload' id='" . plugin_brandpulse_h($fileId) . "' type='file' name='" . plugin_brandpulse_h($name . '_upload') . "' accept='" . plugin_brandpulse_h($accept) . "'>";
     $html .= "<div class='form-text'>" . __s('Enter a URL, or choose a local image and save to fill this URL automatically.', 'brandpulse') . ' ';
     $html .= sprintf(__s('Accepted formats: %s', 'brandpulse'), plugin_brandpulse_h($extensions)) . '</div>';
+    if ($dimensions !== '') {
+        $html .= "<div class='form-text brandpulse-image-dimensions'>" . __s($dimensions, 'brandpulse') . '</div>';
+    }
     if ($previewUrl !== '') {
         $html .= "<div class='brandpulse-brand-preview mt-2'>";
         $html .= "<img src='" . plugin_brandpulse_h($previewUrl) . "' alt='" . __s($label, 'brandpulse') . "'>";
@@ -560,13 +575,18 @@ if ($tab === 'brand') {
 
     echo "<div class='brandpulse-brand-layout'>";
 
+    echo "<div class='brandpulse-brand-enable-panel" . ($branding['enabled'] ? ' is-enabled' : '') . "'>";
+    echo "<div><strong>" . __s('Brand customizations', 'brandpulse') . '</strong>';
+    echo '<span>' . __s('This switch must be enabled before logos, favicon, login background and login alert are applied in GLPI.', 'brandpulse') . '</span></div>';
+    echo "<div class='form-check form-switch mb-0'>";
+    echo "<input class='form-check-input' id='brand_enabled' type='checkbox' name='brand_enabled' value='1'" . ($branding['enabled'] ? ' checked' : '') . '> ';
+    echo "<label class='form-check-label' for='brand_enabled'>" . ($branding['enabled'] ? __s('Brand is active', 'brandpulse') : __s('Brand is inactive', 'brandpulse')) . '</label>';
+    echo '</div>';
+    echo '</div>';
+
     $identityContent = "<div class='row g-3'>";
     $identityContent .= "<div class='col-md-6'><div class='brandpulse-brand-field'><div class='brandpulse-brand-field-head'><label class='form-label'>" . __s('Browser title', 'brandpulse') . '</label></div>' . plugin_brandpulse_text_input('title', (string) $branding['title']) . '</div></div>';
     $identityContent .= plugin_brandpulse_brand_asset_input('favicon', $assetFields['favicon'], (string) $branding['favicon']);
-    $identityContent .= '</div>';
-    $identityContent .= "<div class='form-check mt-3'>";
-    $identityContent .= "<input class='form-check-input' id='brand_enabled' type='checkbox' name='brand_enabled' value='1'" . ($branding['enabled'] ? ' checked' : '') . '> ';
-    $identityContent .= "<label class='form-check-label' for='brand_enabled'>" . __s('Enable branding customizations', 'brandpulse') . '</label>';
     $identityContent .= '</div>';
     echo plugin_brandpulse_brand_section($sections['identity']['title'], $sections['identity']['description'], $identityContent);
 

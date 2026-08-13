@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.26
+
+- Make the Brand activation switch prominent at the top of the Brand settings page.
+- Add GLPI 11 image size guidance for favicon, expanded logos, collapsed logos, login logos and login background.
+
 ## 0.1.25
 
 - Apply Brand logos through GLPI 11 official CSS variables so header, sidebar, collapsed menu and login logos update reliably.
