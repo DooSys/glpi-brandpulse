@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.38
+
+- Clear GLPI translation cache during BrandPulse install/update/uninstall so old corrupted locale catalogs cannot keep rendering mixed labels.
+- Validate the shipped gettext MO catalogs with GLPI's Laminas gettext loader.
+
 ## 0.1.37
 
 - Promote Login alert to a dedicated top-level configuration tab.
