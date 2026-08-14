@@ -9,7 +9,7 @@ use GlpiPlugin\Brandpulse\Menu as BrandpulseMenu;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_BRANDPULSE_VERSION = '0.1.36';
+const PLUGIN_BRANDPULSE_VERSION = '0.1.37';
 const PLUGIN_BRANDPULSE_MIN_GLPI = '11.0.0';
 const PLUGIN_BRANDPULSE_MAX_GLPI = '12.0.0';
 const PLUGIN_BRANDPULSE_MIN_PHP = '8.2.0';

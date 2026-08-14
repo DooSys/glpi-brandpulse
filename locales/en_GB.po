@@ -488,3 +488,12 @@ msgstr "Get help"
 
 msgid "Readme"
 msgstr "Readme"
+
+msgid "Login alert settings updated."
+msgstr "Login alert settings updated."
+
+msgid "The login alert is applied on anonymous GLPI pages when Brand customizations are active."
+msgstr "The login alert is applied on anonymous GLPI pages when Brand customizations are active."
+
+msgid "Alert message"
+msgstr "Alert message"

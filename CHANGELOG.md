@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.37
+
+- Promote Login alert to a dedicated top-level configuration tab.
+- Keep Brand asset saves from overwriting existing login alert settings.
+- Rebuild gettext catalogs with correct MO offsets so translated descriptions no longer appear mixed.
+
 ## 0.1.36
 
 - Move version, schema and asset checks into a dedicated Diagnostic tab and remove the introductory text from the configuration page.

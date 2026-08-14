@@ -488,3 +488,12 @@ msgstr "Obtenir de l'aide"
 
 msgid "Readme"
 msgstr "Lisez-moi"
+
+msgid "Login alert settings updated."
+msgstr "Paramètres de l'alerte login mis à jour."
+
+msgid "The login alert is applied on anonymous GLPI pages when Brand customizations are active."
+msgstr "L'alerte login est appliquée sur les pages anonymes GLPI lorsque les personnalisations Brand sont actives."
+
+msgid "Alert message"
+msgstr "Message d'alerte"
