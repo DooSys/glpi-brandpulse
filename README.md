@@ -1,203 +1,176 @@
 # GLPI BrandPulse
 
-GLPI BrandPulse est un plugin GLPI 11 pour regrouper deux besoins qui étaient historiquement portés par des personnalisations locales : le branding de l'interface et les compteurs opérationnels dans le header.
+![GLPI 11](https://img.shields.io/badge/GLPI-11.x-blue)
+![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777bb4)
+![License GPL-3.0](https://img.shields.io/badge/license-GPL--3.0--or--later-green)
+![Status](https://img.shields.io/badge/status-active-success)
 
-Le projet part de l'idée du premier plugin Modifications de Stevenes Donato, disponible ici : https://github.com/stdonato/glpi-modifications. Ce plugin permettait notamment de modifier la page de login, les logos et certains éléments d'interface. Notre ancien fork local avait aussi ajouté des compteurs métier en dur dans le header. BrandPulse reprend cette intention, mais avec une base GLPI 11 propre, maintenable et paramétrable.
+**GLPI BrandPulse** personnalise l'identité visuelle de GLPI et ajoute des compteurs rapides dans le header. Le plugin est pensé pour les équipes qui veulent une interface GLPI plus lisible, plus cohérente avec leur marque, et plus efficace au quotidien.
 
-## Objectifs
+> English version below.
 
-- Branding GLPI : titre, logos, image de login et personnalisation visuelle sans modifier le core GLPI.
-- Pulse header : compteurs dans la barre haute, avec icône, couleur, ordre, libellé, lien et seuils configurables.
-- Compatibilité GLPI 11 : hooks officiels, autoload Composer, endpoint AJAX dédié.
-- Migration douce : reprendre les compteurs historiques comme presets, puis les rendre configurables.
+## Français
 
-## Nom du plugin
+### Aperçu
 
-Le dépôt GitHub s'appelle :
+BrandPulse regroupe quatre espaces de configuration :
 
-```text
-glpi-brandpulse
-```
+- **Brand** : personnalisation des logos, du titre navigateur, du favicon, du fond de login et de l'identité visuelle.
+- **Login alert** : message d'information visible sur la page de connexion, avec icône, mise en forme simple et affichage extensible.
+- **Pulse** : compteurs dans le header GLPI pour suivre rapidement les tickets, les tâches ou des recherches sauvegardées.
+- **Diagnostic** : informations utiles pour vérifier la version installée, l'état des options et les fichiers d'images importés.
 
-Le dossier du plugin dans GLPI doit s'appeler :
+### Captures d'écran
 
-```text
-brandpulse
-```
-
-GLPI utilise le nom du dossier pour appeler les fonctions du plugin, par exemple `plugin_init_brandpulse()`.
-
-## État de la v0.1.32
-
-Cette version pose le socle technique :
-
-- déclaration GLPI du plugin ;
-- hooks CSS et JavaScript ;
-- endpoint AJAX JSON pour les compteurs ;
-- rendu header proche de l'ancien affichage ;
-- limitation Pulse à l'interface centrale GLPI, sans affichage sur le portail helpdesk/self-service ;
-- option de recherche globale compacte, réduite à une loupe puis étendue au clic ;
-- presets des compteurs historiques ;
-- page Brand pour le titre, favicon, logo login, logo menu gauche, fond login et message d'alerte login.
-- page Pulse pour créer des compteurs, choisir icône/couleur/seuils et cibler une recherche sauvegardée GLPI.
-
-La page de configuration est organisée en deux catégories : Brand pour l'identité visuelle et Pulse pour les compteurs du header. Pulse propose un picker d'icônes SVG local en popup avec recherche, filtre par catégorie et pagination par pages de 24 icônes. Le pack embarqué reprend la base SVG locale complète afin de laisser le choix fonctionnel le plus large possible.
-
-
-
-
-
-## Portée Pulse
-
-En GLPI 11, les ressources statiques du plugin restent stockées dans `public/`, mais leurs URLs publiques ne contiennent pas `/public`. BrandPulse référence donc ses assets sous `/plugins/brandpulse/css/...`, `/plugins/brandpulse/js/...` et `/plugins/brandpulse/icons/...`, conformément au routage plugin GLPI 11.
-
-Les images importées depuis l'onglet Brand ne sont pas stockées dans le dossier du plugin. Elles sont placées dans le stockage document plugin GLPI : `GLPI_PLUGIN_DOC_DIR/brandpulse/brand`, généralement `files/_plugins/brandpulse/brand`. Le plugin les sert ensuite via `/plugins/brandpulse/front/asset.php?file=...`, ce qui permet aux URLs enregistrées de rester valides après une mise à jour du plugin.
-
-Le branding ne dépend pas d'un bloc CSS d'entité GLPI contenant des URLs d'image BrandPulse permanentes. BrandPulse charge une feuille CSS dynamique via les hooks CSS natifs du plugin GLPI, avant le rendu de la page, puis renseigne les variables de logo GLPI (`--glpi-logo-*`) depuis sa configuration. Si le plugin est désactivé, indisponible ou en attente de mise à jour, cette feuille n'est plus chargée et GLPI retrouve ses logos natifs.
-
-Pulse est conçu pour l'interface `central` de GLPI : techniciens, administrateurs, superviseurs, modérateurs et profils équivalents. Le endpoint AJAX vérifie l'interface courante GLPI avant de renvoyer les compteurs, afin de ne pas injecter la barre Pulse ni l'option de recherche compacte dans le portail helpdesk/self-service ou catalogue.
-
-Les règles complexes de compteur ne sont pas réinventées dans BrandPulse. Pour cibler des objets GLPI, des catégories, groupes, demandeurs, techniciens, statuts ou combinaisons `ET` / `OU`, il faut créer une recherche dans le moteur de recherche GLPI, la sauvegarder, puis la sélectionner dans l'onglet Pulse. BrandPulse exécute ensuite cette recherche sauvegardée avec `SavedSearch` / `Search` et récupère le `totalcount` natif.
-
-Dans la catégorie Pulse, l'option de recherche compacte permet de réduire la recherche globale du header à une loupe. Au clic ou au focus, le champ s'étend pour permettre la saisie.
-
-## Internationalisation
-
-BrandPulse suit les préconisations GLPI : les chaînes sources sont en anglais britannique et toutes les chaînes visibles du plugin passent par les fonctions gettext GLPI avec le domaine `brandpulse`, par exemple `__('Text', 'brandpulse')`.
-
-Les catalogues sont fournis sans système tiers :
+Ajoutez vos images dans cette section.
 
 ```text
-locales/en_GB.po
-locales/en_GB.mo
-locales/fr_FR.po
-locales/fr_FR.mo
+Image à ajouter : page de configuration Brand
+Image à ajouter : onglet Login alert
+Image à ajouter : compteurs Pulse dans le header GLPI
+Image à ajouter : page de login personnalisée
 ```
 
-Aucune API de traduction externe n'est utilisée. Les fichiers `.po` restent éditables avec un outil gettext classique, et les fichiers `.mo` sont inclus dans les releases pour l'exécution GLPI.
+### Fonctionnalités Brand
 
-## Catalogue GLPI et icône de mise à jour
+- Changer le titre affiché dans l'onglet du navigateur.
+- Configurer un favicon personnalisé.
+- Définir des logos différents pour le menu latéral GLPI.
+- Prévoir des variantes pour les thèmes clair, sombre et neutre.
+- Personnaliser le logo de la page de connexion.
+- Ajouter une image de fond sur la page de login.
+- Conserver un rendu propre lorsque le plugin est désactivé ou en attente de mise à jour.
 
-L'icône de mise à jour avec le nuage dans GLPI vient du catalogue/Marketplace GLPI. Un simple tag GitHub ne suffit pas à l'afficher dans la liste native des plugins.
+### Fonctionnalités Login alert
 
-BrandPulse prépare le fichier de publication attendu par GLPI :
+- Afficher un message sur la page de connexion.
+- Choisir le type d'alerte : info, warning, danger ou success.
+- Choisir une icône depuis le pack intégré.
+- Rédiger un message court ou plus long.
+- Ouvrir automatiquement les longs messages si besoin.
+- Utiliser une mini barre de mise en forme : titre, gras, liste, code et lien.
+
+### Fonctionnalités Pulse
+
+- Ajouter des compteurs visibles dans le header GLPI.
+- Choisir le libellé, l'icône et la couleur de chaque compteur.
+- Activer ou désactiver chaque compteur.
+- Réordonner les compteurs.
+- Utiliser des presets simples fournis par le plugin.
+- Utiliser des recherches sauvegardées GLPI pour créer des compteurs adaptés à votre organisation.
+- Définir des seuils warning et critical.
+- Régler l'intervalle de rafraîchissement.
+- Réduire la recherche globale GLPI à une icône loupe.
+
+### Installation
+
+Téléchargez l'archive de release, puis déposez le dossier `brandpulse` dans le dossier `plugins` de GLPI.
 
 ```text
-brandpulse.xml
+glpi/plugins/brandpulse
 ```
 
-Les points importants sont :
-
-- `<key>brandpulse</key>` doit correspondre exactement au dossier technique du plugin ;
-- chaque entrée `<version>` doit déclarer le numéro, la compatibilité GLPI et un `download_url` ;
-- le `download_url` doit pointer vers l'archive release qui contient le dossier racine `brandpulse/`.
-
-Pour que GLPI affiche nativement la disponibilité d'une mise à jour, le plugin doit ensuite être publié sur le catalogue GLPI, puis validé pour le Marketplace si on veut l'installation/mise à jour en un clic. Tant qu'il n'est pas référencé côté catalogue GLPI, la release GitHub reste installable manuellement mais GLPI ne pourra pas afficher automatiquement le nuage de mise à jour.
-
-## Publication d'une version
-
-Les versions installables sont publiées depuis des tags Git au format `vX.Y.Z`.
-
-Avant de taguer, vérifier que la constante `PLUGIN_BRANDPULSE_VERSION` dans `setup.php` correspond au tag sans le `v`.
-
-Exemple pour publier la version `0.1.32` :
-
-```bash
-cd /home/Doonix/DooSys_GitHub/glpi-brandpulse
-git status
-git add .
-git commit -m "Prepare GLPI BrandPulse 0.1.32"
-git push origin main
-git tag -a v0.1.32 -m "GLPI BrandPulse v0.1.32"
-git push origin v0.1.32
-```
-
-Le tag déclenche GitHub Actions. Le workflow construit une archive installable et la publie dans la release GitHub :
+Activez ensuite le plugin depuis :
 
 ```text
-glpi-brandpulse-0.1.32.zip
+Configuration > Plugins
 ```
 
-L'archive contient directement le dossier GLPI attendu :
+### Compatibilité
+
+- GLPI 11.x
+- PHP 8.2 ou supérieur
+
+### Notes d'utilisation
+
+Pour créer des compteurs métier avancés, utilisez le moteur de recherche GLPI, sauvegardez votre recherche, puis sélectionnez-la dans l'onglet Pulse.
+
+Les images importées depuis BrandPulse restent conservées par GLPI afin de survivre aux mises à jour du plugin.
+
+### Licence
+
+GPL-3.0-or-later.
+
+---
+
+## English
+
+### Overview
+
+BrandPulse brings branding and operational visibility into one GLPI plugin:
+
+- **Brand**: customise logos, browser title, favicon, login background and visual identity.
+- **Login alert**: show a styled information message on the login page, with an icon and simple formatting.
+- **Pulse**: add quick counters to the GLPI header for tickets, tasks or saved searches.
+- **Diagnostic**: check the installed version, enabled features and imported image files.
+
+### Screenshots
+
+Add your screenshots in this section.
 
 ```text
-brandpulse/
+Image to add: Brand configuration page
+Image to add: Login alert tab
+Image to add: Pulse counters in the GLPI header
+Image to add: customised login page
 ```
 
-Pour tester une release sur un environnement GLPI de test :
+### Brand Features
 
-```bash
-cd /var/www/html/glpi/plugins
-rm -rf brandpulse
-curl -L -o /tmp/glpi-brandpulse.zip https://github.com/DooSys/glpi-brandpulse/releases/download/v0.1.32/glpi-brandpulse-0.1.32.zip
-unzip -q /tmp/glpi-brandpulse.zip -d /var/www/html/glpi/plugins
-```
+- Change the browser tab title.
+- Set a custom favicon.
+- Configure GLPI sidebar logos.
+- Use separate logo variants for light, dark and neutral themes.
+- Customise the login page logo.
+- Add a background image to the login page.
+- Keep GLPI clean when the plugin is disabled or waiting for an update.
 
-Si le dépôt GitHub est privé, télécharger l'archive depuis l'interface GitHub ou utiliser un accès authentifié.
+### Login Alert Features
 
+- Display a message on the login page.
+- Choose the alert type: info, warning, danger or success.
+- Pick an icon from the bundled icon pack.
+- Write short or longer messages.
+- Open long messages by default when needed.
+- Use a lightweight formatting toolbar: heading, bold, list, code and link.
 
-## Mises à jour GLPI
+### Pulse Features
 
-GLPI appelle `plugin_brandpulse_install()` lors d'une installation, mais aussi lors d'une mise à jour du plugin depuis l'écran des plugins. BrandPulse route ce hook vers `GlpiPlugin\Brandpulse\Migrator`.
+- Add counters to the GLPI header.
+- Choose each counter label, icon and colour.
+- Enable or disable counters individually.
+- Reorder counters.
+- Use simple built-in presets.
+- Use GLPI saved searches to create counters that match your organisation.
+- Define warning and critical thresholds.
+- Set the refresh interval.
+- Collapse the global GLPI search field into a magnifier icon.
 
-Le migrateur stocke la version de schéma appliquée dans la configuration GLPI :
+### Installation
+
+Download the release archive, then place the `brandpulse` folder in the GLPI `plugins` directory.
 
 ```text
-plugin:brandpulse / schema_version
+glpi/plugins/brandpulse
 ```
 
-Chaque future version devra ajouter une migration idempotente dans `src/Migrator.php`, puis mettre à jour `schema_version` une fois la migration terminée.
-
-Pour une mise à jour sur l'environnement de test :
-
-```bash
-cd /var/www/html/glpi/plugins
-rm -rf brandpulse
-unzip -q /tmp/glpi-brandpulse.zip -d /var/www/html/glpi/plugins
-```
-
-Ensuite aller dans GLPI > Configuration > Plugins et lancer l'action de mise à jour si GLPI la propose. Le plugin appliquera ses migrations et affichera la version de schéma installée dans sa page de configuration.
-
-## Installation en développement
-
-Depuis le serveur GLPI :
-
-```bash
-cd /var/www/html/glpi/plugins
-ln -s /home/Doonix/DooSys_GitHub/glpi-brandpulse brandpulse
-cd brandpulse
-composer dump-autoload
-```
-
-Puis activer le plugin depuis l'interface GLPI.
-
-
-## Pack d'icônes Pulse
-
-Les compteurs Pulse utilisent par défaut un pack SVG local situé dans :
+Then enable the plugin from:
 
 ```text
-public/icons/pulse/
+Setup > Plugins
 ```
 
-Dans la configuration JSON d'un compteur, la syntaxe recommandée est :
+### Compatibility
 
-```json
-"icon": "pulse:List/Checklist Minimalistic.svg"
-```
+- GLPI 11.x
+- PHP 8.2 or higher
 
-BrandPulse résout alors automatiquement cette valeur vers le SVG correspondant dans `public/icons/pulse/`. Le pack local reste le mode supporté afin d'éviter une dépendance externe au runtime et de conserver une sauvegarde Pulse déterministe.
+### Usage Notes
 
-## Compteurs historiques repris comme presets
+For advanced operational counters, create a search in GLPI, save it, then select it in the Pulse tab.
 
-- Vos tâches à faire
-- Tickets en attente
-- Mes tickets ouverts
-- Tous les tickets ouverts
-- Tickets non assignés
+Images imported through BrandPulse are kept in GLPI storage so they remain available across plugin updates.
 
-Ces compteurs reprennent seulement des cas standards. Les anciens périmètres métier locaux ne sont plus livrés en preset ; il faut les recréer avec une recherche sauvegardée GLPI et la sélectionner dans l'onglet Pulse.
-
-## Licence
+### License
 
 GPL-3.0-or-later.
