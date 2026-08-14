@@ -152,6 +152,8 @@ final class Config
             'login_background' => '',
             'login_alert_enabled' => false,
             'login_alert_type' => 'info',
+            'login_alert_icon' => self::DEFAULT_PULSE_ICON,
+            'login_alert_expanded' => false,
             'login_alert_message' => '',
         ];
     }
@@ -287,6 +289,8 @@ final class Config
             'login_alert_type' => in_array($branding['login_alert_type'], $allowedAlertTypes, true)
                 ? (string) $branding['login_alert_type']
                 : 'info',
+            'login_alert_icon' => self::normalizeIcon((string) ($branding['login_alert_icon'] ?? self::DEFAULT_PULSE_ICON)),
+            'login_alert_expanded' => !empty($branding['login_alert_expanded']),
             'login_alert_message' => trim((string) $branding['login_alert_message']),
         ];
     }

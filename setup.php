@@ -5,10 +5,11 @@ declare(strict_types=1);
 use Glpi\Http\Firewall;
 use Glpi\Plugin\Hooks;
 use GlpiPlugin\Brandpulse\Config as BrandpulseConfig;
+use GlpiPlugin\Brandpulse\Menu as BrandpulseMenu;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_BRANDPULSE_VERSION = '0.1.35';
+const PLUGIN_BRANDPULSE_VERSION = '0.1.36';
 const PLUGIN_BRANDPULSE_MIN_GLPI = '11.0.0';
 const PLUGIN_BRANDPULSE_MAX_GLPI = '12.0.0';
 const PLUGIN_BRANDPULSE_MIN_PHP = '8.2.0';
@@ -30,6 +31,9 @@ function plugin_init_brandpulse(): void
 
     $PLUGIN_HOOKS['csrf_compliant']['brandpulse'] = true;
     $PLUGIN_HOOKS['config_page']['brandpulse'] = 'front/config.php';
+    $PLUGIN_HOOKS[Hooks::MENU_TOADD]['brandpulse'] = [
+        'tools' => BrandpulseMenu::class,
+    ];
 
     if (class_exists(Firewall::class)) {
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/front/config\.php$#', Firewall::STRATEGY_CENTRAL_ACCESS);

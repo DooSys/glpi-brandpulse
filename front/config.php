@@ -87,6 +87,11 @@ function plugin_brandpulse_config_url(string $tab): string
     return plugin_brandpulse_web_base() . '/front/config.php?tab=' . rawurlencode($tab);
 }
 
+function plugin_brandpulse_external_url(string $path): string
+{
+    return 'https://github.com/DooSys/glpi-brandpulse/' . ltrim($path, '/');
+}
+
 function plugin_brandpulse_brand_asset_fields(): array
 {
     return [
@@ -186,8 +191,8 @@ function plugin_brandpulse_brand_asset_sections(): array
     return [
         'identity' => ['title' => 'Identity', 'description' => 'Browser title, favicon and global identity assets.'],
         'sidebar' => ['title' => 'Sidebar logos', 'description' => 'Theme-aware logos for expanded and collapsed GLPI navigation.'],
-        'login' => ['title' => 'Login page', 'description' => 'Login logos, background and alert message.'],
-        'diagnostic' => ['title' => 'Diagnostic', 'description' => 'Stored file path, generated URLs and asset state.'],
+        'login' => ['title' => 'Login page', 'description' => 'Login logos and background image.'],
+        'alert' => ['title' => 'Login alert', 'description' => 'Message, icon and expansion behavior for the login page.'],
     ];
 }
 
@@ -420,7 +425,7 @@ function plugin_brandpulse_brand_nav(array $sections): string
 {
     $html = "<nav class='brandpulse-brand-nav' aria-label='" . __s('Brand', 'brandpulse') . "'>";
 
-    foreach (['identity', 'sidebar', 'login', 'diagnostic'] as $sectionKey) {
+    foreach (['identity', 'sidebar', 'login', 'alert'] as $sectionKey) {
         if (!isset($sections[$sectionKey])) {
             continue;
         }
@@ -464,7 +469,7 @@ function plugin_brandpulse_brand_diagnostic(array $fields, array $branding): str
 
 
 $tab = (string) ($_GET['tab'] ?? $_POST['tab'] ?? 'brand');
-$tab = in_array($tab, ['brand', 'pulse'], true) ? $tab : 'brand';
+$tab = in_array($tab, ['brand', 'pulse', 'diagnostic'], true) ? $tab : 'brand';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -475,6 +480,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'title' => (string) ($_POST['title'] ?? ''),
             'login_alert_enabled' => isset($_POST['login_alert_enabled']),
             'login_alert_type' => (string) ($_POST['login_alert_type'] ?? 'info'),
+            'login_alert_icon' => (string) ($_POST['login_alert_icon'] ?? BrandpulseConfig::DEFAULT_PULSE_ICON),
+            'login_alert_expanded' => isset($_POST['login_alert_expanded']),
             'login_alert_message' => (string) ($_POST['login_alert_message'] ?? ''),
         ];
 
@@ -566,16 +573,11 @@ Html::header(__('GLPI BrandPulse', 'brandpulse'), plugin_brandpulse_config_url($
 
 echo "<div class='brandpulse-config'>";
 echo '<h1>' . __s('GLPI BrandPulse', 'brandpulse') . '</h1>';
-echo '<p>' . __s('Settings categories: Brand for visual identity, Pulse for header counters.', 'brandpulse') . '</p>';
-echo "<p class='text-muted'>" . __s('Pulse is only displayed in the GLPI central interface, not in the helpdesk/self-service portal.', 'brandpulse') . '</p>';
-echo "<p class='text-muted'>" . sprintf(
-    __s('Installed BrandPulse schema: %s', 'brandpulse'),
-    Html::entities_deep(BrandpulseConfig::schemaVersion() ?: __('not initialized', 'brandpulse'))
-) . '</p>';
 
-echo "<ul class='nav nav-tabs mb-3'>";
-echo "<li class='nav-item'><a class='nav-link" . ($tab === 'brand' ? ' active' : '') . "' href='" . plugin_brandpulse_h(plugin_brandpulse_config_url('brand')) . "'>" . __s('Brand', 'brandpulse') . '</a></li>';
-echo "<li class='nav-item'><a class='nav-link" . ($tab === 'pulse' ? ' active' : '') . "' href='" . plugin_brandpulse_h(plugin_brandpulse_config_url('pulse')) . "'>" . __s('Pulse', 'brandpulse') . '</a></li>';
+echo "<ul class='nav nav-tabs mb-3 brandpulse-tabs'>";
+echo "<li class='nav-item'><a class='nav-link" . ($tab === 'brand' ? ' active' : '') . "' href='" . plugin_brandpulse_h(plugin_brandpulse_config_url('brand')) . "'><i class='ti ti-palette'></i><span>" . __s('Brand', 'brandpulse') . '</span></a></li>';
+echo "<li class='nav-item'><a class='nav-link" . ($tab === 'pulse' ? ' active' : '') . "' href='" . plugin_brandpulse_h(plugin_brandpulse_config_url('pulse')) . "'><i class='ti ti-activity'></i><span>" . __s('Pulse', 'brandpulse') . '</span></a></li>';
+echo "<li class='nav-item'><a class='nav-link" . ($tab === 'diagnostic' ? ' active' : '') . "' href='" . plugin_brandpulse_h(plugin_brandpulse_config_url('diagnostic')) . "'><i class='ti ti-stethoscope'></i><span>" . __s('Diagnostic', 'brandpulse') . '</span></a></li>';
 echo '</ul>';
 
 echo '<form method="post" enctype="multipart/form-data" action="' . plugin_brandpulse_h(plugin_brandpulse_config_url($tab)) . '">';
@@ -633,27 +635,33 @@ if ($tab === 'brand') {
         }
     }
     $loginContent .= '</div>';
-    $loginContent .= "<div class='brandpulse-brand-alert mt-3'>";
-    $loginContent .= "<div class='form-check mb-3'>";
-    $loginContent .= "<input class='form-check-input' id='login_alert_enabled' type='checkbox' name='login_alert_enabled' value='1'" . ($branding['login_alert_enabled'] ? ' checked' : '') . '> ';
-    $loginContent .= "<label class='form-check-label' for='login_alert_enabled'>" . __s('Show a login page alert message', 'brandpulse') . '</label>';
-    $loginContent .= '</div>';
-    $loginContent .= "<div class='row g-3'>";
-    $loginContent .= "<div class='col-md-3'><label class='form-label'>" . __s('Alert type', 'brandpulse') . '</label>' . plugin_brandpulse_select('login_alert_type', $alertTypes, (string) $branding['login_alert_type']) . '</div>';
-    $loginContent .= "<div class='col-md-9'><label class='form-label'>" . __s('Login alert message', 'brandpulse') . "</label><textarea class='form-control' name='login_alert_message' rows='3'>" . plugin_brandpulse_h((string) $branding['login_alert_message']) . '</textarea></div>';
-    $loginContent .= '</div></div>';
     echo plugin_brandpulse_brand_section('login', $sections['login']['title'], $sections['login']['description'], $loginContent);
 
-    $diagnosticContent = "<details class='brandpulse-brand-diagnostic-box'>";
-    $diagnosticContent .= '<summary><strong>' . __s('Stored files', 'brandpulse') . '</strong><span>' . plugin_brandpulse_h(BrandAssetStore::brandDirectory()) . '</span></summary>';
-    $diagnosticContent .= plugin_brandpulse_brand_diagnostic($assetFields, $branding);
-    $diagnosticContent .= '</details>';
-    echo plugin_brandpulse_brand_section('diagnostic', $sections['diagnostic']['title'], $sections['diagnostic']['description'], $diagnosticContent);
+    $alertContent = "<div class='brandpulse-brand-alert'>";
+    $alertContent .= "<div class='brandpulse-alert-grid'>";
+    $alertContent .= "<div class='brandpulse-alert-switches'>";
+    $alertContent .= "<div class='form-check form-switch'>";
+    $alertContent .= "<input class='form-check-input' id='login_alert_enabled' type='checkbox' name='login_alert_enabled' value='1'" . ($branding['login_alert_enabled'] ? ' checked' : '') . '> ';
+    $alertContent .= "<label class='form-check-label' for='login_alert_enabled'>" . __s('Show a login page alert message', 'brandpulse') . '</label>';
+    $alertContent .= '</div>';
+    $alertContent .= "<div class='form-check form-switch'>";
+    $alertContent .= "<input class='form-check-input' id='login_alert_expanded' type='checkbox' name='login_alert_expanded' value='1'" . ($branding['login_alert_expanded'] ? ' checked' : '') . '> ';
+    $alertContent .= "<label class='form-check-label' for='login_alert_expanded'>" . __s('Open long alert by default', 'brandpulse') . '</label>';
+    $alertContent .= '</div>';
+    $alertContent .= '</div>';
+    $alertContent .= "<div><label class='form-label'>" . __s('Alert type', 'brandpulse') . '</label>' . plugin_brandpulse_select('login_alert_type', $alertTypes, (string) $branding['login_alert_type']) . '</div>';
+    $alertContent .= "<div><label class='form-label'>" . __s('Alert icon', 'brandpulse') . '</label>' . plugin_brandpulse_icon_field('login_alert_icon', $icons, (string) $branding['login_alert_icon']) . '</div>';
+    $alertContent .= '</div>';
+    $alertContent .= "<label class='form-label mt-3'>" . __s('Login alert message', 'brandpulse') . '</label>';
+    $alertContent .= "<textarea class='form-control brandpulse-alert-message' name='login_alert_message' rows='7'>" . plugin_brandpulse_h((string) $branding['login_alert_message']) . '</textarea>';
+    $alertContent .= "<div class='form-text'>" . __s('Use short paragraphs, headings with #, bullet lines with -, **bold** and `code` for a richer message.', 'brandpulse') . '</div>';
+    $alertContent .= '</div>';
+    echo plugin_brandpulse_brand_section('alert', $sections['alert']['title'], $sections['alert']['description'], $alertContent);
 
     echo '</div>';
     echo '</div>';
     echo '</div>';
-} else {
+} elseif ($tab === 'pulse') {
     echo "<div class='brandpulse-brand-enable-panel" . ($config['enabled'] ? ' is-enabled' : '') . "'>";
     echo "<div><strong>" . __s('Pulse counters', 'brandpulse') . '</strong>';
     echo '<span>' . __s('This switch must be enabled before Pulse counters and compact search are applied in the GLPI header.', 'brandpulse') . '</span></div>';
@@ -663,15 +671,18 @@ if ($tab === 'brand') {
     echo '</div>';
     echo '</div>';
 
-    echo "<div class='card mb-3'>";
-    echo "<div class='card-header d-flex align-items-center justify-content-between gap-2'><strong>" . __s('Pulse', 'brandpulse') . "<span class='badge bg-secondary ms-2' data-pulse-row-count>" . count($counters) . "</span></strong><div class='d-flex gap-2'><button class='btn btn-outline-secondary btn-sm' type='button' data-pulse-add title='" . __s('Add Pulse counter', 'brandpulse') . "' aria-label='" . __s('Add Pulse counter', 'brandpulse') . "'>+</button><button class='btn btn-primary btn-sm' type='submit'>" . __s('Save', 'brandpulse') . "</button></div></div>";
-    echo "<div class='card-body'>";
-    echo "<div class='row g-3 align-items-end'>";
-    echo "<div class='col-md-3'><label class='form-label'>" . __s('Counter refresh interval, in seconds', 'brandpulse') . "</label><input class='form-control' type='number' min='15' name='refresh_interval' value='" . (int) $config['refresh_interval'] . "'></div>";
-    echo "<div class='col-md-5'><div class='form-check'>";
+    echo "<div class='card mb-3 brandpulse-pulse-card'>";
+    echo "<div class='card-header brandpulse-pulse-toolbar'>";
+    echo "<div class='brandpulse-pulse-title'><strong>" . __s('Pulse', 'brandpulse') . "</strong><span class='badge bg-secondary' data-pulse-row-count>" . count($counters) . '</span></div>';
+    echo "<div class='brandpulse-pulse-controls'>";
+    echo "<label class='brandpulse-refresh-control'><span>" . __s('Counter refresh interval, in seconds', 'brandpulse') . "</span><input class='form-control' type='number' min='15' name='refresh_interval' value='" . (int) $config['refresh_interval'] . "'></label>";
+    echo "<div class='brandpulse-control-separator' aria-hidden='true'></div>";
+    echo "<label class='brandpulse-search-control'>";
     echo "<input class='form-check-input' id='compact_search_enabled' type='checkbox' name='compact_search_enabled' value='1'" . ($config['compact_search_enabled'] ? ' checked' : '') . '> ';
-    echo "<label class='form-check-label' for='compact_search_enabled'>" . __s('Minimize the global search field to a magnifier icon', 'brandpulse') . '</label>';
-    echo '</div></div>';
+    echo "<span class='brandpulse-search-option-icon' aria-hidden='true'></span><span>" . __s('Minimize the global search field to a magnifier icon', 'brandpulse') . '</span>';
+    echo '</label>';
+    echo "<button class='btn btn-outline-secondary brandpulse-pulse-action' type='button' data-pulse-add title='" . __s('Add Pulse counter', 'brandpulse') . "' aria-label='" . __s('Add Pulse counter', 'brandpulse') . "'><i class='ti ti-plus'></i></button>";
+    echo "<button class='btn btn-primary brandpulse-pulse-action' type='submit'><i class='ti ti-device-floppy'></i><span>" . __s('Save', 'brandpulse') . '</span></button>';
     echo '</div>';
     echo '</div>';
 
@@ -698,11 +709,33 @@ if ($tab === 'brand') {
     echo '</div>';
     echo "<div class='card-footer text-muted'>" . __s('Use GLPI presets or GLPI saved searches. Saved searches keep the native AND/OR criteria builder.', 'brandpulse') . '</div>';
     echo '</div>';
+} else {
+    $assetFields = plugin_brandpulse_brand_asset_fields();
+
+    echo "<div class='brandpulse-diagnostic-grid'>";
+    echo "<div class='brandpulse-diagnostic-card'><strong>" . __s('Plugin version', 'brandpulse') . '</strong><span>' . plugin_brandpulse_h(PLUGIN_BRANDPULSE_VERSION) . '</span></div>';
+    echo "<div class='brandpulse-diagnostic-card'><strong>" . __s('Installed schema', 'brandpulse') . '</strong><span>' . plugin_brandpulse_h(BrandpulseConfig::schemaVersion() ?: __('not initialized', 'brandpulse')) . '</span></div>';
+    echo "<div class='brandpulse-diagnostic-card'><strong>" . __s('Brand status', 'brandpulse') . '</strong><span>' . ($branding['enabled'] ? __s('Enabled', 'brandpulse') : __s('Disabled', 'brandpulse')) . '</span></div>';
+    echo "<div class='brandpulse-diagnostic-card'><strong>" . __s('Pulse status', 'brandpulse') . '</strong><span>' . ($config['enabled'] ? __s('Enabled', 'brandpulse') : __s('Disabled', 'brandpulse')) . '</span></div>';
+    echo '</div>';
+
+    echo "<div class='brandpulse-diagnostic-links'>";
+    echo "<a class='btn btn-outline-secondary' target='_blank' rel='noopener' href='" . plugin_brandpulse_h(plugin_brandpulse_external_url('')) . "'><i class='ti ti-home-2'></i><span>" . __s('Homepage', 'brandpulse') . '</span></a>';
+    echo "<a class='btn btn-outline-secondary' target='_blank' rel='noopener' href='" . plugin_brandpulse_h(plugin_brandpulse_external_url('issues')) . "'><i class='ti ti-bug'></i><span>" . __s('Get help', 'brandpulse') . '</span></a>';
+    echo "<a class='btn btn-outline-secondary' target='_blank' rel='noopener' href='" . plugin_brandpulse_h(plugin_brandpulse_external_url('blob/main/README.md')) . "'><i class='ti ti-book'></i><span>" . __s('Readme', 'brandpulse') . '</span></a>';
+    echo '</div>';
+
+    echo "<details class='brandpulse-brand-diagnostic-box' open>";
+    echo '<summary><strong>' . __s('Stored files', 'brandpulse') . '</strong><span>' . plugin_brandpulse_h(BrandAssetStore::brandDirectory()) . '</span></summary>';
+    echo plugin_brandpulse_brand_diagnostic($assetFields, $branding);
+    echo '</details>';
 }
 
-echo "<div class='brandpulse-action-bar'><button class='btn btn-primary' type='submit'>" . __s('Save', 'brandpulse') . '</button></div>';
+if ($tab === 'brand') {
+    echo "<div class='brandpulse-action-bar'><button class='btn btn-primary' type='submit'><i class='ti ti-device-floppy'></i><span>" . __s('Save', 'brandpulse') . '</span></button></div>';
+}
 echo '</form>';
-if ($tab === 'pulse') {
+if (in_array($tab, ['brand', 'pulse'], true)) {
     echo "<div class='brandpulse-icon-modal' data-icon-modal hidden>";
     echo "<div class='brandpulse-icon-modal-backdrop' data-icon-close></div>";
     echo "<div class='brandpulse-icon-dialog' role='dialog' aria-modal='true' aria-label='" . __s('Choose an icon', 'brandpulse') . "'>";

@@ -185,6 +185,59 @@
     element.style.maskImage = cssUrl(iconUrl);
   };
 
+  const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  })[char]);
+
+  const renderInlineMarkdown = (value) => escapeHtml(value)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+  const renderAlertMessage = (value) => {
+    const lines = String(value || '').replace(/\r\n/g, '\n').split('\n');
+    const html = [];
+    let listOpen = false;
+
+    const closeList = () => {
+      if (listOpen) {
+        html.push('</ul>');
+        listOpen = false;
+      }
+    };
+
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      if (line === '') {
+        closeList();
+        continue;
+      }
+      if (line.startsWith('- ')) {
+        if (!listOpen) {
+          html.push('<ul>');
+          listOpen = true;
+        }
+        html.push('<li>' + renderInlineMarkdown(line.slice(2)) + '</li>');
+        continue;
+      }
+
+      closeList();
+      if (line.startsWith('## ')) {
+        html.push('<h3>' + renderInlineMarkdown(line.slice(3)) + '</h3>');
+      } else if (line.startsWith('# ')) {
+        html.push('<h2>' + renderInlineMarkdown(line.slice(2)) + '</h2>');
+      } else {
+        html.push('<p>' + renderInlineMarkdown(line) + '</p>');
+      }
+    }
+
+    closeList();
+    return html.join('');
+  };
+
   const cachePulsePayload = (payload) => {
     try {
       if (!payload?.enabled || !Array.isArray(payload.counters)) {
@@ -452,11 +505,44 @@
     if (branding.login_alert_enabled && branding.login_alert_message) {
       const loginContainer = document.querySelector('form[action*="login"]')?.parentElement
         || document.querySelector('.login-box, .page-anonymous .container');
-      if (loginContainer && !document.querySelector('.brandpulse-login-alert')) {
-        const alert = document.createElement('div');
-        alert.className = 'alert alert-' + (branding.login_alert_type || 'info') + ' brandpulse-login-alert';
-        alert.textContent = branding.login_alert_message;
-        loginContainer.prepend(alert);
+      if (loginContainer) {
+        let alert = document.querySelector('.brandpulse-login-alert');
+        if (!alert) {
+          alert = document.createElement('div');
+          loginContainer.prepend(alert);
+        }
+
+        const message = String(branding.login_alert_message || '');
+        const isLong = message.length > 180 || message.split(/\r?\n/).length > 3;
+        const isExpanded = Boolean(branding.login_alert_expanded) || !isLong;
+
+        alert.className = 'alert alert-' + (branding.login_alert_type || 'info') + ' brandpulse-login-alert'
+          + (isLong ? ' is-collapsible' : '')
+          + (isExpanded ? ' is-expanded' : '');
+        alert.innerHTML = '';
+
+        const icon = document.createElement('span');
+        icon.className = 'brandpulse-login-alert-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        setMaskIcon(icon, resolveIconUrl(branding.login_alert_icon));
+
+        const body = document.createElement('div');
+        body.className = 'brandpulse-login-alert-body';
+        body.innerHTML = renderAlertMessage(message);
+
+        alert.append(icon, body);
+
+        if (isLong) {
+          const toggle = document.createElement('button');
+          toggle.className = 'brandpulse-login-alert-toggle';
+          toggle.type = 'button';
+          toggle.title = t('Expand alert');
+          toggle.setAttribute('aria-label', t('Expand alert'));
+          toggle.addEventListener('click', () => {
+            alert.classList.toggle('is-expanded');
+          });
+          alert.append(toggle);
+        }
       }
     }
   };

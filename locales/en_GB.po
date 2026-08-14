@@ -440,3 +440,51 @@ msgstr "Page"
 
 msgid "icons"
 msgstr "icons"
+
+msgid "BrandPulse"
+msgstr "BrandPulse"
+
+msgid "Login logos and background image."
+msgstr "Login logos and background image."
+
+msgid "Login alert"
+msgstr "Login alert"
+
+msgid "Message, icon and expansion behavior for the login page."
+msgstr "Message, icon and expansion behavior for the login page."
+
+msgid "Open long alert by default"
+msgstr "Open long alert by default"
+
+msgid "Alert icon"
+msgstr "Alert icon"
+
+msgid "Use short paragraphs, headings with #, bullet lines with -, **bold** and `code` for a richer message."
+msgstr "Use short paragraphs, headings with #, bullet lines with -, **bold** and `code` for a richer message."
+
+msgid "Expand alert"
+msgstr "Expand alert"
+
+msgid "Plugin version"
+msgstr "Plugin version"
+
+msgid "Installed schema"
+msgstr "Installed schema"
+
+msgid "Brand status"
+msgstr "Brand status"
+
+msgid "Pulse status"
+msgstr "Pulse status"
+
+msgid "Disabled"
+msgstr "Disabled"
+
+msgid "Homepage"
+msgstr "Homepage"
+
+msgid "Get help"
+msgstr "Get help"
+
+msgid "Readme"
+msgstr "Readme"

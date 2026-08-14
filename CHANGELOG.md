@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.36
+
+- Move version, schema and asset checks into a dedicated Diagnostic tab and remove the introductory text from the configuration page.
+- Split Login alert from Login page assets, with icon selection, markdown-like formatting and long-message expansion controls.
+- Add BrandPulse to the GLPI Tools menu and polish the Brand/Pulse tab and Pulse toolbar layout.
+
 ## 0.1.35
 
 - Cache bundled Pulse SVG icons with ETag, Last-Modified and immutable browser cache headers so icons are not refetched on every page navigation.
