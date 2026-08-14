@@ -8,7 +8,7 @@ use GlpiPlugin\Brandpulse\Config as BrandpulseConfig;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_BRANDPULSE_VERSION = '0.1.33';
+const PLUGIN_BRANDPULSE_VERSION = '0.1.34';
 const PLUGIN_BRANDPULSE_MIN_GLPI = '11.0.0';
 const PLUGIN_BRANDPULSE_MAX_GLPI = '12.0.0';
 const PLUGIN_BRANDPULSE_MIN_PHP = '8.2.0';
@@ -34,6 +34,7 @@ function plugin_init_brandpulse(): void
     if (class_exists(Firewall::class)) {
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/front/config\.php$#', Firewall::STRATEGY_CENTRAL_ACCESS);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/front/asset\.php$#', Firewall::STRATEGY_NO_CHECK);
+        Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/front/branding\.css\.php$#', Firewall::STRATEGY_NO_CHECK);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/counters\.php$#', Firewall::STRATEGY_CENTRAL_ACCESS);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/branding\.php$#', Firewall::STRATEGY_NO_CHECK);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/icons\.php$#', Firewall::STRATEGY_CENTRAL_ACCESS);
@@ -42,6 +43,7 @@ function plugin_init_brandpulse(): void
 
     if (class_exists(Plugin::class) && Plugin::isPluginActive('brandpulse')) {
         $PLUGIN_HOOKS[Hooks::ADD_CSS]['brandpulse'][] = 'css/brandpulse.css';
+        $PLUGIN_HOOKS[Hooks::ADD_CSS]['brandpulse'][] = 'front/branding.css.php';
 
         $brandpulse_config = class_exists(BrandpulseConfig::class) ? BrandpulseConfig::rawValues() : [];
         if (
@@ -55,6 +57,7 @@ function plugin_init_brandpulse(): void
 
         if (defined(Hooks::class . '::ADD_CSS_ANONYMOUS_PAGE')) {
             $PLUGIN_HOOKS[Hooks::ADD_CSS_ANONYMOUS_PAGE]['brandpulse'][] = 'css/brandpulse.css';
+            $PLUGIN_HOOKS[Hooks::ADD_CSS_ANONYMOUS_PAGE]['brandpulse'][] = 'front/branding.css.php';
         }
         if (defined(Hooks::class . '::ADD_JAVASCRIPT_ANONYMOUS_PAGE')) {
             $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_ANONYMOUS_PAGE]['brandpulse'][] = 'js/brandpulse.js';

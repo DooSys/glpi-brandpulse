@@ -55,23 +55,6 @@
     return rootDoc + '/' + value.replace(/^\/+/, '');
   };
 
-  const detectsDarkTheme = () => document.documentElement.dataset.glpiThemeDark === '1'
-    || document.documentElement.matches('[data-bs-theme="dark"], .theme-dark, .dark')
-    || document.body.matches('[data-bs-theme="dark"], .theme-dark, .dark')
-    || window.matchMedia?.('(prefers-color-scheme: dark)')?.matches === true;
-
-  const chooseThemeAsset = (branding, prefix, fallback = '') => {
-    const light = branding?.[prefix + '_light'] || '';
-    const dark = branding?.[prefix + '_dark'] || '';
-    const neutral = branding?.[prefix + '_grey'] || '';
-
-    if (detectsDarkTheme()) {
-      return dark || neutral || light || fallback || '';
-    }
-
-    return light || neutral || dark || fallback || '';
-  };
-
   const parseRgb = (value) => {
     const match = String(value || '').match(/rgba?\(([^)]+)\)/i);
     if (!match) {
@@ -130,16 +113,6 @@
   const cssUrl = (url) => 'url("' + String(url).replace(/["\\\n\r]/g, '') + '")';
   const isSidebarElement = (element) => Boolean(element?.closest?.('#navbar-menu, aside, .navbar-vertical'));
   const isVisibleElement = (element) => Boolean(element?.offsetParent || element?.getClientRects?.().length);
-
-  const setCssUrlVariable = (name, url) => {
-    if (url) {
-      document.documentElement.style.setProperty(name, cssUrl(url), 'important');
-    }
-  };
-
-  const resetCssUrlVariable = (name) => {
-    document.documentElement.style.removeProperty(name);
-  };
 
   const findHeaderTarget = () => {
     const selectors = [
@@ -460,23 +433,9 @@
   const applyBranding = (payload) => {
     const branding = payload?.branding;
     if (!branding?.enabled) {
-      document.body.classList.remove('brandpulse-branding-enabled', 'brandpulse-login-branded');
-      document.body.style.removeProperty('--brandpulse-login-background');
       document.querySelector('.brandpulse-login-alert')?.remove();
-      [
-        '--glpi-logo-light',
-        '--glpi-logo-dark',
-        '--glpi-logo',
-        '--glpi-logo-light-reduced',
-        '--glpi-logo-dark-reduced',
-        '--glpi-logo-reduced',
-        '--glpi-logo-light-login',
-        '--glpi-logo-dark-login',
-      ].forEach(resetCssUrlVariable);
       return;
     }
-
-    document.body.classList.add('brandpulse-branding-enabled');
 
     if (branding.title) {
       document.title = branding.title;
@@ -491,43 +450,6 @@
         document.head.append(link);
       }
       link.href = faviconUrl;
-    }
-
-    const sidebarExpandedLogoUrl = resolveAssetUrl(
-      chooseThemeAsset(branding, 'logo_sidebar_expanded', branding.menu_logo)
-    );
-    const sidebarCollapsedLogoUrl = resolveAssetUrl(
-      chooseThemeAsset(branding, 'logo_sidebar_collapsed', sidebarExpandedLogoUrl || branding.menu_logo)
-    );
-    const sidebarLightLogoUrl = resolveAssetUrl(branding.logo_sidebar_expanded_light || branding.menu_logo || sidebarExpandedLogoUrl);
-    const sidebarDarkLogoUrl = resolveAssetUrl(branding.logo_sidebar_expanded_dark || sidebarLightLogoUrl);
-    const sidebarReducedLightLogoUrl = resolveAssetUrl(branding.logo_sidebar_collapsed_light || sidebarLightLogoUrl);
-    const sidebarReducedDarkLogoUrl = resolveAssetUrl(branding.logo_sidebar_collapsed_dark || sidebarReducedLightLogoUrl);
-    const loginLightLogoUrl = resolveAssetUrl(branding.login_logo_light || branding.login_logo || sidebarLightLogoUrl);
-    const loginDarkLogoUrl = resolveAssetUrl(branding.login_logo_dark || loginLightLogoUrl);
-
-    setCssUrlVariable('--glpi-logo-light', sidebarLightLogoUrl);
-    setCssUrlVariable('--glpi-logo-dark', sidebarDarkLogoUrl);
-    setCssUrlVariable('--glpi-logo', detectsDarkTheme() ? sidebarDarkLogoUrl : sidebarLightLogoUrl);
-    setCssUrlVariable('--glpi-logo-light-reduced', sidebarReducedLightLogoUrl);
-    setCssUrlVariable('--glpi-logo-dark-reduced', sidebarReducedDarkLogoUrl);
-    setCssUrlVariable('--glpi-logo-reduced', detectsDarkTheme() ? sidebarReducedDarkLogoUrl : sidebarReducedLightLogoUrl);
-    setCssUrlVariable('--glpi-logo-light-login', loginLightLogoUrl);
-    setCssUrlVariable('--glpi-logo-dark-login', loginDarkLogoUrl);
-
-    for (const glpiLogo of document.querySelectorAll('.page .navbar-brand .glpi-logo, #navbar-menu .glpi-logo, .page-anonymous .glpi-logo, .login-box .glpi-logo')) {
-      glpiLogo.style.removeProperty('--logo');
-      glpiLogo.style.removeProperty('background-image');
-      glpiLogo.style.removeProperty('background-repeat');
-      glpiLogo.style.removeProperty('background-position');
-      glpiLogo.style.removeProperty('background-size');
-      glpiLogo.style.removeProperty('content');
-    }
-
-    const backgroundUrl = resolveAssetUrl(branding.login_background);
-    if (backgroundUrl && document.querySelector('form[action*="login"], .page-anonymous, .login-box')) {
-      document.body.classList.add('brandpulse-login-branded');
-      document.body.style.setProperty('--brandpulse-login-background', cssUrl(backgroundUrl));
     }
 
     if (branding.login_alert_enabled && branding.login_alert_message) {

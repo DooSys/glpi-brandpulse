@@ -288,46 +288,11 @@ function plugin_brandpulse_brand_asset_filename(string $value): ?string
 
 function plugin_brandpulse_generated_brand_css(): string
 {
-    $css = "/* ============================================================\n";
-    $css .= "   BrandPulse Plugin - Habillage optionnel et sans URL persistante\n";
-    $css .= "   Le plugin pose la classe body.brandpulse-branding-enabled uniquement\n";
-    $css .= "   quand le branding est actif. Sans cette classe, GLPI garde ses logos.\n";
-    $css .= "   ============================================================ */\n\n";
-    $css .= ":root {\n";
-    $css .= "  --brandpulse-sidebar-logo-width: 155px;\n";
-    $css .= "  --brandpulse-sidebar-logo-height: 60px;\n";
-    $css .= "  --brandpulse-sidebar-logo-reduced-size: 48px;\n";
-    $css .= "}\n\n";
-    $css .= "body.brandpulse-branding-enabled .page .glpi-logo {\n";
-    $css .= "  background-image: var(--glpi-logo) !important;\n";
-    $css .= "  background-repeat: no-repeat !important;\n";
-    $css .= "  background-size: contain !important;\n";
-    $css .= "}\n\n";
-    $css .= "body.brandpulse-branding-enabled #navbar-menu .navbar-brand,\nbody.brandpulse-branding-enabled aside.navbar .navbar-brand,\nbody.brandpulse-branding-enabled .navbar-vertical .navbar-brand {\n";
-    $css .= "  min-height: var(--brandpulse-sidebar-logo-height) !important;\n";
-    $css .= "}\n\n";
-    $css .= "body.brandpulse-branding-enabled #navbar-menu .navbar-brand .glpi-logo,\nbody.brandpulse-branding-enabled aside.navbar .navbar-brand .glpi-logo,\nbody.brandpulse-branding-enabled .navbar-vertical .navbar-brand .glpi-logo {\n";
-    $css .= "  width: min(var(--brandpulse-sidebar-logo-width), calc(100% - 1rem)) !important;\n";
-    $css .= "  height: var(--brandpulse-sidebar-logo-height) !important;\n";
-    $css .= "  background-position: center !important;\n";
-    $css .= "}\n\n";
-    $css .= "body.brandpulse-branding-enabled.navbar-collapsed #navbar-menu .navbar-brand .glpi-logo,\nbody.brandpulse-branding-enabled.navbar-collapsed aside.navbar .navbar-brand .glpi-logo,\nbody.brandpulse-branding-enabled.navbar-collapsed .navbar-vertical .navbar-brand .glpi-logo {\n";
-    $css .= "  background-image: var(--glpi-logo-reduced) !important;\n";
-    $css .= "  width: var(--brandpulse-sidebar-logo-reduced-size) !important;\n";
-    $css .= "  height: var(--brandpulse-sidebar-logo-reduced-size) !important;\n";
-    $css .= "}\n\n";
-    $css .= "body.brandpulse-branding-enabled .page-anonymous .glpi-logo {\n";
-    $css .= "  --logo: var(--glpi-logo-dark-login) !important;\n";
-    $css .= "  background: none !important;\n";
-    $css .= "  content: var(--logo) !important;\n";
-    $css .= "  width: 200px !important;\n";
-    $css .= "  height: 110px !important;\n";
-    $css .= "}\n\n";
-    $css .= "html[data-bs-theme=\"dark\"] body.brandpulse-branding-enabled .page-anonymous .glpi-logo,\nbody.brandpulse-branding-enabled.theme-dark .page-anonymous .glpi-logo,\nbody.brandpulse-branding-enabled.dark .page-anonymous .glpi-logo {\n";
-    $css .= "  --logo: var(--glpi-logo-light-login) !important;\n";
-    $css .= "}\n";
-
-    return $css;
+    return "/* BrandPulse does not require GLPI entity CSS anymore.\n"
+        . "   Remove older BrandPulse blocks from entity custom CSS, especially any\n"
+        . "   rule containing /plugins/brandpulse/front/asset.php.\n"
+        . "   Logos are now integrated by /plugins/brandpulse/front/branding.css.php\n"
+        . "   through GLPI native plugin CSS hooks before the first page paint. */\n";
 }
 
 function plugin_brandpulse_brand_asset_status(string $value): array
@@ -661,13 +626,13 @@ if ($tab === 'brand') {
     echo "<div class='brandpulse-brand-main'>";
 
     $installContent = "<div class='brandpulse-brand-install'>";
-    $installContent .= '<p>' . __s('BrandPulse now applies logos from its own active plugin stylesheet. Do not keep an entity CSS block that points directly to BrandPulse image endpoints.', 'brandpulse') . '</p>';
-    $installContent .= '<p class="text-muted">' . __s('This optional CSS contains only safe layout rules. It does not contain plugin image URLs, so GLPI keeps its native logos whenever BrandPulse is inactive or unavailable.', 'brandpulse') . '</p>';
+    $installContent .= '<p>' . __s('BrandPulse now applies logos through a dynamic plugin stylesheet loaded by GLPI before the page is painted.', 'brandpulse') . '</p>';
+    $installContent .= '<p class="text-muted">' . __s('Do not paste BrandPulse logo CSS into GLPI entity customization anymore. Remove older BrandPulse blocks there, especially rules containing BrandPulse asset endpoints.', 'brandpulse') . '</p>';
     $installContent .= "<div class='brandpulse-generated-css-head'>";
-    $installContent .= "<label class='form-label mb-0' for='brandpulse_generated_css'>" . __s('Generated entity CSS', 'brandpulse') . '</label>';
+    $installContent .= "<label class='form-label mb-0' for='brandpulse_generated_css'>" . __s('Legacy entity CSS cleanup note', 'brandpulse') . '</label>';
     $installContent .= "<button class='btn btn-outline-secondary btn-sm' type='button' data-brand-css-copy='#brandpulse_generated_css' data-brand-css-copy-label='" . __s('Copy CSS', 'brandpulse') . "' data-brand-css-copied-label='" . __s('Copied', 'brandpulse') . "' title='" . __s('Copy CSS', 'brandpulse') . "' aria-label='" . __s('Copy CSS', 'brandpulse') . "'><i class='ti ti-copy' aria-hidden='true'></i></button>";
     $installContent .= '</div>';
-    $installContent .= "<textarea class='form-control font-monospace brandpulse-generated-css' id='brandpulse_generated_css' rows='18' readonly spellcheck='false'>" . plugin_brandpulse_h(plugin_brandpulse_generated_brand_css()) . '</textarea>';
+    $installContent .= "<textarea class='form-control font-monospace brandpulse-generated-css' id='brandpulse_generated_css' rows='6' readonly spellcheck='false'>" . plugin_brandpulse_h(plugin_brandpulse_generated_brand_css()) . '</textarea>';
     $installContent .= '</div>';
     echo plugin_brandpulse_brand_section('install', $sections['install']['title'], $sections['install']['description'], $installContent);
 

@@ -53,7 +53,7 @@ En GLPI 11, les ressources statiques du plugin restent stockées dans `public/`,
 
 Les images importées depuis l'onglet Brand ne sont pas stockées dans le dossier du plugin. Elles sont placées dans le stockage document plugin GLPI : `GLPI_PLUGIN_DOC_DIR/brandpulse/brand`, généralement `files/_plugins/brandpulse/brand`. Le plugin les sert ensuite via `/plugins/brandpulse/front/asset.php?file=...`, ce qui permet aux URLs enregistrées de rester valides après une mise à jour du plugin.
 
-Le branding ne doit pas dépendre d'un bloc CSS d'entité GLPI contenant des URLs d'image BrandPulse permanentes. BrandPulse charge sa propre feuille de style quand le plugin est actif, pose la classe `brandpulse-branding-enabled` seulement quand le branding est activé, puis renseigne les variables de logo GLPI. Si le plugin est désactivé, indisponible ou en attente de mise à jour, cette classe n'est plus présente et GLPI retrouve ses logos natifs.
+Le branding ne dépend pas d'un bloc CSS d'entité GLPI contenant des URLs d'image BrandPulse permanentes. BrandPulse charge une feuille CSS dynamique via les hooks CSS natifs du plugin GLPI, avant le rendu de la page, puis renseigne les variables de logo GLPI (`--glpi-logo-*`) depuis sa configuration. Si le plugin est désactivé, indisponible ou en attente de mise à jour, cette feuille n'est plus chargée et GLPI retrouve ses logos natifs.
 
 Pulse est conçu pour l'interface `central` de GLPI : techniciens, administrateurs, superviseurs, modérateurs et profils équivalents. Le endpoint AJAX vérifie l'interface courante GLPI avant de renvoyer les compteurs, afin de ne pas injecter la barre Pulse ni l'option de recherche compacte dans le portail helpdesk/self-service ou catalogue.
 

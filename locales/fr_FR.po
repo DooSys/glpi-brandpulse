@@ -333,14 +333,14 @@ msgstr "Installer BrandPulse"
 msgid "Generated CSS for GLPI entity interface customization."
 msgstr "CSS généré pour la personnalisation d'interface d'une entité GLPI."
 
-msgid "BrandPulse now applies logos from its own active plugin stylesheet. Do not keep an entity CSS block that points directly to BrandPulse image endpoints."
-msgstr "BrandPulse applique maintenant les logos depuis sa propre feuille de style active. Ne gardez pas de bloc CSS d'entité qui pointe directement vers les endpoints d'image BrandPulse."
+msgid "BrandPulse now applies logos through a dynamic plugin stylesheet loaded by GLPI before the page is painted."
+msgstr "BrandPulse applique maintenant les logos via une feuille de style dynamique du plugin, chargee par GLPI avant l'affichage de la page."
 
-msgid "This optional CSS contains only safe layout rules. It does not contain plugin image URLs, so GLPI keeps its native logos whenever BrandPulse is inactive or unavailable."
-msgstr "Ce CSS optionnel contient seulement des règles de mise en page sûres. Il ne contient aucune URL d'image du plugin, donc GLPI conserve ses logos natifs quand BrandPulse est inactif ou indisponible."
+msgid "Do not paste BrandPulse logo CSS into GLPI entity customization anymore. Remove older BrandPulse blocks there, especially rules containing BrandPulse asset endpoints."
+msgstr "Ne collez plus de CSS de logo BrandPulse dans la personnalisation d'entite GLPI. Supprimez les anciens blocs BrandPulse, surtout les regles contenant des endpoints d'assets BrandPulse."
 
-msgid "Generated entity CSS"
-msgstr "CSS d'entité généré"
+msgid "Legacy entity CSS cleanup note"
+msgstr "Note de nettoyage de l'ancien CSS d'entite"
 
 msgid "Copy CSS"
 msgstr "Copier le CSS"

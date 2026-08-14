@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.34
+
+- Load Brand logo variables through a dynamic plugin CSS endpoint registered in GLPI CSS hooks so logos are available before first page paint.
+- Stop using JavaScript to set GLPI logo CSS variables, avoiding the native GLPI logo flash on page navigation.
+- Reframe the Brand install panel as a cleanup note for old entity CSS snippets instead of a CSS block to paste.
+
 ## 0.1.33
 
 - Keep generated GLPI entity CSS free of BrandPulse image endpoint URLs so native GLPI logos return cleanly when the plugin is inactive or unavailable.
