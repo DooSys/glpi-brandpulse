@@ -273,11 +273,11 @@ msgstr "This switch must be enabled before logos, favicon, login background and 
 msgid "Square icon. Recommended source: 64 x 64 px or SVG."
 msgstr "Square icon. Recommended source: 64 x 64 px or SVG."
 
-msgid "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px, SVG, PNG or WebP."
-msgstr "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px, SVG, PNG or WebP."
+msgid "Displayed by BrandPulse at up to 180 x 68 px. Recommended source: 360 x 136 px, SVG, PNG or WebP."
+msgstr "Displayed by BrandPulse at up to 180 x 68 px. Recommended source: 360 x 136 px, SVG, PNG or WebP."
 
-msgid "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px, SVG, PNG or WebP."
-msgstr "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px, SVG, PNG or WebP."
+msgid "Displayed by BrandPulse at 52 x 52 px. Recommended source: 104 x 104 px, SVG, PNG or WebP."
+msgstr "Displayed by BrandPulse at 52 x 52 px. Recommended source: 104 x 104 px, SVG, PNG or WebP."
 
 msgid "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px, SVG, PNG or WebP."
 msgstr "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px, SVG, PNG or WebP."
@@ -305,27 +305,6 @@ msgstr "Move up"
 
 msgid "Move down"
 msgstr "Move down"
-
-msgid "Install BrandPulse"
-msgstr "Install BrandPulse"
-
-msgid "Generated CSS for GLPI entity interface customization."
-msgstr "Generated CSS for GLPI entity interface customization."
-
-msgid "BrandPulse now applies logos through a dynamic plugin stylesheet loaded by GLPI before the page is painted."
-msgstr "BrandPulse now applies logos through a dynamic plugin stylesheet loaded by GLPI before the page is painted."
-
-msgid "Do not paste BrandPulse logo CSS into GLPI entity customization anymore. Remove older BrandPulse blocks there, especially rules containing BrandPulse asset endpoints."
-msgstr "Do not paste BrandPulse logo CSS into GLPI entity customization anymore. Remove older BrandPulse blocks there, especially rules containing BrandPulse asset endpoints."
-
-msgid "Legacy entity CSS cleanup note"
-msgstr "Legacy entity CSS cleanup note"
-
-msgid "Copy CSS"
-msgstr "Copy CSS"
-
-msgid "Copied"
-msgstr "Copied"
 
 msgid "Wrench"
 msgstr "Wrench"

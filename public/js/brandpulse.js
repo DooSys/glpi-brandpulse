@@ -15,7 +15,6 @@
   const brandingEndpoint = pluginBaseUrl + '/ajax/branding.php';
   const iconIndexEndpoint = pluginBaseUrl + '/ajax/icons.php';
   const iconStaticIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';
-  const iconBaseEndpoint = pluginBaseUrl + '/icons/pulse/';
   const iconAssetEndpoint = pluginBaseUrl + '/ajax/icon.php?file=';
 
   const t = (message) => (typeof window.__ === 'function' ? window.__(message, 'brandpulse') : message);
@@ -158,8 +157,6 @@
 
     return container;
   };
-
-  const encodeIconPath = (path) => path.split('/').map((part) => encodeURIComponent(part)).join('/');
 
   const resolveIconUrl = (icon) => {
     if (!icon) {
@@ -806,49 +803,6 @@
     });
   };
 
-  const setupGeneratedCssCopy = () => {
-    for (const button of document.querySelectorAll('[data-brand-css-copy]')) {
-      button.addEventListener('click', async () => {
-        const selector = button.dataset.brandCssCopy || '';
-        if (!selector) {
-          return;
-        }
-
-        const target = document.querySelector(selector);
-        const value = target?.value || target?.textContent || '';
-        if (!value) {
-          return;
-        }
-
-        try {
-          if (navigator.clipboard?.writeText) {
-            await navigator.clipboard.writeText(value);
-          } else if (target instanceof HTMLTextAreaElement || target instanceof HTMLInputElement) {
-            target.focus();
-            target.select();
-            document.execCommand('copy');
-          }
-
-          const copiedLabel = button.dataset.brandCssCopiedLabel || 'Copied';
-          button.classList.add('is-copied');
-          button.title = copiedLabel;
-          button.setAttribute('aria-label', copiedLabel);
-          button.querySelector('i')?.classList.replace('ti-copy', 'ti-check');
-
-          window.setTimeout(() => {
-            const copyLabel = button.dataset.brandCssCopyLabel || 'Copy CSS';
-            button.classList.remove('is-copied');
-            button.title = copyLabel;
-            button.setAttribute('aria-label', copyLabel);
-            button.querySelector('i')?.classList.replace('ti-check', 'ti-copy');
-          }, 1600);
-        } catch (error) {
-          window.console?.debug?.(t('BrandPulse CSS copy unavailable'), error);
-        }
-      });
-    }
-  };
-
   const setupBrandingCacheInvalidation = () => {
     const enabledToggle = document.getElementById('brand_enabled');
     const form = enabledToggle?.closest('form');
@@ -923,7 +877,6 @@
     setupPulseTargets();
     setupPulseTableControls();
     setupIconPickerModal();
-    setupGeneratedCssCopy();
     setupBrandingCacheInvalidation();
     const cachedBranding = cachedBrandingPayload();
     if (cachedBranding) {

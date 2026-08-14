@@ -100,9 +100,9 @@ function plugin_brandpulse_branding_css(): string
     $css .= plugin_brandpulse_branding_css_var('--glpi-logo-dark-login', $loginDark);
     $css .= "  --glpi-logo: var(--glpi-logo-light) !important;\n";
     $css .= "  --glpi-logo-reduced: var(--glpi-logo-light-reduced) !important;\n";
-    $css .= "  --brandpulse-sidebar-logo-width: 155px;\n";
-    $css .= "  --brandpulse-sidebar-logo-height: 60px;\n";
-    $css .= "  --brandpulse-sidebar-logo-reduced-size: 48px;\n";
+    $css .= "  --brandpulse-sidebar-logo-width: 180px;\n";
+    $css .= "  --brandpulse-sidebar-logo-height: 68px;\n";
+    $css .= "  --brandpulse-sidebar-logo-reduced-size: 52px;\n";
     $css .= "}\n\n";
     $css .= ":root[data-glpi-theme-dark=\"1\"] {\n";
     $css .= "  --glpi-logo: var(--glpi-logo-dark) !important;\n";

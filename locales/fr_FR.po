@@ -294,11 +294,11 @@ msgstr "Cet interrupteur doit être activé pour appliquer les logos, le favicon
 msgid "Square icon. Recommended source: 64 x 64 px or SVG."
 msgstr "Icône carrée. Source recommandée : 64 x 64 px ou SVG."
 
-msgid "Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px, SVG, PNG or WebP."
-msgstr "Affiché par GLPI 11 en 100 x 55 px. Source recommandée : 200 x 110 px, SVG, PNG ou WebP."
+msgid "Displayed by BrandPulse at up to 180 x 68 px. Recommended source: 360 x 136 px, SVG, PNG or WebP."
+msgstr "Affiche par BrandPulse jusqu'a 180 x 68 px. Source recommandee : 360 x 136 px, SVG, PNG ou WebP."
 
-msgid "Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px, SVG, PNG or WebP."
-msgstr "Affiché par GLPI 11 en 40 x 40 px. Source recommandée : 80 x 80 px, SVG, PNG ou WebP."
+msgid "Displayed by BrandPulse at 52 x 52 px. Recommended source: 104 x 104 px, SVG, PNG or WebP."
+msgstr "Affiche par BrandPulse en 52 x 52 px. Source recommandee : 104 x 104 px, SVG, PNG ou WebP."
 
 msgid "Displayed by GLPI 11 at 200 x 110 px. Recommended source: 400 x 220 px, SVG, PNG or WebP."
 msgstr "Affiché par GLPI 11 en 200 x 110 px. Source recommandée : 400 x 220 px, SVG, PNG ou WebP."
@@ -326,27 +326,6 @@ msgstr "Monter"
 
 msgid "Move down"
 msgstr "Descendre"
-
-msgid "Install BrandPulse"
-msgstr "Installer BrandPulse"
-
-msgid "Generated CSS for GLPI entity interface customization."
-msgstr "CSS généré pour la personnalisation d'interface d'une entité GLPI."
-
-msgid "BrandPulse now applies logos through a dynamic plugin stylesheet loaded by GLPI before the page is painted."
-msgstr "BrandPulse applique maintenant les logos via une feuille de style dynamique du plugin, chargee par GLPI avant l'affichage de la page."
-
-msgid "Do not paste BrandPulse logo CSS into GLPI entity customization anymore. Remove older BrandPulse blocks there, especially rules containing BrandPulse asset endpoints."
-msgstr "Ne collez plus de CSS de logo BrandPulse dans la personnalisation d'entite GLPI. Supprimez les anciens blocs BrandPulse, surtout les regles contenant des endpoints d'assets BrandPulse."
-
-msgid "Legacy entity CSS cleanup note"
-msgstr "Note de nettoyage de l'ancien CSS d'entite"
-
-msgid "Copy CSS"
-msgstr "Copier le CSS"
-
-msgid "Copied"
-msgstr "Copié"
 
 msgid "Target"
 msgstr "Cible"

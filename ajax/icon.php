@@ -22,6 +22,26 @@ if ($path === false || !is_file($path) || !str_starts_with($path, $baseDirectory
     exit;
 }
 
-Html::header_nocache();
+$mtime = (int) filemtime($path);
+$size = (int) filesize($path);
+$etag = '"' . sha1($file . '|' . $mtime . '|' . $size) . '"';
+$lastModified = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
+
+if (
+    trim((string) ($_SERVER['HTTP_IF_NONE_MATCH'] ?? '')) === $etag
+    || strtotime((string) ($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '')) >= $mtime
+) {
+    http_response_code(304);
+    header('ETag: ' . $etag);
+    header('Last-Modified: ' . $lastModified);
+    header('Cache-Control: public, max-age=31536000, immutable');
+    exit;
+}
+
 header('Content-Type: image/svg+xml; charset=UTF-8');
+header('ETag: ' . $etag);
+header('Last-Modified: ' . $lastModified);
+header('Cache-Control: public, max-age=31536000, immutable');
+header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
+header('Content-Length: ' . $size);
 readfile($path);

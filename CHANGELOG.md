@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.35
+
+- Cache bundled Pulse SVG icons with ETag, Last-Modified and immutable browser cache headers so icons are not refetched on every page navigation.
+- Remove the obsolete Install BrandPulse panel now that branding is applied through the dynamic plugin CSS endpoint.
+- Increase the Brand sidebar logo display area for expanded and collapsed menus.
+
 ## 0.1.34
 
 - Load Brand logo variables through a dynamic plugin CSS endpoint registered in GLPI CSS hooks so logos are available before first page paint.

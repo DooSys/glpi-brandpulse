@@ -104,7 +104,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png', 'webp'],
             'accept' => 'image/svg+xml,image/png,image/webp',
-            'dimensions' => 'Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px, SVG, PNG or WebP.',
+            'dimensions' => 'Displayed by BrandPulse at up to 180 x 68 px. Recommended source: 360 x 136 px, SVG, PNG or WebP.',
         ],
         'logo_sidebar_expanded_dark' => [
             'section' => 'sidebar',
@@ -112,7 +112,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png', 'webp'],
             'accept' => 'image/svg+xml,image/png,image/webp',
-            'dimensions' => 'Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px, SVG, PNG or WebP.',
+            'dimensions' => 'Displayed by BrandPulse at up to 180 x 68 px. Recommended source: 360 x 136 px, SVG, PNG or WebP.',
         ],
         'logo_sidebar_expanded_grey' => [
             'section' => 'sidebar',
@@ -120,7 +120,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png', 'webp'],
             'accept' => 'image/svg+xml,image/png,image/webp',
-            'dimensions' => 'Displayed by GLPI 11 at 100 x 55 px. Recommended source: 200 x 110 px, SVG, PNG or WebP.',
+            'dimensions' => 'Displayed by BrandPulse at up to 180 x 68 px. Recommended source: 360 x 136 px, SVG, PNG or WebP.',
         ],
         'logo_sidebar_collapsed_light' => [
             'section' => 'sidebar',
@@ -128,7 +128,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png', 'webp'],
             'accept' => 'image/svg+xml,image/png,image/webp',
-            'dimensions' => 'Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px, SVG, PNG or WebP.',
+            'dimensions' => 'Displayed by BrandPulse at 52 x 52 px. Recommended source: 104 x 104 px, SVG, PNG or WebP.',
         ],
         'logo_sidebar_collapsed_dark' => [
             'section' => 'sidebar',
@@ -136,7 +136,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png', 'webp'],
             'accept' => 'image/svg+xml,image/png,image/webp',
-            'dimensions' => 'Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px, SVG, PNG or WebP.',
+            'dimensions' => 'Displayed by BrandPulse at 52 x 52 px. Recommended source: 104 x 104 px, SVG, PNG or WebP.',
         ],
         'logo_sidebar_collapsed_grey' => [
             'section' => 'sidebar',
@@ -144,7 +144,7 @@ function plugin_brandpulse_brand_asset_fields(): array
             'column' => 'col-xl-4 col-md-6',
             'extensions' => ['svg', 'png', 'webp'],
             'accept' => 'image/svg+xml,image/png,image/webp',
-            'dimensions' => 'Displayed by GLPI 11 at 40 x 40 px. Recommended source: 80 x 80 px, SVG, PNG or WebP.',
+            'dimensions' => 'Displayed by BrandPulse at 52 x 52 px. Recommended source: 104 x 104 px, SVG, PNG or WebP.',
         ],
         'login_logo_light' => [
             'section' => 'login',
@@ -184,7 +184,6 @@ function plugin_brandpulse_brand_asset_fields(): array
 function plugin_brandpulse_brand_asset_sections(): array
 {
     return [
-        'install' => ['title' => 'Install BrandPulse', 'description' => 'Generated CSS for GLPI entity interface customization.'],
         'identity' => ['title' => 'Identity', 'description' => 'Browser title, favicon and global identity assets.'],
         'sidebar' => ['title' => 'Sidebar logos', 'description' => 'Theme-aware logos for expanded and collapsed GLPI navigation.'],
         'login' => ['title' => 'Login page', 'description' => 'Login logos, background and alert message.'],
@@ -284,15 +283,6 @@ function plugin_brandpulse_brand_asset_filename(string $value): ?string
     $file = (string) ($query['file'] ?? '');
 
     return $file !== '' ? basename(str_replace('\\', '/', $file)) : null;
-}
-
-function plugin_brandpulse_generated_brand_css(): string
-{
-    return "/* BrandPulse does not require GLPI entity CSS anymore.\n"
-        . "   Remove older BrandPulse blocks from entity custom CSS, especially any\n"
-        . "   rule containing /plugins/brandpulse/front/asset.php.\n"
-        . "   Logos are now integrated by /plugins/brandpulse/front/branding.css.php\n"
-        . "   through GLPI native plugin CSS hooks before the first page paint. */\n";
 }
 
 function plugin_brandpulse_brand_asset_status(string $value): array
@@ -430,7 +420,7 @@ function plugin_brandpulse_brand_nav(array $sections): string
 {
     $html = "<nav class='brandpulse-brand-nav' aria-label='" . __s('Brand', 'brandpulse') . "'>";
 
-    foreach (['install', 'identity', 'sidebar', 'login', 'diagnostic'] as $sectionKey) {
+    foreach (['identity', 'sidebar', 'login', 'diagnostic'] as $sectionKey) {
         if (!isset($sections[$sectionKey])) {
             continue;
         }
@@ -624,17 +614,6 @@ if ($tab === 'brand') {
     echo "<div class='brandpulse-brand-workspace'>";
     echo plugin_brandpulse_brand_nav($sections);
     echo "<div class='brandpulse-brand-main'>";
-
-    $installContent = "<div class='brandpulse-brand-install'>";
-    $installContent .= '<p>' . __s('BrandPulse now applies logos through a dynamic plugin stylesheet loaded by GLPI before the page is painted.', 'brandpulse') . '</p>';
-    $installContent .= '<p class="text-muted">' . __s('Do not paste BrandPulse logo CSS into GLPI entity customization anymore. Remove older BrandPulse blocks there, especially rules containing BrandPulse asset endpoints.', 'brandpulse') . '</p>';
-    $installContent .= "<div class='brandpulse-generated-css-head'>";
-    $installContent .= "<label class='form-label mb-0' for='brandpulse_generated_css'>" . __s('Legacy entity CSS cleanup note', 'brandpulse') . '</label>';
-    $installContent .= "<button class='btn btn-outline-secondary btn-sm' type='button' data-brand-css-copy='#brandpulse_generated_css' data-brand-css-copy-label='" . __s('Copy CSS', 'brandpulse') . "' data-brand-css-copied-label='" . __s('Copied', 'brandpulse') . "' title='" . __s('Copy CSS', 'brandpulse') . "' aria-label='" . __s('Copy CSS', 'brandpulse') . "'><i class='ti ti-copy' aria-hidden='true'></i></button>";
-    $installContent .= '</div>';
-    $installContent .= "<textarea class='form-control font-monospace brandpulse-generated-css' id='brandpulse_generated_css' rows='6' readonly spellcheck='false'>" . plugin_brandpulse_h(plugin_brandpulse_generated_brand_css()) . '</textarea>';
-    $installContent .= '</div>';
-    echo plugin_brandpulse_brand_section('install', $sections['install']['title'], $sections['install']['description'], $installContent);
 
     echo plugin_brandpulse_brand_section('identity', $sections['identity']['title'], $sections['identity']['description'], $identityContent);
 
