@@ -24,6 +24,8 @@
   let refreshTimer = null;
   const pulseCacheKey = 'brandpulse:pulse-payload:v1';
   const pulseCacheMaxAge = 30 * 60 * 1000;
+  const brandingCacheKey = 'brandpulse:branding-payload:v1';
+  const brandingCacheMaxAge = 30 * 60 * 1000;
 
   const pulseCacheStorage = () => {
     try {
@@ -135,6 +137,10 @@
     }
   };
 
+  const resetCssUrlVariable = (name) => {
+    document.documentElement.style.removeProperty(name);
+  };
+
   const findHeaderTarget = () => {
     const selectors = [
       'body > .page header[data-testid="main-header"] .user-menu',
@@ -233,6 +239,39 @@
       }
       if (Date.now() - Number(cached.stored_at || 0) > pulseCacheMaxAge) {
         pulseCacheStorage()?.removeItem(pulseCacheKey);
+        return null;
+      }
+
+      return cached.payload;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const cacheBrandingPayload = (payload) => {
+    try {
+      if (!payload?.branding?.enabled) {
+        pulseCacheStorage()?.removeItem(brandingCacheKey);
+        return;
+      }
+
+      pulseCacheStorage()?.setItem(brandingCacheKey, JSON.stringify({
+        payload,
+        stored_at: Date.now(),
+      }));
+    } catch (error) {
+      window.console?.debug?.(t('BrandPulse branding unavailable'), error);
+    }
+  };
+
+  const cachedBrandingPayload = () => {
+    try {
+      const cached = JSON.parse(pulseCacheStorage()?.getItem(brandingCacheKey) || 'null');
+      if (!cached?.payload?.branding?.enabled) {
+        return null;
+      }
+      if (Date.now() - Number(cached.stored_at || 0) > brandingCacheMaxAge) {
+        pulseCacheStorage()?.removeItem(brandingCacheKey);
         return null;
       }
 
@@ -421,8 +460,23 @@
   const applyBranding = (payload) => {
     const branding = payload?.branding;
     if (!branding?.enabled) {
+      document.body.classList.remove('brandpulse-branding-enabled', 'brandpulse-login-branded');
+      document.body.style.removeProperty('--brandpulse-login-background');
+      document.querySelector('.brandpulse-login-alert')?.remove();
+      [
+        '--glpi-logo-light',
+        '--glpi-logo-dark',
+        '--glpi-logo',
+        '--glpi-logo-light-reduced',
+        '--glpi-logo-dark-reduced',
+        '--glpi-logo-reduced',
+        '--glpi-logo-light-login',
+        '--glpi-logo-dark-login',
+      ].forEach(resetCssUrlVariable);
       return;
     }
+
+    document.body.classList.add('brandpulse-branding-enabled');
 
     if (branding.title) {
       document.title = branding.title;
@@ -468,53 +522,6 @@
       glpiLogo.style.removeProperty('background-position');
       glpiLogo.style.removeProperty('background-size');
       glpiLogo.style.removeProperty('content');
-    }
-
-    const applyLogoUrl = (targets, url) => {
-      if (!url) {
-        return;
-      }
-
-      for (const target of document.querySelectorAll(targets.join(','))) {
-        if (target instanceof HTMLImageElement) {
-          target.src = url;
-          target.srcset = '';
-        }
-      }
-    };
-
-    applyLogoUrl([
-      'body > .page header[data-testid="main-header"] .navbar-brand .glpi-logo',
-      'body > .page aside.navbar .navbar-brand .glpi-logo',
-      '.page header.navbar .navbar-brand .glpi-logo',
-      '.page aside.navbar .navbar-brand .glpi-logo',
-      'aside .navbar-brand img:not(.logo-sm)',
-      '.navbar-vertical .navbar-brand img:not(.logo-sm)',
-      '#navbar-menu .navbar-brand img:not(.logo-sm)',
-      'aside .navbar-brand-image:not(.logo-sm)',
-      '.navbar-vertical .navbar-brand-image:not(.logo-sm)',
-      '#navbar-menu .navbar-brand-image:not(.logo-sm)',
-    ], sidebarExpandedLogoUrl);
-
-    applyLogoUrl([
-      'body.navbar-collapsed aside.navbar .navbar-brand .glpi-logo',
-      'body.navbar-collapsed .navbar-vertical .navbar-brand .glpi-logo',
-      'aside .navbar-brand img.logo-sm',
-      '.navbar-vertical .navbar-brand img.logo-sm',
-      '#navbar-menu .navbar-brand img.logo-sm',
-      '.navbar-brand .navbar-brand-image-small',
-      '.navbar-brand img[data-logo-size="small"]',
-      '.navbar-brand .logo-sm',
-    ], sidebarCollapsedLogoUrl);
-
-    const loginLogoUrl = resolveAssetUrl(chooseThemeAsset(branding, 'login_logo', branding.login_logo));
-    if (loginLogoUrl) {
-      for (const loginLogo of document.querySelectorAll('.page-anonymous .navbar-brand img, .login-box img, form[action*="login"] img')) {
-        if (loginLogo instanceof HTMLImageElement) {
-          loginLogo.src = loginLogoUrl;
-          loginLogo.srcset = '';
-        }
-      }
     }
 
     const backgroundUrl = resolveAssetUrl(branding.login_background);
@@ -920,6 +927,21 @@
     }
   };
 
+  const setupBrandingCacheInvalidation = () => {
+    const enabledToggle = document.getElementById('brand_enabled');
+    const form = enabledToggle?.closest('form');
+    if (!enabledToggle || !form || form.dataset.brandpulseBrandCacheReady === '1') {
+      return;
+    }
+
+    form.dataset.brandpulseBrandCacheReady = '1';
+    form.addEventListener('submit', () => {
+      if (!enabledToggle.checked) {
+        pulseCacheStorage()?.removeItem(brandingCacheKey);
+      }
+    });
+  };
+
   const scheduleRefresh = (payload) => {
     if (refreshTimer) {
       window.clearTimeout(refreshTimer);
@@ -939,7 +961,9 @@
       });
 
       if (response.ok) {
-        applyBranding(await response.json());
+        const payload = await response.json();
+        cacheBrandingPayload(payload);
+        applyBranding(payload);
       }
     } catch (error) {
       window.console?.debug?.(t('BrandPulse branding unavailable'), error);
@@ -978,6 +1002,11 @@
     setupPulseTableControls();
     setupIconPickerModal();
     setupGeneratedCssCopy();
+    setupBrandingCacheInvalidation();
+    const cachedBranding = cachedBrandingPayload();
+    if (cachedBranding) {
+      applyBranding(cachedBranding);
+    }
     loadBranding();
 
     if (findHeaderTarget()) {

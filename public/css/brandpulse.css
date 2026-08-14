@@ -1,6 +1,9 @@
 :root {
   --brandpulse-icon-color: #1f2937;
   --brandpulse-gap: 0.55rem;
+  --brandpulse-sidebar-logo-width: 155px;
+  --brandpulse-sidebar-logo-height: 60px;
+  --brandpulse-sidebar-logo-reduced-size: 48px;
 }
 
 #brandpulse-header-counters.brandpulse-counters {
@@ -198,6 +201,48 @@ body.brandpulse-login-branded .page-anonymous {
 
 .brandpulse-login-alert {
   margin-bottom: 1rem;
+}
+
+body.brandpulse-branding-enabled .page .glpi-logo {
+  background-image: var(--glpi-logo) !important;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;
+}
+
+body.brandpulse-branding-enabled #navbar-menu .navbar-brand,
+body.brandpulse-branding-enabled aside.navbar .navbar-brand,
+body.brandpulse-branding-enabled .navbar-vertical .navbar-brand {
+  min-height: var(--brandpulse-sidebar-logo-height) !important;
+}
+
+body.brandpulse-branding-enabled #navbar-menu .navbar-brand .glpi-logo,
+body.brandpulse-branding-enabled aside.navbar .navbar-brand .glpi-logo,
+body.brandpulse-branding-enabled .navbar-vertical .navbar-brand .glpi-logo {
+  width: min(var(--brandpulse-sidebar-logo-width), calc(100% - 1rem)) !important;
+  height: var(--brandpulse-sidebar-logo-height) !important;
+  background-position: center !important;
+}
+
+body.brandpulse-branding-enabled.navbar-collapsed #navbar-menu .navbar-brand .glpi-logo,
+body.brandpulse-branding-enabled.navbar-collapsed aside.navbar .navbar-brand .glpi-logo,
+body.brandpulse-branding-enabled.navbar-collapsed .navbar-vertical .navbar-brand .glpi-logo {
+  background-image: var(--glpi-logo-reduced) !important;
+  width: var(--brandpulse-sidebar-logo-reduced-size) !important;
+  height: var(--brandpulse-sidebar-logo-reduced-size) !important;
+}
+
+body.brandpulse-branding-enabled .page-anonymous .glpi-logo {
+  --logo: var(--glpi-logo-dark-login) !important;
+  background: none !important;
+  content: var(--logo) !important;
+  width: 200px !important;
+  height: 110px !important;
+}
+
+html[data-bs-theme="dark"] body.brandpulse-branding-enabled .page-anonymous .glpi-logo,
+body.brandpulse-branding-enabled.theme-dark .page-anonymous .glpi-logo,
+body.brandpulse-branding-enabled.dark .page-anonymous .glpi-logo {
+  --logo: var(--glpi-logo-light-login) !important;
 }
 
 

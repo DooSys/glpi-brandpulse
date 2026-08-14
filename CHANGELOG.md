@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.33
+
+- Keep generated GLPI entity CSS free of BrandPulse image endpoint URLs so native GLPI logos return cleanly when the plugin is inactive or unavailable.
+- Cache imported Brand image files through their immutable `front/asset.php?file=...` URLs while keeping `field` endpoints dynamic.
+- Apply Brand logo layout only while the active plugin JavaScript has marked the page as BrandPulse-branded.
+
 ## 0.1.32
 
 - Stop applying login logos directly on GLPI `.glpi-logo` spans to avoid duplicated logo rendering on the login page.

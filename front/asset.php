@@ -65,6 +65,11 @@ function plugin_brandpulse_asset_field_value(string $field): string
         : '';
 }
 
+function plugin_brandpulse_asset_public_file_url(string $filename): string
+{
+    return GlpiPlugin\Brandpulse\BrandAssetStore::assetUrl($filename);
+}
+
 $field = (string) ($_GET['field'] ?? '');
 if ($field !== '') {
     global $CFG_GLPI;
@@ -88,12 +93,15 @@ if ($field !== '') {
     if ($filename === '') {
         if (preg_match('/^(https?:)?\/\//', $value) || str_starts_with($value, 'data:') || str_starts_with($value, '/')) {
             Html::redirect($value);
+            exit;
         }
 
         Html::redirect(rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/' . ltrim($value, '/'));
+        exit;
     }
 
-    $_GET['file'] = $filename;
+    Html::redirect(plugin_brandpulse_asset_public_file_url($filename));
+    exit;
 }
 
 $filename = (string) ($_GET['file'] ?? '');
@@ -115,7 +123,25 @@ $contentTypes = [
     'ico' => 'image/x-icon',
 ];
 
-Html::header_nocache();
+$mtime = (int) filemtime($path);
+$etag = '"' . sha1($path . '|' . $mtime . '|' . filesize($path)) . '"';
+$lastModified = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
+
+if (
+    trim((string) ($_SERVER['HTTP_IF_NONE_MATCH'] ?? '')) === $etag
+    || strtotime((string) ($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '')) >= $mtime
+) {
+    http_response_code(304);
+    header('ETag: ' . $etag);
+    header('Last-Modified: ' . $lastModified);
+    header('Cache-Control: public, max-age=31536000, immutable');
+    exit;
+}
+
 header('Content-Type: ' . ($contentTypes[$extension] ?? 'application/octet-stream'));
+header('ETag: ' . $etag);
+header('Last-Modified: ' . $lastModified);
+header('Cache-Control: public, max-age=31536000, immutable');
+header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
 header('Content-Length: ' . filesize($path));
 readfile($path);
