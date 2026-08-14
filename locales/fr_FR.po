@@ -497,3 +497,36 @@ msgstr "L'alerte login est appliquée sur les pages anonymes GLPI lorsque les pe
 
 msgid "Alert message"
 msgstr "Message d'alerte"
+
+msgid "Default settings"
+msgstr "Réglages par défaut"
+
+msgid "Message formatting"
+msgstr "Mise en forme du message"
+
+msgid "Heading"
+msgstr "Titre"
+
+msgid "Bold"
+msgstr "Gras"
+
+msgid "Bullet list"
+msgstr "Liste à puces"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Link"
+msgstr "Lien"
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "important text"
+msgstr "texte important"
+
+msgid "List item"
+msgstr "Élément de liste"
+
+msgid "link label"
+msgstr "libellé du lien"

@@ -194,6 +194,7 @@
   })[char]);
 
   const renderInlineMarkdown = (value) => escapeHtml(value)
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
@@ -904,6 +905,43 @@
     });
   };
 
+  const wrapSelection = (textarea, before, after = before, placeholder = '') => {
+    const start = textarea.selectionStart ?? textarea.value.length;
+    const end = textarea.selectionEnd ?? textarea.value.length;
+    const selected = textarea.value.slice(start, end) || placeholder;
+    textarea.setRangeText(before + selected + after, start, end, 'select');
+    textarea.focus();
+  };
+
+  const setupAlertFormattingToolbar = () => {
+    const toolbar = document.querySelector('.brandpulse-alert-toolbar');
+    const textarea = document.querySelector('.brandpulse-alert-message');
+    if (!toolbar || !textarea || toolbar.dataset.ready === '1') {
+      return;
+    }
+
+    toolbar.dataset.ready = '1';
+    toolbar.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-alert-format]');
+      if (!button) {
+        return;
+      }
+
+      const format = button.dataset.alertFormat;
+      if (format === 'heading') {
+        wrapSelection(textarea, '# ', '', t('Title'));
+      } else if (format === 'bold') {
+        wrapSelection(textarea, '**', '**', t('important text'));
+      } else if (format === 'list') {
+        wrapSelection(textarea, '- ', '', t('List item'));
+      } else if (format === 'code') {
+        wrapSelection(textarea, '`', '`', t('Code'));
+      } else if (format === 'link') {
+        wrapSelection(textarea, '[', '](https://)', t('link label'));
+      }
+    });
+  };
+
   const scheduleRefresh = (payload) => {
     if (refreshTimer) {
       window.clearTimeout(refreshTimer);
@@ -964,6 +1002,7 @@
     setupPulseTableControls();
     setupIconPickerModal();
     setupBrandingCacheInvalidation();
+    setupAlertFormattingToolbar();
     const cachedBranding = cachedBrandingPayload();
     if (cachedBranding) {
       applyBranding(cachedBranding);

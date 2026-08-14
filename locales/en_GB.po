@@ -497,3 +497,36 @@ msgstr "The login alert is applied on anonymous GLPI pages when Brand customizat
 
 msgid "Alert message"
 msgstr "Alert message"
+
+msgid "Default settings"
+msgstr "Default settings"
+
+msgid "Message formatting"
+msgstr "Message formatting"
+
+msgid "Heading"
+msgstr "Heading"
+
+msgid "Bold"
+msgstr "Bold"
+
+msgid "Bullet list"
+msgstr "Bullet list"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Link"
+msgstr "Link"
+
+msgid "Title"
+msgstr "Title"
+
+msgid "important text"
+msgstr "important text"
+
+msgid "List item"
+msgstr "List item"
+
+msgid "link label"
+msgstr "link label"

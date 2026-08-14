@@ -130,8 +130,9 @@ function plugin_brandpulse_branding_css(): string
     $css .= "  --logo: var(--glpi-logo-dark-login) !important;\n";
     $css .= "  background: none !important;\n";
     $css .= "  content: var(--logo) !important;\n";
-    $css .= "  width: 200px !important;\n";
-    $css .= "  height: 110px !important;\n";
+    $css .= "  width: min(280px, 72vw) !important;\n";
+    $css .= "  height: 145px !important;\n";
+    $css .= "  object-fit: contain !important;\n";
     $css .= "}\n\n";
     $css .= ":root[data-glpi-theme-dark=\"1\"] .page-anonymous .glpi-logo {\n";
     $css .= "  --logo: var(--glpi-logo-light-login) !important;\n";
@@ -139,10 +140,16 @@ function plugin_brandpulse_branding_css(): string
 
     $backgroundUrl = plugin_brandpulse_branding_css_url($loginBackground);
     if ($backgroundUrl !== '') {
-        $css .= "\n.page-anonymous {\n";
+        $css .= "\nhtml:has(.page-anonymous),\nbody:has(.page-anonymous),\nbody.page-anonymous,\n.page-anonymous {\n";
+        $css .= "  min-height: 100vh !important;\n";
         $css .= "  background-image: " . $backgroundUrl . " !important;\n";
         $css .= "  background-position: center !important;\n";
         $css .= "  background-size: cover !important;\n";
+        $css .= "  background-repeat: no-repeat !important;\n";
+        $css .= "  background-attachment: fixed !important;\n";
+        $css .= "}\n";
+        $css .= ".page-anonymous,\n.page-anonymous .page,\n.page-anonymous main {\n";
+        $css .= "  min-height: 100vh !important;\n";
         $css .= "}\n";
     }
 

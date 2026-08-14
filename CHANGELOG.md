@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.39
+
+- Make the login background cover the full anonymous page and increase the login logo size.
+- Simplify the Login alert tab by removing the duplicate alert visibility switch and adding a lightweight markdown toolbar.
+- Move Pulse refresh and compact-search options into a dedicated Default settings block above the Pulse counters table.
+
 ## 0.1.38
 
 - Clear GLPI translation cache during BrandPulse install/update/uninstall so old corrupted locale catalogs cannot keep rendering mixed labels.
