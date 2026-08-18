@@ -482,12 +482,12 @@ function plugin_brandpulse_brand_nav(array $sections): string
     return $html . '</nav>';
 }
 
-function plugin_brandpulse_brand_section(string $id, string $title, string $description, string $content): string
+function plugin_brandpulse_brand_section(string $id, string $title, string $description, string $content, bool $open = false): string
 {
-    return "<section class='brandpulse-brand-section' id='brandpulse-brand-" . plugin_brandpulse_h($id) . "'>"
-        . "<div class='brandpulse-brand-section-head'><strong>" . __s($title, 'brandpulse') . "</strong><span>" . __s($description, 'brandpulse') . "</span></div>"
-        . $content
-        . '</section>';
+    return "<details class='brandpulse-brand-section' id='brandpulse-brand-" . plugin_brandpulse_h($id) . "'" . ($open ? ' open' : '') . '>'
+        . "<summary class='brandpulse-brand-section-head'><span><strong>" . __s($title, 'brandpulse') . "</strong><small>" . __s($description, 'brandpulse') . "</small></span><i class='ti ti-chevron-down' aria-hidden='true'></i></summary>"
+        . "<div class='brandpulse-brand-section-content'>" . $content . '</div>'
+        . '</details>';
 }
 
 function plugin_brandpulse_brand_diagnostic(array $fields, array $branding): string
@@ -668,7 +668,7 @@ if ($tab === 'brand') {
     echo plugin_brandpulse_brand_nav($sections);
     echo "<div class='brandpulse-brand-main'>";
 
-    echo plugin_brandpulse_brand_section('identity', $sections['identity']['title'], $sections['identity']['description'], $identityContent);
+    echo plugin_brandpulse_brand_section('identity', $sections['identity']['title'], $sections['identity']['description'], $identityContent, true);
 
     $sidebarContent = "<div class='row g-3'>";
     foreach ($assetFields as $field => $fieldConfig) {

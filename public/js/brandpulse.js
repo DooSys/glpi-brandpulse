@@ -942,6 +942,24 @@
     });
   };
 
+  const setupBrandSectionNavigation = () => {
+    const openTarget = (hash) => {
+      if (!hash?.startsWith('#brandpulse-brand-')) {
+        return;
+      }
+
+      const section = document.getElementById(hash.slice(1));
+      if (section?.matches('details.brandpulse-brand-section')) {
+        section.open = true;
+      }
+    };
+
+    document.querySelector('.brandpulse-brand-nav')?.addEventListener('click', (event) => {
+      openTarget(event.target.closest('a[href^="#brandpulse-brand-"]')?.hash);
+    });
+    openTarget(window.location.hash);
+  };
+
   const scheduleRefresh = (payload) => {
     if (refreshTimer) {
       window.clearTimeout(refreshTimer);
@@ -1004,6 +1022,7 @@
     setupIconPickerModal();
     setupBrandingCacheInvalidation();
     setupAlertFormattingToolbar();
+    setupBrandSectionNavigation();
     const cachedBranding = cachedBrandingPayload();
     if (cachedBranding) {
       applyBranding(cachedBranding);

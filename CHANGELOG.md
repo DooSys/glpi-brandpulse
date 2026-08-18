@@ -2,6 +2,7 @@
 
 ## 0.1.40
 
+- Present Brand image groups as lighter collapsible sections and keep anchored headings below the GLPI header.
 - Align Pulse default-setting labels and place both controls consistently after their text.
 - Cache contextual Pulse counter results for 15 seconds and stagger browser refreshes to reduce simultaneous GLPI searches.
 - Reuse saved-search data within each request instead of loading it twice.
