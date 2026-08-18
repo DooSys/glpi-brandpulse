@@ -741,8 +741,8 @@ if ($tab === 'brand') {
     echo "<div class='card-body brandpulse-defaults-body'>";
     echo "<label class='brandpulse-refresh-control'><span>" . __s('Counter refresh interval, in seconds', 'brandpulse') . "</span><input class='form-control' type='number' min='15' name='refresh_interval' value='" . (int) $config['refresh_interval'] . "'></label>";
     echo "<label class='brandpulse-search-control'>";
+    echo "<span class='brandpulse-option-label'><span class='brandpulse-search-option-icon' aria-hidden='true'></span><span>" . __s('Minimize the global search field to a magnifier icon', 'brandpulse') . '</span></span>';
     echo "<input class='form-check-input' id='compact_search_enabled' type='checkbox' name='compact_search_enabled' value='1'" . ($config['compact_search_enabled'] ? ' checked' : '') . '> ';
-    echo "<span class='brandpulse-search-option-icon' aria-hidden='true'></span><span>" . __s('Minimize the global search field to a magnifier icon', 'brandpulse') . '</span>';
     echo '</label>';
     echo '</div>';
     echo '</div>';

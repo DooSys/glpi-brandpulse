@@ -773,10 +773,10 @@ body.dark #brandpulse-header-counters.brandpulse-counters {
 }
 
 .brandpulse-defaults-body {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.85rem;
-  align-items: center;
+  align-items: stretch;
 }
 
 .brandpulse-pulse-card {
@@ -807,7 +807,8 @@ body.dark #brandpulse-header-counters.brandpulse-counters {
 
 .brandpulse-refresh-control,
 .brandpulse-search-control {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.55rem;
   align-items: center;
   min-height: 2.65rem;
@@ -818,10 +819,17 @@ body.dark #brandpulse-header-counters.brandpulse-counters {
   border-radius: 0.45rem;
 }
 
-.brandpulse-refresh-control span,
-.brandpulse-search-control span:last-child {
+.brandpulse-refresh-control > span,
+.brandpulse-option-label > span:last-child {
   font-size: 0.82rem;
   font-weight: 750;
+}
+
+.brandpulse-option-label {
+  display: inline-flex;
+  gap: 0.55rem;
+  align-items: center;
+  min-width: 0;
 }
 
 .brandpulse-refresh-control input {
@@ -968,6 +976,10 @@ body.dark #brandpulse-header-counters.brandpulse-counters {
 }
 
 @media (max-width: 720px) {
+  .brandpulse-defaults-body {
+    grid-template-columns: 1fr;
+  }
+
   .brandpulse-brand-enable-panel,
   .brandpulse-brand-diagnostic-box summary,
   .brandpulse-brand-preview {
