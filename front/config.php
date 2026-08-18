@@ -215,12 +215,39 @@ function plugin_brandpulse_unsupported_image_error(string $label): RuntimeExcept
 function plugin_brandpulse_validate_svg_upload(string $tmpName, string $label): void
 {
     $content = (string) file_get_contents($tmpName);
-    if (!preg_match('/<svg[\s>]/i', $content)) {
+    if ($content === '' || str_contains($content, '<!DOCTYPE')) {
         throw plugin_brandpulse_unsupported_image_error($label);
     }
 
-    if (preg_match('/<script\b|\bon[a-z]+\s*=|javascript:/i', $content)) {
+    $previous = libxml_use_internal_errors(true);
+    $document = new DOMDocument();
+    $loaded = $document->loadXML($content, LIBXML_NONET | LIBXML_NOBLANKS | LIBXML_NOERROR | LIBXML_NOWARNING);
+    libxml_clear_errors();
+    libxml_use_internal_errors($previous);
+
+    if (!$loaded || strtolower((string) $document->documentElement?->localName) !== 'svg') {
         throw plugin_brandpulse_unsupported_image_error($label);
+    }
+
+    $blockedElements = ['script', 'foreignobject', 'iframe', 'object', 'embed', 'audio', 'video'];
+    foreach ($document->getElementsByTagName('*') as $element) {
+        if (in_array(strtolower($element->localName), $blockedElements, true)) {
+            throw plugin_brandpulse_unsupported_image_error($label);
+        }
+
+        foreach ($element->attributes ?? [] as $attribute) {
+            $name = strtolower($attribute->localName);
+            $value = html_entity_decode(trim($attribute->value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            if (str_starts_with($name, 'on')) {
+                throw plugin_brandpulse_unsupported_image_error($label);
+            }
+            if (in_array($name, ['href', 'src'], true) && preg_match('/^\s*(?:javascript:|data:|https?:|\/\/)/i', $value)) {
+                throw plugin_brandpulse_unsupported_image_error($label);
+            }
+            if ($name === 'style' && preg_match('/(?:url\s*\(|expression\s*\(|@import)/i', $value)) {
+                throw plugin_brandpulse_unsupported_image_error($label);
+            }
+        }
     }
 }
 
@@ -251,6 +278,22 @@ function plugin_brandpulse_import_brand_asset(string $field, array $fieldConfig)
     $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
     $allowedExtensions = is_array($fieldConfig['extensions'] ?? null) ? $fieldConfig['extensions'] : [];
     if (!in_array($extension, $allowedExtensions, true)) {
+        throw plugin_brandpulse_unsupported_image_error($label);
+    }
+
+    $mime = class_exists(finfo::class)
+        ? (string) (new finfo(FILEINFO_MIME_TYPE))->file($tmpName)
+        : '';
+    $allowedMimes = [
+        'png' => ['image/png'],
+        'jpg' => ['image/jpeg'],
+        'jpeg' => ['image/jpeg'],
+        'gif' => ['image/gif'],
+        'webp' => ['image/webp'],
+        'ico' => ['image/x-icon', 'image/vnd.microsoft.icon', 'application/octet-stream'],
+        'svg' => ['image/svg+xml', 'text/xml', 'application/xml', 'text/plain'],
+    ];
+    if ($mime !== '' && !in_array($mime, $allowedMimes[$extension] ?? [], true)) {
         throw plugin_brandpulse_unsupported_image_error($label);
     }
 

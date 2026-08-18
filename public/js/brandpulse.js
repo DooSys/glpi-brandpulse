@@ -948,7 +948,8 @@
     }
 
     const interval = Math.max(15, Number(payload.refresh_interval || 60)) * 1000;
-    refreshTimer = window.setTimeout(loadCounters, interval);
+    const jitter = 0.9 + (Math.random() * 0.2);
+    refreshTimer = window.setTimeout(loadCounters, Math.round(interval * jitter));
   };
 
   async function loadBranding() {

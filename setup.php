@@ -101,6 +101,11 @@ function plugin_brandpulse_check_prerequisites(): bool
         return false;
     }
 
+    if (defined('GLPI_VERSION') && version_compare(GLPI_VERSION, PLUGIN_BRANDPULSE_MAX_GLPI, '>=')) {
+        echo 'This plugin requires GLPI older than ' . PLUGIN_BRANDPULSE_MAX_GLPI . '.';
+        return false;
+    }
+
     return true;
 }
 

@@ -139,6 +139,8 @@ if (
 }
 
 header('Content-Type: ' . ($contentTypes[$extension] ?? 'application/octet-stream'));
+header('X-Content-Type-Options: nosniff');
+header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; sandbox");
 header('ETag: ' . $etag);
 header('Last-Modified: ' . $lastModified);
 header('Cache-Control: public, max-age=31536000, immutable');

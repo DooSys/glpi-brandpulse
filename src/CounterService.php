@@ -6,7 +6,12 @@ namespace GlpiPlugin\Brandpulse;
 
 final class CounterService
 {
+    private const CACHE_TTL = 15;
+
     private int $userId;
+
+    /** @var array<int, array{itemtype: string, params: array}|null> */
+    private array $savedSearchCache = [];
 
     public function __construct(?int $userId = null)
     {
@@ -36,6 +41,11 @@ final class CounterService
 
     private function getCounters(array $definitions): array
     {
+        $cached = $this->getCachedCounters($definitions);
+        if ($cached !== null) {
+            return $cached;
+        }
+
         $counters = [];
 
         foreach ($definitions as $definition) {
@@ -58,6 +68,8 @@ final class CounterService
                 'href' => $this->href($definition, $count),
             ];
         }
+
+        $this->cacheCounters($definitions, $counters);
 
         return $counters;
     }
@@ -108,21 +120,25 @@ final class CounterService
 
     private function savedSearchData(int $savedSearchId): ?array
     {
+        if (array_key_exists($savedSearchId, $this->savedSearchCache)) {
+            return $this->savedSearchCache[$savedSearchId];
+        }
+
         if ($savedSearchId <= 0 || !class_exists(\SavedSearch::class)) {
-            return null;
+            return $this->savedSearchCache[$savedSearchId] = null;
         }
 
         $savedSearch = new \SavedSearch();
         if (!$savedSearch->getFromDB($savedSearchId) || !$this->canUseSavedSearch($savedSearch)) {
-            return null;
+            return $this->savedSearchCache[$savedSearchId] = null;
         }
 
         $itemtype = (string) ($savedSearch->fields['itemtype'] ?? 'Ticket');
         if ($itemtype === '' || !class_exists($itemtype)) {
-            return null;
+            return $this->savedSearchCache[$savedSearchId] = null;
         }
 
-        return [
+        return $this->savedSearchCache[$savedSearchId] = [
             'itemtype' => $itemtype,
             'params' => $this->paramsFromQuery((string) ($savedSearch->fields['query'] ?? '')),
         ];
@@ -307,5 +323,50 @@ final class CounterService
         }
 
         return (string) ($definition['color'] ?? '#3b82f6');
+    }
+
+    private function getCachedCounters(array $definitions): ?array
+    {
+        global $GLPI_CACHE;
+
+        if (!isset($GLPI_CACHE) || !is_object($GLPI_CACHE) || !method_exists($GLPI_CACHE, 'get')) {
+            return null;
+        }
+
+        try {
+            $cached = $GLPI_CACHE->get($this->counterCacheKey($definitions));
+
+            return is_array($cached) ? $cached : null;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function cacheCounters(array $definitions, array $counters): void
+    {
+        global $GLPI_CACHE;
+
+        if (!isset($GLPI_CACHE) || !is_object($GLPI_CACHE) || !method_exists($GLPI_CACHE, 'set')) {
+            return;
+        }
+
+        try {
+            $GLPI_CACHE->set($this->counterCacheKey($definitions), $counters, self::CACHE_TTL);
+        } catch (\Throwable) {
+            // A cache failure must never make the header counters unavailable.
+        }
+    }
+
+    private function counterCacheKey(array $definitions): string
+    {
+        $context = [
+            'user' => $this->userId,
+            'profile' => (int) ($_SESSION['glpiactiveprofile']['id'] ?? 0),
+            'entities' => array_values((array) ($_SESSION['glpiactiveentities'] ?? [])),
+            'recursive' => (int) ($_SESSION['glpiactive_entity_recursive'] ?? 0),
+            'definitions' => $definitions,
+        ];
+
+        return 'brandpulse.counters.' . hash('sha256', (string) json_encode($context));
     }
 }

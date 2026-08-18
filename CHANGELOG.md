@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Cache contextual Pulse counter results for 15 seconds and stagger browser refreshes to reduce simultaneous GLPI searches.
+- Reuse saved-search data within each request instead of loading it twice.
+- Harden uploaded image validation with MIME checks and structured SVG inspection.
+- Add restrictive response headers for uploaded and bundled SVG assets.
+- Clarify GLPI 11 compatibility metadata and add automated PHP 8.2/8.4 quality checks.
+
 ## 0.1.39
 
 - Make the login background cover the full anonymous page and increase the login logo size.
