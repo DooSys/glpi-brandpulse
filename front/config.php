@@ -591,6 +591,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             isset($_POST['enabled']),
             (int) ($_POST['refresh_interval'] ?? 60),
             isset($_POST['compact_search_enabled']),
+            isset($_POST['hide_pulse_service_catalog']),
             $counters
         );
 
@@ -744,12 +745,16 @@ if ($tab === 'brand') {
     echo "<span class='brandpulse-option-label'><span class='brandpulse-search-option-icon' aria-hidden='true'></span><span>" . __s('Minimize the global search field to a magnifier icon', 'brandpulse') . '</span></span>';
     echo "<input class='form-check-input' id='compact_search_enabled' type='checkbox' name='compact_search_enabled' value='1'" . ($config['compact_search_enabled'] ? ' checked' : '') . '> ';
     echo '</label>';
+    echo "<label class='brandpulse-search-control'>";
+    echo "<span class='brandpulse-option-label'><i class='ti ti-layout-dashboard-off' aria-hidden='true'></i><span>" . __s('Hide Pulse in the service catalog', 'brandpulse') . '</span></span>';
+    echo "<input class='form-check-input' id='hide_pulse_service_catalog' type='checkbox' name='hide_pulse_service_catalog' value='1'" . ($config['hide_pulse_service_catalog'] ? ' checked' : '') . '> ';
+    echo '</label>';
     echo '</div>';
     echo '</div>';
 
     echo "<div class='card mb-3 brandpulse-pulse-card'>";
     echo "<div class='card-header brandpulse-pulse-toolbar'>";
-    echo "<div class='brandpulse-pulse-title'><strong>" . __s('Pulse', 'brandpulse') . "</strong><span class='badge bg-secondary' data-pulse-row-count>" . count($counters) . '</span></div>';
+    echo "<div class='brandpulse-pulse-title'><strong>" . __s('General Pulse', 'brandpulse') . "</strong><span class='badge bg-secondary' data-pulse-row-count>" . count($counters) . '</span></div>';
     echo "<div class='brandpulse-pulse-controls'>";
     echo "<button class='btn btn-outline-secondary brandpulse-pulse-action' type='button' data-pulse-add title='" . __s('Add Pulse counter', 'brandpulse') . "' aria-label='" . __s('Add Pulse counter', 'brandpulse') . "'><i class='ti ti-plus'></i></button>";
     echo "<button class='btn btn-primary brandpulse-pulse-action' type='submit'><i class='ti ti-device-floppy'></i><span>" . __s('Save', 'brandpulse') . '</span></button>';

@@ -59,6 +59,7 @@ final class Migrator
             $values['enabled'],
             $values['refresh_interval'],
             $values['compact_search_enabled'],
+            $values['hide_pulse_service_catalog'],
             $values['counters']
         );
     }

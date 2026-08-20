@@ -18,7 +18,7 @@ final class CounterService
         $this->userId = $userId ?? (int) ($_SESSION['glpiID'] ?? 0);
     }
 
-    public function getPayload(): array
+    public function getPayload(bool $isServiceCatalog = false): array
     {
         $config = Config::values();
 
@@ -27,6 +27,15 @@ final class CounterService
                 'enabled' => false,
                 'refresh_interval' => $config['refresh_interval'],
                 'compact_search_enabled' => false,
+                'counters' => [],
+            ];
+        }
+
+        if ($isServiceCatalog && $config['hide_pulse_service_catalog']) {
+            return [
+                'enabled' => false,
+                'refresh_interval' => $config['refresh_interval'],
+                'compact_search_enabled' => $config['compact_search_enabled'],
                 'counters' => [],
             ];
         }

@@ -129,6 +129,12 @@ msgstr "Medical"
 msgid "Minimize the global search field to a magnifier icon"
 msgstr "Minimize the global search field to a magnifier icon"
 
+msgid "Hide Pulse in the service catalog"
+msgstr "Hide Pulse in the service catalog"
+
+msgid "General Pulse"
+msgstr "General Pulse"
+
 msgid "My open tickets"
 msgstr "My open tickets"
 

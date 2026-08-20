@@ -25,7 +25,8 @@ try {
     Session::checkLoginUser();
 
     $service = new GlpiPlugin\Brandpulse\CounterService();
-    $payload = $service->getPayload();
+    $isServiceCatalog = filter_input(INPUT_GET, 'service_catalog', FILTER_VALIDATE_BOOL) === true;
+    $payload = $service->getPayload($isServiceCatalog);
 } catch (Throwable) {
     $payload['enabled'] = false;
 } finally {

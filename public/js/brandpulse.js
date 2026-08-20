@@ -16,6 +16,7 @@
   const iconIndexEndpoint = pluginBaseUrl + '/ajax/icons.php';
   const iconStaticIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';
   const iconAssetEndpoint = pluginBaseUrl + '/ajax/icon.php?file=';
+  const isServiceCatalogPage = () => /(?:^|\/)ServiceCatalog(?:\/|$)/i.test(window.location.pathname);
 
   const t = (message) => (typeof window.__ === 'function' ? window.__(message, 'brandpulse') : message);
   const isHtmlDocument = () => document.contentType.toLowerCase().includes('html')
@@ -991,7 +992,8 @@
 
   async function loadCounters() {
     try {
-      const response = await fetch(countersEndpoint, {
+      const endpoint = isServiceCatalogPage() ? countersEndpoint + '?service_catalog=1' : countersEndpoint;
+      const response = await fetch(endpoint, {
         credentials: 'same-origin',
         headers: {
           Accept: 'application/json',
@@ -1030,13 +1032,15 @@
     loadBranding();
 
     if (findHeaderTarget()) {
-      hydrateCachedPulse();
+      if (!isServiceCatalogPage()) {
+        hydrateCachedPulse();
+      }
       loadCounters();
     }
   };
 
   const observeHeaderForCachedPulse = () => {
-    if (!cachedPulsePayload() || hydrateCachedPulse()) {
+    if (isServiceCatalogPage() || !cachedPulsePayload() || hydrateCachedPulse()) {
       return;
     }
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.42
+
+- Add a default-enabled option to hide Pulse counters in the GLPI service catalog.
+- Rename the existing counter table to General Pulse in preparation for a dedicated service-catalog configuration.
+
 ## 0.1.41
 
 - Present Brand image groups as lighter collapsible sections and keep anchored headings below the GLPI header.
