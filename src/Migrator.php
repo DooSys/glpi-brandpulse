@@ -30,6 +30,10 @@ final class Migrator
             self::migrateTo013();
         }
 
+        if (version_compare($installedVersion, '0.1.43', '<')) {
+            self::migrateTo0143();
+        }
+
         Config::setSchemaVersion($targetVersion);
 
         return true;
@@ -50,6 +54,15 @@ final class Migrator
         self::normalizeStoredConfiguration();
     }
 
+    private static function migrateTo0143(): void
+    {
+        Profile::installRights();
+
+        if (method_exists(\Config::class, 'deleteConfigurationValues')) {
+            \Config::deleteConfigurationValues(Config::CONTEXT, ['hide_pulse_service_catalog']);
+        }
+    }
+
     private static function normalizeStoredConfiguration(): void
     {
         $values = Config::values();
@@ -59,7 +72,6 @@ final class Migrator
             $values['enabled'],
             $values['refresh_interval'],
             $values['compact_search_enabled'],
-            $values['hide_pulse_service_catalog'],
             $values['counters']
         );
     }

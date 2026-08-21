@@ -16,28 +16,17 @@
   const iconIndexEndpoint = pluginBaseUrl + '/ajax/icons.php';
   const iconStaticIndexEndpoint = pluginBaseUrl + '/icons/pulse/index.json';
   const iconAssetEndpoint = pluginBaseUrl + '/ajax/icon.php?file=';
-  const isServiceCatalogPage = () => /(?:^|\/)ServiceCatalog(?:\/|$)/i.test(window.location.pathname);
 
   const t = (message) => (typeof window.__ === 'function' ? window.__(message, 'brandpulse') : message);
   const isHtmlDocument = () => document.contentType.toLowerCase().includes('html')
     && document.documentElement?.nodeName?.toLowerCase() === 'html';
   let refreshTimer = null;
-  const pulseCacheKey = 'brandpulse:pulse-payload:v1';
-  const pulseCacheMaxAge = 30 * 60 * 1000;
   const brandingCacheKey = 'brandpulse:branding-payload:v1';
   const brandingCacheMaxAge = 30 * 60 * 1000;
 
-  const pulseCacheStorage = () => {
+  const cacheStorage = () => {
     try {
       return window.localStorage || window.sessionStorage || null;
-    } catch (error) {
-      return null;
-    }
-  };
-
-  const readPulseCacheRecord = () => {
-    try {
-      return JSON.parse(pulseCacheStorage()?.getItem(pulseCacheKey) || 'null');
     } catch (error) {
       return null;
     }
@@ -240,47 +229,14 @@
     return html.join('');
   };
 
-  const cachePulsePayload = (payload) => {
-    try {
-      if (!payload?.enabled || !Array.isArray(payload.counters)) {
-        pulseCacheStorage()?.removeItem(pulseCacheKey);
-        return;
-      }
-
-      pulseCacheStorage()?.setItem(pulseCacheKey, JSON.stringify({
-        payload,
-        stored_at: Date.now(),
-      }));
-    } catch (error) {
-      window.console?.debug?.(t('BrandPulse counters unavailable'), error);
-    }
-  };
-
-  const cachedPulsePayload = () => {
-    try {
-      const cached = readPulseCacheRecord();
-      if (!cached?.payload?.enabled || !Array.isArray(cached.payload.counters)) {
-        return null;
-      }
-      if (Date.now() - Number(cached.stored_at || 0) > pulseCacheMaxAge) {
-        pulseCacheStorage()?.removeItem(pulseCacheKey);
-        return null;
-      }
-
-      return cached.payload;
-    } catch (error) {
-      return null;
-    }
-  };
-
   const cacheBrandingPayload = (payload) => {
     try {
       if (!payload?.branding?.enabled) {
-        pulseCacheStorage()?.removeItem(brandingCacheKey);
+        cacheStorage()?.removeItem(brandingCacheKey);
         return;
       }
 
-      pulseCacheStorage()?.setItem(brandingCacheKey, JSON.stringify({
+      cacheStorage()?.setItem(brandingCacheKey, JSON.stringify({
         payload,
         stored_at: Date.now(),
       }));
@@ -291,12 +247,12 @@
 
   const cachedBrandingPayload = () => {
     try {
-      const cached = JSON.parse(pulseCacheStorage()?.getItem(brandingCacheKey) || 'null');
+      const cached = JSON.parse(cacheStorage()?.getItem(brandingCacheKey) || 'null');
       if (!cached?.payload?.branding?.enabled) {
         return null;
       }
       if (Date.now() - Number(cached.stored_at || 0) > brandingCacheMaxAge) {
-        pulseCacheStorage()?.removeItem(brandingCacheKey);
+        cacheStorage()?.removeItem(brandingCacheKey);
         return null;
       }
 
@@ -468,18 +424,6 @@
     payload.counters.forEach((counter, index) => {
       container.append(renderCounter(counter, index));
     });
-  };
-
-  const hydrateCachedPulse = () => {
-    const cachedPayload = cachedPulsePayload();
-    if (!cachedPayload || !findHeaderTarget()) {
-      return false;
-    }
-
-    setupCompactSearch(cachedPayload.compact_search_enabled);
-    render(cachedPayload);
-
-    return true;
   };
 
   const applyBranding = (payload) => {
@@ -901,7 +845,7 @@
     form.dataset.brandpulseBrandCacheReady = '1';
     form.addEventListener('submit', () => {
       if (!enabledToggle.checked) {
-        pulseCacheStorage()?.removeItem(brandingCacheKey);
+        cacheStorage()?.removeItem(brandingCacheKey);
       }
     });
   };
@@ -992,8 +936,7 @@
 
   async function loadCounters() {
     try {
-      const endpoint = isServiceCatalogPage() ? countersEndpoint + '?service_catalog=1' : countersEndpoint;
-      const response = await fetch(endpoint, {
+      const response = await fetch(countersEndpoint, {
         credentials: 'same-origin',
         headers: {
           Accept: 'application/json',
@@ -1005,7 +948,6 @@
       }
 
       const payload = await response.json();
-      cachePulsePayload(payload);
       setupCompactSearch(payload.compact_search_enabled);
       render(payload);
       scheduleRefresh(payload);
@@ -1018,6 +960,8 @@
     if (!isHtmlDocument()) {
       return;
     }
+
+    cacheStorage()?.removeItem('brandpulse:pulse-payload:v1');
 
     setupPulseTargets();
     setupPulseTableControls();
@@ -1032,32 +976,9 @@
     loadBranding();
 
     if (findHeaderTarget()) {
-      if (!isServiceCatalogPage()) {
-        hydrateCachedPulse();
-      }
       loadCounters();
     }
   };
-
-  const observeHeaderForCachedPulse = () => {
-    if (isServiceCatalogPage() || !cachedPulsePayload() || hydrateCachedPulse()) {
-      return;
-    }
-
-    const observer = new MutationObserver(() => {
-      if (hydrateCachedPulse()) {
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-    });
-    window.addEventListener('load', () => observer.disconnect(), { once: true });
-  };
-
-  observeHeaderForCachedPulse();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot, { once: true });

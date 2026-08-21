@@ -61,6 +61,7 @@ Image à ajouter : page de login personnalisée
 - Définir des seuils warning et critical.
 - Régler l'intervalle de rafraîchissement.
 - Réduire la recherche globale GLPI à une icône loupe.
+- Autoriser l'affichage de Pulse profil par profil depuis l'onglet BrandPulse des profils GLPI.
 
 ### Installation
 
@@ -145,6 +146,7 @@ Image to add: customised login page
 - Define warning and critical thresholds.
 - Set the refresh interval.
 - Collapse the global GLPI search field into a magnifier icon.
+- Allow General Pulse visibility profile by profile from the BrandPulse tab in GLPI profiles.
 
 ### Installation
 

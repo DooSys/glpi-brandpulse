@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.43
+
+- Replace URL-based Pulse visibility with the native GLPI profile right "Display General Pulse".
+- Grant the new right by default to central profiles and deny it by default to helpdesk profiles.
+- Check the profile right before calculating counters and allow the authenticated endpoint in both GLPI interfaces.
+- Remove browser-side counter hydration so counters from a previous account or profile can never flash in another session.
+
 ## 0.1.42
 
 - Add a default-enabled option to hide Pulse counters in the GLPI service catalog.

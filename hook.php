@@ -51,6 +51,10 @@ function plugin_brandpulse_uninstall(): bool
 {
     plugin_brandpulse_require_autoload();
 
+    if (class_exists(GlpiPlugin\Brandpulse\Profile::class)) {
+        GlpiPlugin\Brandpulse\Profile::uninstallRights();
+    }
+
     if (class_exists(GlpiPlugin\Brandpulse\Config::class)) {
         GlpiPlugin\Brandpulse\Config::uninstall();
     }

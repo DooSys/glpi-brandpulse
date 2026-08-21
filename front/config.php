@@ -591,7 +591,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             isset($_POST['enabled']),
             (int) ($_POST['refresh_interval'] ?? 60),
             isset($_POST['compact_search_enabled']),
-            isset($_POST['hide_pulse_service_catalog']),
             $counters
         );
 
@@ -745,12 +744,14 @@ if ($tab === 'brand') {
     echo "<span class='brandpulse-option-label'><span class='brandpulse-search-option-icon' aria-hidden='true'></span><span>" . __s('Minimize the global search field to a magnifier icon', 'brandpulse') . '</span></span>';
     echo "<input class='form-check-input' id='compact_search_enabled' type='checkbox' name='compact_search_enabled' value='1'" . ($config['compact_search_enabled'] ? ' checked' : '') . '> ';
     echo '</label>';
-    echo "<label class='brandpulse-search-control'>";
-    echo "<span class='brandpulse-option-label'><i class='ti ti-layout-dashboard-off' aria-hidden='true'></i><span>" . __s('Hide Pulse in the service catalog', 'brandpulse') . '</span></span>';
-    echo "<input class='form-check-input' id='hide_pulse_service_catalog' type='checkbox' name='hide_pulse_service_catalog' value='1'" . ($config['hide_pulse_service_catalog'] ? ' checked' : '') . '> ';
-    echo '</label>';
     echo '</div>';
     echo '</div>';
+
+    echo "<div class='alert alert-info d-flex align-items-start gap-2' role='status'>";
+    echo "<i class='ti ti-shield-check mt-1' aria-hidden='true'></i><div>";
+    echo '<strong>' . __s('Profile-based visibility', 'brandpulse') . '</strong><br>';
+    echo __s('General Pulse visibility is managed from the BrandPulse tab of each GLPI profile.', 'brandpulse');
+    echo '</div></div>';
 
     echo "<div class='card mb-3 brandpulse-pulse-card'>";
     echo "<div class='card-header brandpulse-pulse-toolbar'>";

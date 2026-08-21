@@ -6,10 +6,11 @@ use Glpi\Http\Firewall;
 use Glpi\Plugin\Hooks;
 use GlpiPlugin\Brandpulse\Config as BrandpulseConfig;
 use GlpiPlugin\Brandpulse\Menu as BrandpulseMenu;
+use GlpiPlugin\Brandpulse\Profile as BrandpulseProfile;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_BRANDPULSE_VERSION = '0.1.42';
+const PLUGIN_BRANDPULSE_VERSION = '0.1.43';
 const PLUGIN_BRANDPULSE_MIN_GLPI = '11.0.0';
 const PLUGIN_BRANDPULSE_MAX_GLPI = '12.0.0';
 const PLUGIN_BRANDPULSE_MIN_PHP = '8.2.0';
@@ -39,13 +40,15 @@ function plugin_init_brandpulse(): void
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/front/config\.php$#', Firewall::STRATEGY_CENTRAL_ACCESS);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/front/asset\.php$#', Firewall::STRATEGY_NO_CHECK);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/front/branding\.css\.php$#', Firewall::STRATEGY_NO_CHECK);
-        Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/counters\.php$#', Firewall::STRATEGY_CENTRAL_ACCESS);
+        Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/counters\.php$#', Firewall::STRATEGY_AUTHENTICATED);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/branding\.php$#', Firewall::STRATEGY_NO_CHECK);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/icons\.php$#', Firewall::STRATEGY_CENTRAL_ACCESS);
         Firewall::addPluginStrategyForLegacyScripts('brandpulse', '#^/ajax/icon\.php$#', Firewall::STRATEGY_NO_CHECK);
     }
 
     if (class_exists(Plugin::class) && Plugin::isPluginActive('brandpulse')) {
+        Plugin::registerClass(BrandpulseProfile::class, ['addtabon' => [Profile::class]]);
+
         $PLUGIN_HOOKS[Hooks::ADD_CSS]['brandpulse'][] = 'css/brandpulse.css';
         $PLUGIN_HOOKS[Hooks::ADD_CSS]['brandpulse'][] = 'front/branding.css.php';
 

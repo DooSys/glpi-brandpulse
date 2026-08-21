@@ -53,7 +53,6 @@ final class Config
         $values = self::rawValues();
 
         $values['enabled'] = (bool) (int) $values['enabled'];
-        $values['hide_pulse_service_catalog'] = (bool) (int) $values['hide_pulse_service_catalog'];
         $values['compact_search_enabled'] = (bool) (int) $values['compact_search_enabled'];
         $values['refresh_interval'] = max(15, (int) $values['refresh_interval']);
         $values['branding'] = self::normalizeBranding(
@@ -98,7 +97,6 @@ final class Config
         bool $enabled,
         int $refreshInterval,
         bool $compactSearchEnabled,
-        bool $hidePulseServiceCatalog,
         array $counters
     ): void
     {
@@ -106,18 +104,8 @@ final class Config
             'enabled' => $enabled ? '1' : '0',
             'refresh_interval' => (string) max(15, $refreshInterval),
             'compact_search_enabled' => $compactSearchEnabled ? '1' : '0',
-            'hide_pulse_service_catalog' => $hidePulseServiceCatalog ? '1' : '0',
             'counters_json' => self::encodeJson(self::normalizeCounters($counters)),
         ]);
-    }
-
-    public static function isPulseAllowedInCurrentContext(): bool
-    {
-        if (!class_exists(\Session::class) || !method_exists(\Session::class, 'getCurrentInterface')) {
-            return false;
-        }
-
-        return \Session::getCurrentInterface() === 'central';
     }
 
     public static function isValidJsonArray(string $json): bool
@@ -133,7 +121,6 @@ final class Config
             'enabled' => '1',
             'refresh_interval' => '60',
             'compact_search_enabled' => '0',
-            'hide_pulse_service_catalog' => '1',
             'pulse_interface' => 'central',
             'branding_json' => self::encodeJson(self::defaultBranding()),
             'counters_json' => self::encodeJson(self::defaultCounters()),
